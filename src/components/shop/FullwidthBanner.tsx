@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 interface FullwidthBannerProps {
   image: string;
@@ -20,10 +21,11 @@ export function FullwidthBanner({
   return (
     <section className="relative w-full h-[80vh] min-h-[500px] max-h-[900px] overflow-hidden">
       {/* Background */}
-      <img
+      <CloudinaryImage
         src={image}
         alt={title}
-        className="absolute inset-0 w-full h-full object-cover"
+        fill
+        className="absolute inset-0 object-cover"
       />
       {/* Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

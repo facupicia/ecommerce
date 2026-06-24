@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { ShopProduct, CssbuyOrder } from "@/lib/types";
 import { uid } from "@/lib/utils";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 export default function AdminProductosPage() {
   const [products, setProducts] = useState<ShopProduct[]>([]);
@@ -265,11 +266,14 @@ export default function AdminProductosPage() {
                       <td className="py-2 px-4">
                         <div className="flex items-center gap-2">
                           {item.imagen && (
-                            <img
-                              src={item.imagen}
-                              alt=""
-                              className="w-8 h-8 rounded object-cover bg-muted flex-shrink-0"
-                            />
+                            <div className="relative w-8 h-8 rounded overflow-hidden bg-muted flex-shrink-0">
+                              <CloudinaryImage
+                                src={item.imagen}
+                                alt=""
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
                           )}
                           <div>
                             <p className="font-medium line-clamp-1">
@@ -369,11 +373,14 @@ export default function AdminProductosPage() {
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         {product.fotos?.[0] && (
-                          <img
-                            src={product.fotos[0]}
-                            alt=""
-                            className="w-10 h-10 rounded-lg object-cover bg-muted flex-shrink-0"
-                          />
+                          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                            <CloudinaryImage
+                              src={product.fotos[0]}
+                              alt=""
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
                         )}
                         <div>
                           <Link

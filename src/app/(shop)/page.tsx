@@ -1,5 +1,6 @@
 import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
+import { getCloudinaryUrl } from "@/lib/cloudinary";
 import { HeroCarousel } from "@/components/shop/HeroCarousel";
 import { ProductCarousel } from "@/components/shop/ProductCarousel";
 import { FullwidthBanner } from "@/components/shop/FullwidthBanner";
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 const heroSlides = [
   {
     id: "1",
-    image: "/img/Gemini_Generated_Image_ne7ss5ne7ss5ne7s (2).png",
+    image: "ecommerce/banners/hero-1",
     title: "",
     subtitle:
       "No solo seguimos las tendencias, las creamos. Tenemos las prendas más exclusivas del momento para quienes no se conforman con lo común.",
@@ -50,7 +51,7 @@ export default async function ShopHomePage() {
     "name": "THEPLUG",
     "url": siteUrl,
     "logo": `${siteUrl}/favicon.ico`,
-    "image": `${siteUrl}/img/Gemini_Generated_Image_mx9i5gmx9i5gmx9i.png`,
+    "image": getCloudinaryUrl("ecommerce/banners/final-1", { width: 1200 }),
     "description": "Ropa importada premium. El mejor style streetwear desde Rosario a todo el país.",
     "address": {
       "@type": "PostalAddress",
@@ -81,7 +82,7 @@ export default async function ShopHomePage() {
 
       {/* 3. Fullwidth editorial banner */}
       <FullwidthBanner
-        image="/img/Gemini_Generated_Image_h45s2oh45s2oh45s (1).png"
+        image="ecommerce/banners/editorial-1"
         title=""
         description=""
       />
@@ -95,7 +96,7 @@ export default async function ShopHomePage() {
 
       {/* 5. Final fullwidth banner */}
       <FullwidthBanner
-        image="/img/Gemini_Generated_Image_mx9i5gmx9i5gmx9i.png"
+        image="ecommerce/banners/final-1"
         title=""
         description="Una mirada diferente sobre el ready-to-wear, con fabricaciones únicas y un enfoque sin marcas."
         primaryCta={{ label: "Shop now", href: "/categorias" }}

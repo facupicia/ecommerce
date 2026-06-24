@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 function formatPrice(ars: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -55,13 +56,14 @@ export default function CartPage() {
             >
               <Link
                 href={`/producto/${item.slug}`}
-                className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-[#f5f5f5] overflow-hidden"
+                className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-[#f5f5f5] overflow-hidden"
               >
                 {item.imagen ? (
-                  <img
+                  <CloudinaryImage
                     src={item.imagen}
                     alt={item.nombre}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">

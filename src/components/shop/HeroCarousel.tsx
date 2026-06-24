@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 interface Slide {
   id: string;
@@ -80,10 +81,12 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
               }`}
             >
               {/* Background image with slow zoom effect */}
-              <img
+              <CloudinaryImage
                 src={slide.image}
                 alt={slide.title || "Slide"}
-                className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[8000ms] ease-out ${
+                fill
+                priority
+                className={`absolute inset-0 object-cover transition-transform duration-[8000ms] ease-out ${
                   isActive ? "scale-105" : "scale-100"
                 }`}
               />

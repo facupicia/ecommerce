@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
+import { getCloudinaryUrl } from "@/lib/cloudinary";
 import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
 import { ProductImageGallery } from "@/components/shop/ProductImageGallery";
 import { ProductDetailTabs } from "@/components/shop/ProductDetailTabs";
@@ -36,9 +37,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     : `Compra ${p.nombre} en THEPLUG. Ropa importada premium en Rosario, Argentina.`;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
-  const ogImages = p.fotos && p.fotos.length > 0
-    ? [{ url: p.fotos[0], width: 800, height: 1000, alt: p.nombre }]
-    : [];
+  const ogImages =
+    p.fotos && p.fotos.length > 0
+      ? p.fotos.map((foto) => {
+          const url = getCloudinaryUrl(foto, {
+            width: 800,
+            height: 1000,
+            crop: "fill",
+          });
+          return {
+            url: url.startsWith("http") ? url : `${siteUrl}${url}`,
+            width: 800,
+            height: 1000,
+            alt: p.nombre,
+          };
+        })
+      : [];
 
   return {
     title,
@@ -177,7 +191,17 @@ export default async function ProductDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": p.nombre,
-    "image": p.fotos && p.fotos.length > 0 ? p.fotos : [`${siteUrl}/favicon.ico`],
+    "image":
+      p.fotos && p.fotos.length > 0
+        ? p.fotos.map((foto) => {
+            const url = getCloudinaryUrl(foto, {
+              width: 800,
+              height: 1000,
+              crop: "fill",
+            });
+            return url.startsWith("http") ? url : `${siteUrl}${url}`;
+          })
+        : [`${siteUrl}/favicon.ico`],
     "description": p.descripcion || `Compra ${p.nombre} en THEPLUG.`,
     "sku": p.id.slice(0, 8).toUpperCase(),
     "brand": {

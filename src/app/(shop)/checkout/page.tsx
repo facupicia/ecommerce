@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import Link from "next/link";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 function formatPrice(ars: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -266,12 +267,13 @@ export default function CheckoutPage() {
             <div className="space-y-4">
               {items.map((item) => (
                 <div key={item.product_id} className="flex items-center gap-3">
-                  <div className="w-12 h-12 flex-shrink-0 bg-[#d9d9d9] overflow-hidden">
+                  <div className="relative w-12 h-12 flex-shrink-0 bg-[#d9d9d9] overflow-hidden">
                     {item.imagen ? (
-                      <img
+                      <CloudinaryImage
                         src={item.imagen}
                         alt={item.nombre}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#1a1a1a]">

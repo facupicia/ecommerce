@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 interface ProductImageGalleryProps {
   fotos: string[];
@@ -36,17 +37,18 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
             <button
               key={i}
               onClick={() => setSelected(i)}
-              className={`aspect-square bg-[#f5f5f5] overflow-hidden border transition-colors ${
+              className={`relative aspect-square bg-[#f5f5f5] overflow-hidden border transition-colors ${
                 selected === i
                   ? "border-[#1a1a1a]"
                   : "border-transparent hover:border-[var(--plug-gray)]"
               }`}
               aria-label={`Ver imagen ${i + 1} de ${nombre}`}
             >
-              <img
+              <CloudinaryImage
                 src={foto}
                 alt={`${nombre} ${i + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </button>
           ))}
@@ -55,13 +57,15 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
 
       {/* Main image */}
       <div className="flex-1 min-w-0">
-        <div className="aspect-square bg-[#f5f5f5] overflow-hidden border border-[#ebebeb] rounded-sm">
+        <div className="relative aspect-square bg-[#f5f5f5] overflow-hidden border border-[#ebebeb] rounded-sm">
           {validFotos.length > 0 ? (
-            <img
+            <CloudinaryImage
               key={selected}
               src={validFotos[selected]}
               alt={nombre}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105 cursor-zoom-in"
+              fill
+              priority
+              className="object-cover transition-transform duration-700 ease-out hover:scale-105 cursor-zoom-in"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">
@@ -77,17 +81,18 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
               <button
                 key={i}
                 onClick={() => setSelected(i)}
-                className={`flex-shrink-0 w-16 aspect-square bg-[#f5f5f5] overflow-hidden border transition-colors ${
+                className={`relative flex-shrink-0 w-16 aspect-square bg-[#f5f5f5] overflow-hidden border transition-colors ${
                   selected === i
                     ? "border-[#1a1a1a]"
                     : "border-transparent"
                 }`}
                 aria-label={`Ver imagen ${i + 1} de ${nombre}`}
               >
-                <img
+                <CloudinaryImage
                   src={foto}
                   alt={`${nombre} ${i + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </button>
             ))}

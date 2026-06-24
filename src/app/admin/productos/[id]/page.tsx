@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { ShopProduct } from "@/lib/types";
 import { uid } from "@/lib/utils";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 export default function AdminProductEditPage() {
   const params = useParams();
@@ -434,26 +435,15 @@ export default function AdminProductEditPage() {
           <label className="block text-xs font-medium text-muted-foreground mb-1.5">
             Fotos
           </label>
-          <div className="space-y-2">
-            {product.fotos && product.fotos.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {product.fotos.map((url, i) => (
-                  <div key={i} className="relative group">
-                    <img
-                      src={url}
-                      alt={`Foto ${i + 1}`}
-                      className="w-16 h-16 rounded-lg object-cover bg-muted"
-                    />
-                    <button
-                      onClick={() => removePhoto(i)}
-                      className="absolute -top-1.5 -right-1.5 p-0.5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <ImageUploader
+            images={product.fotos || []}
+            onChange={(fotos) => updateField("fotos", fotos)}
+            folder={`ecommerce/productos/${product.id}`}
+          />
+          <div className="mt-3 pt-3 border-t border-border">
+            <p className="text-xs text-muted-foreground mb-2">
+              O agregá una URL externa
+            </p>
             <div className="flex gap-2">
               <input
                 type="url"
@@ -465,7 +455,7 @@ export default function AdminProductEditPage() {
                     addPhoto();
                   }
                 }}
-                placeholder="URL de la imagen"
+                placeholder="https://..."
                 className="flex-1 bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50"
               />
               <button

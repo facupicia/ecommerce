@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import type { ShopProduct } from "@/lib/types";
 import { useCart } from "@/lib/cart";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 interface ProductCarouselProps {
   title: string;
@@ -161,12 +162,13 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
               >
                 {/* Imagen */}
                 <div className="aspect-[3/4] bg-[#f5f5f5] relative overflow-hidden mb-3 shadow-xs">
-                  <Link href={`/producto/${product.slug}`} className="block w-full h-full">
+                  <Link href={`/producto/${product.slug}`} className="block relative w-full h-full">
                     {product.fotos && product.fotos.length > 0 ? (
-                      <img
+                      <CloudinaryImage
                         src={product.fotos[0]}
                         alt={product.nombre}
-                        className="w-full h-full object-cover plug-img-hover"
+                        fill
+                        className="object-cover plug-img-hover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">
