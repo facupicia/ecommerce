@@ -92,7 +92,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-16">
               <div className="max-w-2xl">
-                <h2 className="kith-font-serif text-3xl sm:text-5xl lg:text-6xl text-white mb-3 drop-shadow-sm">
+                <h2 className="plug-font-serif text-3xl sm:text-5xl lg:text-6xl text-white mb-3 drop-shadow-sm">
                   {slide.title}
                 </h2>
                 <p className="text-[13px] sm:text-[15px] text-white/90 leading-relaxed mb-6 max-w-lg drop-shadow-sm">

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TIENDA — Productos importados",
-  description: "Comprá productos importados con envío a todo el país.",
+  title: "THEPLUG — Rosario, Argentina",
+  description: "Ropa importada. Style desde Rosario al país.",
 };
 
 export default function RootLayout({

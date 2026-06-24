@@ -56,7 +56,7 @@ export function Header() {
             href="/"
             className="inline-block px-1.5 py-0.5 bg-[#333333] text-white text-[14px] sm:text-[16px] font-bold uppercase tracking-[0.15em] hover:bg-[#828282] transition-colors"
           >
-            TIENDA
+            THEPLUG
           </Link>
 
           {/* Right — icons */}
@@ -76,7 +76,7 @@ export function Header() {
           <div className="fixed inset-y-0 left-0 z-50 w-[300px] max-w-[80vw] bg-white shadow-xl flex flex-col">
             <div className="flex items-center justify-between h-[60px] px-4 border-b border-[#d9d9d9]">
               <span className="inline-block px-1.5 py-0.5 bg-[#333333] text-white text-sm font-bold uppercase tracking-[0.15em]">
-                TIENDA
+                THEPLUG
               </span>
               <button
                 onClick={() => setMenuOpen(false)}

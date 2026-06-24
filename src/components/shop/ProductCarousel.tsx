@@ -37,7 +37,7 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
     <section className="py-14 lg:py-20 bg-white">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="kith-font-serif text-2xl sm:text-3xl text-[#333333]">
+          <h2 className="plug-font-serif text-2xl sm:text-3xl text-[#1a1a1a]">
             {title}
           </h2>
           <div className="hidden sm:flex items-center gap-2">
@@ -133,7 +133,7 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
                   {product.categoria}
                 </p>
               )}
-              <h3 className="kith-font-serif text-[13px] sm:text-[14px] leading-snug text-[#333333] group-hover:text-[#828282] transition-colors line-clamp-2">
+              <h3 className="plug-font-serif text-[13px] sm:text-[14px] leading-snug text-[#1a1a1a] group-hover:text-[#777777] transition-colors line-clamp-2">
                 {product.nombre}
               </h3>
               <div className="flex items-baseline gap-2">

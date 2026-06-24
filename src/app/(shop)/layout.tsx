@@ -4,8 +4,8 @@ import { Footer } from "@/components/shop/Footer";
 import "@/app/shop.css";
 
 export const metadata = {
-  title: "TIENDA — Productos importados",
-  description: "Comprá productos importados con envío a todo el país.",
+  title: "THEPLUG — Rosario, Argentina",
+  description: "Ropa importada. Style desde Rosario al país.",
 };
 
 export default function ShopLayout({

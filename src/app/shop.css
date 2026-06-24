@@ -1,93 +1,186 @@
-/* Shop light theme — Kith-inspired minimal editorial aesthetic */
+/* THEPLUG — Kith-inspired minimal editorial aesthetic */
 .shop-layout {
   --background: #ffffff;
-  --foreground: #333333;
+  --foreground: #1a1a1a;
   --card: #ffffff;
-  --card-foreground: #333333;
+  --card-foreground: #1a1a1a;
   --border: #d9d9d9;
-  --secondary: #f2f2f2;
-  --secondary-foreground: #333333;
-  --muted: #f2f2f2;
-  --muted-foreground: #828282;
-  --accent: #f2f2f2;
-  --accent-foreground: #333333;
-  --primary: #333333;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #1a1a1a;
+  --muted: #f5f5f5;
+  --muted-foreground: #777777;
+  --accent: #f5f5f5;
+  --accent-foreground: #1a1a1a;
+  --primary: #1a1a1a;
   --primary-foreground: #ffffff;
-  --destructive: #ef4444;
+  --destructive: #e53e3e;
 
-  /* Kith tokens */
-  --kith-black: #333333;
-  --kith-white: #ffffff;
-  --kith-gray: #828282;
-  --kith-border: #d9d9d9;
-  --kith-footer: #f2f2f2;
-  --kith-bg: #ffffff;
+  /* THEPLUG tokens */
+  --plug-black: #1a1a1a;
+  --plug-white: #ffffff;
+  --plug-gray: #777777;
+  --plug-light-gray: #ebebeb;
+  --plug-border: #d9d9d9;
+  --plug-footer: #f5f5f5;
+  --plug-bg: #ffffff;
   --font-serif: Georgia, "Times New Roman", serif;
 
-  background: var(--kith-bg);
-  color: var(--kith-black);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--plug-bg);
+  color: var(--plug-black);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .shop-layout a {
   color: inherit;
+  text-decoration: none;
 }
 
-/* Kith-style utility classes */
-.kith-text {
-  color: var(--kith-black);
-}
-
-.kith-text-muted {
-  color: var(--kith-gray);
-}
-
-.kith-border {
-  border-color: var(--kith-border);
-}
-
-.kith-bg-footer {
-  background-color: var(--kith-footer);
-}
-
-.kith-font-serif {
+/* Typography */
+.shop-layout h1, .shop-layout h2, .shop-layout h3 {
   font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
-/* Button variants */
-.kith-btn {
+.plug-font-serif {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+/* Utility classes */
+.plug-text { color: var(--plug-black); }
+.plug-text-muted { color: var(--plug-gray); }
+.plug-border { border-color: var(--plug-border); }
+.plug-bg-footer { background-color: var(--plug-footer); }
+
+/* Buttons */
+.plug-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-width: 7.5rem;
+  min-width: 8rem;
   padding: 0.75rem 1.5rem;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  border: 1px solid var(--kith-black);
-  background: var(--kith-white);
-  color: var(--kith-black);
-  transition: all 0.2s ease-in-out;
+  border: 1.5px solid var(--plug-black);
+  background: var(--plug-white);
+  color: var(--plug-black);
+  transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  cursor: pointer;
 }
 
-.kith-btn:hover {
-  background: var(--kith-black);
-  color: var(--kith-white);
+.plug-btn:hover {
+  background: var(--plug-black);
+  color: var(--plug-white);
 }
 
-.kith-btn-dark {
-  background: var(--kith-black);
-  color: var(--kith-white);
+.plug-btn-dark {
+  background: var(--plug-black);
+  color: var(--plug-white);
 }
 
-.kith-btn-dark:hover {
-  background: var(--kith-white);
-  color: var(--kith-black);
+.plug-btn-dark:hover {
+  background: var(--plug-white);
+  color: var(--plug-black);
 }
 
-.kith-btn:disabled {
-  opacity: 0.5;
+.plug-btn:disabled,
+.plug-btn-dark:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
+}
+
+/* Hover effects */
+.plug-img-hover {
+  transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.plug-img-hover:hover {
+  transform: scale(1.04);
+}
+
+/* Link underline animation */
+.plug-link-underline {
+  position: relative;
+}
+
+.plug-link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+
+.plug-link-underline:hover::after {
+  width: 100%;
+}
+
+/* Stagger animation for grids */
+@keyframes plugFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.plug-fade-up {
+  animation: plugFadeUp 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+}
+
+.plug-stagger-1 { animation-delay: 0ms; }
+.plug-stagger-2 { animation-delay: 80ms; }
+.plug-stagger-3 { animation-delay: 160ms; }
+.plug-stagger-4 { animation-delay: 240ms; }
+.plug-stagger-5 { animation-delay: 320ms; }
+.plug-stagger-6 { animation-delay: 400ms; }
+.plug-stagger-7 { animation-delay: 480ms; }
+.plug-stagger-8 { animation-delay: 560ms; }
+
+/* Badge */
+.plug-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.125rem 0.5rem;
+  border-radius: 2px;
+}
+
+.plug-badge-sale {
+  background: #e53e3e;
+  color: #ffffff;
+}
+
+.plug-badge-new {
+  background: var(--plug-black);
+  color: var(--plug-white);
+}
+
+.plug-badge-oot {
+  background: #f5f5f5;
+  color: var(--plug-gray);
+  border: 1px solid var(--plug-border);
+}
+
+/* Tag — for categories */
+.plug-tag {
+  font-size: 0.5625rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--plug-gray);
 }
