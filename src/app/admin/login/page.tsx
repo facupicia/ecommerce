@@ -24,10 +24,14 @@ function LoginForm() {
         body: JSON.stringify({ password }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
+        // Set cookie client-side for middleware
+        document.cookie = `admin_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
         router.push(redirect);
       } else {
-        setError("Contraseña incorrecta");
+        setError(data.error || "Contraseña incorrecta");
       }
     } catch {
       setError("Error de conexión");
