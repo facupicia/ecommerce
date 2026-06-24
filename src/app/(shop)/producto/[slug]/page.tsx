@@ -152,15 +152,20 @@ export default async function ProductDetailPage({ params }: Props) {
             </h1>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3 mb-8 pb-8 border-b border-[#d9d9d9]">
+            <div className="flex items-center gap-3 mb-8 pb-8 border-b border-[#d9d9d9]">
               <span className="text-xl sm:text-2xl font-medium text-[#333333]">
                 {formatPrice(p.precio_ars)}
               </span>
               {p.precio_original_ars &&
                 p.precio_original_ars > p.precio_ars && (
-                  <span className="text-base text-[#828282] line-through">
-                    {formatPrice(p.precio_original_ars)}
-                  </span>
+                  <>
+                    <span className="text-base text-[#828282] line-through">
+                      {formatPrice(p.precio_original_ars)}
+                    </span>
+                    <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                      -{Math.round(((p.precio_original_ars - p.precio_ars) / p.precio_original_ars) * 100)}%
+                    </span>
+                  </>
                 )}
             </div>
 

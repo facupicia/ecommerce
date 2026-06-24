@@ -75,9 +75,21 @@ export function ProductGrid({ title, products }: ProductGridProps) {
                 <h3 className="kith-font-serif text-[13px] sm:text-[14px] leading-snug text-[#333333] group-hover:text-[#828282] transition-colors line-clamp-2">
                   {product.nombre}
                 </h3>
-                <p className="text-[12px] sm:text-[13px] font-medium text-[#333333]">
-                  {formatPrice(product.precio_ars)}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-[12px] sm:text-[13px] font-medium text-[#333333]">
+                    {formatPrice(product.precio_ars)}
+                  </p>
+                  {product.precio_original_ars && product.precio_original_ars > product.precio_ars && (
+                    <>
+                      <p className="text-[11px] sm:text-[12px] text-[#999999] line-through">
+                        {formatPrice(product.precio_original_ars)}
+                      </p>
+                      <span className="text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">
+                        -{Math.round(((product.precio_original_ars - product.precio_ars) / product.precio_original_ars) * 100)}%
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </Link>
           ))}

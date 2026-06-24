@@ -30,6 +30,8 @@ export default function AdminProductEditPage() {
     fotos: [],
     categoria: "",
     stock: 0,
+    talles: [],
+    color: "",
     publicado: false,
     cssbuy_oid: null,
     peso_g: 0,
@@ -308,21 +310,46 @@ export default function AdminProductEditPage() {
             />
           </div>
 
-          {/* Peso */}
+          {/* Color */}
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-              Peso (g)
+              Color
             </label>
             <input
-              type="number"
-              min="0"
-              value={product.peso_g || ""}
-              onChange={(e) =>
-                updateField("peso_g", parseInt(e.target.value) || 0)
-              }
-              className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/50"
+              type="text"
+              value={product.color || ""}
+              onChange={(e) => updateField("color", e.target.value)}
+              placeholder="Ej: Negro, Blanco, Azul..."
+              className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50"
             />
           </div>
+        </div>
+
+        {/* Talles */}
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            Talles disponibles
+          </label>
+          <TallesEditor
+            talles={product.talles || []}
+            onChange={(talles) => updateField("talles", talles)}
+          />
+        </div>
+
+        {/* Peso */}
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            Peso (g)
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={product.peso_g || ""}
+            onChange={(e) =>
+              updateField("peso_g", parseInt(e.target.value) || 0)
+            }
+            className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/50"
+          />
         </div>
 
         {/* Publicado */}
@@ -437,6 +464,69 @@ export default function AdminProductEditPage() {
             Guardar
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// Talles chip editor
+function TallesEditor({ talles, onChange }: { talles: string[]; onChange: (t: string[]) => void }) {
+  const [input, setInput] = useState("");
+  const tallesPreset = ["XS", "S", "M", "L", "XL", "XXL", "Único"];
+
+  function toggle(talle: string) {
+    if (talles.includes(talle)) {
+      onChange(talles.filter((t) => t !== talle));
+    } else {
+      onChange([...talles, talle]);
+    }
+  }
+
+  function addCustom() {
+    const t = input.trim();
+    if (t && !talles.includes(t)) {
+      onChange([...talles, t]);
+      setInput("");
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-1.5">
+        {tallesPreset.map((t) => {
+          const active = talles.includes(t);
+          return (
+            <button
+              key={t}
+              type="button"
+              onClick={() => toggle(t)}
+              className={`text-xs px-2.5 py-1 rounded-md border transition-colors ${
+                active
+                  ? "bg-primary/20 border-primary/50 text-primary"
+                  : "bg-secondary/30 border-border text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              {t}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex gap-1.5">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustom(); } }}
+          placeholder="Talle personalizado..."
+          className="flex-1 bg-secondary/50 border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+        />
+        <button
+          type="button"
+          onClick={addCustom}
+          className="text-xs bg-secondary/50 border border-border rounded-lg px-3 py-1.5 hover:bg-secondary/80 transition-colors"
+        >
+          +
+        </button>
       </div>
     </div>
   );

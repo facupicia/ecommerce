@@ -38,6 +38,8 @@ export interface ShopProduct {
   fotos: string[];
   categoria: string;
   stock: number;
+  talles: string[];
+  color: string;
   publicado: boolean;
   cssbuy_oid: string | null;
   peso_g: number;
