@@ -8,7 +8,8 @@ export async function GET() {
       .order("created_at", { ascending: false });
 
     if (error) return Response.json({ error: error.message }, { status: 500 });
-    return Response.json({ products: data });
+    const filtered = (data || []).filter((p) => p.slug !== "__shop_settings__");
+    return Response.json({ products: filtered });
   } catch (err) {
     return Response.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });
   }

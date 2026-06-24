@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  Settings,
 } from "lucide-react";
 
 const navItems = [
@@ -37,6 +38,11 @@ const navItems = [
     href: "/admin/ordenes",
     label: "Órdenes",
     icon: ShoppingCart,
+  },
+  {
+    href: "/admin/configuracion",
+    label: "Configuración",
+    icon: Settings,
   },
 ];
 
