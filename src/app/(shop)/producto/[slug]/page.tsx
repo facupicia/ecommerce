@@ -71,19 +71,19 @@ export default async function ProductDetailPage({ params }: Props) {
       content: (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-8">
           <div>
-            <span className="text-[#333333] font-medium">Categoría:</span>{" "}
+            <span className="text-[#1a1a1a] font-medium">Categoría:</span>{" "}
             {p.categoria || "—"}
           </div>
           <div>
-            <span className="text-[#333333] font-medium">Stock:</span>{" "}
+            <span className="text-[#1a1a1a] font-medium">Stock:</span>{" "}
             {p.stock > 0 ? `${p.stock} unidades` : "Sin stock"}
           </div>
           <div>
-            <span className="text-[#333333] font-medium">Peso:</span>{" "}
+            <span className="text-[#1a1a1a] font-medium">Peso:</span>{" "}
             {p.peso_g ? `${p.peso_g} g` : "—"}
           </div>
           <div>
-            <span className="text-[#333333] font-medium">SKU:</span>{" "}
+            <span className="text-[#1a1a1a] font-medium">SKU:</span>{" "}
             {p.id.slice(0, 8).toUpperCase()}
           </div>
         </div>
@@ -116,8 +116,8 @@ export default async function ProductDetailPage({ params }: Props) {
     <>
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-8 lg:py-12">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-[#828282] mb-8 lg:mb-12">
-          <a href="/" className="hover:text-[#333333] transition-colors">
+        <nav className="flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-[#777777] mb-8 lg:mb-12">
+          <a href="/" className="hover:text-[#1a1a1a] transition-colors">
             Inicio
           </a>
           <span>/</span>
@@ -125,14 +125,14 @@ export default async function ProductDetailPage({ params }: Props) {
             <>
               <a
                 href={`/categorias`}
-                className="hover:text-[#333333] transition-colors"
+                className="hover:text-[#1a1a1a] transition-colors"
               >
                 {p.categoria}
               </a>
               <span>/</span>
             </>
           ) : null}
-          <span className="text-[#333333] truncate">{p.nombre}</span>
+          <span className="text-[#1a1a1a] truncate">{p.nombre}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
@@ -142,24 +142,24 @@ export default async function ProductDetailPage({ params }: Props) {
           {/* Info */}
           <div className="flex flex-col lg:pt-2">
             {p.categoria && (
-              <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#828282] mb-3">
+              <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#777777] mb-3">
                 {p.categoria}
               </p>
             )}
 
-            <h1 className="kith-font-serif text-2xl sm:text-3xl lg:text-[36px] leading-tight text-[#333333] mb-5">
+            <h1 className="plug-font-serif text-2xl sm:text-3xl lg:text-[36px] leading-tight text-[#1a1a1a] mb-5">
               {p.nombre}
             </h1>
 
             {/* Price */}
             <div className="flex items-center gap-3 mb-8 pb-8 border-b border-[#d9d9d9]">
-              <span className="text-xl sm:text-2xl font-medium text-[#333333]">
+              <span className="text-xl sm:text-2xl font-medium text-[#1a1a1a]">
                 {formatPrice(p.precio_ars)}
               </span>
               {p.precio_original_ars &&
                 p.precio_original_ars > p.precio_ars && (
                   <>
-                    <span className="text-base text-[#828282] line-through">
+                    <span className="text-base text-[#777777] line-through">
                       {formatPrice(p.precio_original_ars)}
                     </span>
                     <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">
@@ -172,17 +172,17 @@ export default async function ProductDetailPage({ params }: Props) {
             {/* Stock */}
             <div className="mb-8">
               {p.stock > 5 ? (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#828282]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#333333]" />
+                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#777777]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#1a1a1a]" />
                   Stock disponible
                 </span>
               ) : p.stock > 0 ? (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#828282]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#828282]" />
+                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#777777]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#777777]" />
                   Solo quedan {p.stock} unidades
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#828282]">
+                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#777777]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#d9d9d9]" />
                   Sin stock
                 </span>
@@ -195,7 +195,7 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
 
             {/* Notes */}
-            <div className="mb-10 space-y-3 text-[12px] leading-[1.6] text-[#828282]">
+            <div className="mb-10 space-y-3 text-[12px] leading-[1.6] text-[#777777]">
               <p className="uppercase tracking-[0.1em]">
                 Venta final. No se aceptan cambios ni devoluciones.
               </p>

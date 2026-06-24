@@ -25,13 +25,13 @@ export function ProductDetailTabs({ tabs }: ProductDetailTabsProps) {
             onClick={() => setActive(tab.id)}
             className={`relative flex-1 pb-3 text-[11px] font-bold uppercase tracking-[0.1em] transition-colors ${
               active === tab.id
-                ? "text-[#333333]"
-                : "text-[#828282] hover:text-[#333333]"
+                ? "text-[#1a1a1a]"
+                : "text-[#777777] hover:text-[#1a1a1a]"
             }`}
           >
             {tab.label}
             {active === tab.id && (
-              <span className="absolute bottom-0 left-0 w-full h-[1px] bg-[#333333]" />
+              <span className="absolute bottom-0 left-0 w-full h-[1px] bg-[#1a1a1a]" />
             )}
           </button>
         ))}
@@ -43,7 +43,7 @@ export function ProductDetailTabs({ tabs }: ProductDetailTabsProps) {
           tab.id === active ? (
             <div
               key={tab.id}
-              className="text-[14px] leading-[1.7] text-[#828282]"
+              className="text-[14px] leading-[1.7] text-[#777777]"
             >
               {tab.content}
             </div>

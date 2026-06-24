@@ -24,10 +24,10 @@ export default async function CategoriesPage() {
     console.error("Error fetching products:", error);
     return (
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-24 text-center">
-        <h2 className="text-xl font-bold text-[#333333] mb-2">
+        <h2 className="text-xl font-bold text-[#1a1a1a] mb-2">
           Error al cargar categorías
         </h2>
-        <p className="text-[#828282]">{error.message}</p>
+        <p className="text-[#777777]">{error.message}</p>
       </div>
     );
   }
@@ -46,33 +46,33 @@ export default async function CategoriesPage() {
   return (
     <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
       <section className="mb-12 lg:mb-16 text-center max-w-2xl mx-auto">
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#828282] mb-4">
+        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#777777] mb-4">
           Explorar
         </p>
-        <h1 className="kith-font-serif text-4xl sm:text-5xl text-[#333333] mb-4">
+        <h1 className="plug-font-serif text-4xl sm:text-5xl text-[#1a1a1a] mb-4">
           Categorías
         </h1>
-        <p className="text-[15px] leading-relaxed text-[#828282]">
+        <p className="text-[15px] leading-relaxed text-[#777777]">
           Encontrá lo que buscás navegando por nuestras categorías.
         </p>
       </section>
 
       {categories.length === 0 ? (
         <div className="text-center py-24">
-          <h3 className="text-lg font-medium text-[#333333] mb-1">
+          <h3 className="text-lg font-medium text-[#1a1a1a] mb-1">
             No hay categorías disponibles
           </h3>
-          <p className="text-[#828282]">Pronto tendremos productos publicados.</p>
+          <p className="text-[#777777]">Pronto tendremos productos publicados.</p>
         </div>
       ) : (
         <div className="space-y-16 lg:space-y-20">
           {categories.map((cat) => (
             <section key={cat}>
               <div className="flex items-baseline justify-between mb-6 lg:mb-8 border-b border-[#d9d9d9] pb-3">
-                <h2 className="kith-font-serif text-2xl sm:text-3xl text-[#333333] capitalize">
+                <h2 className="plug-font-serif text-2xl sm:text-3xl text-[#1a1a1a] capitalize">
                   {cat}
                 </h2>
-                <span className="text-[11px] uppercase tracking-[0.2em] text-[#828282]">
+                <span className="text-[11px] uppercase tracking-[0.2em] text-[#777777]">
                   {grouped[cat].length} productos
                 </span>
               </div>
@@ -83,7 +83,7 @@ export default async function CategoriesPage() {
                     href={`/producto/${product.slug}`}
                     className="group block"
                   >
-                    <div className="aspect-square bg-[#f2f2f2] relative overflow-hidden mb-4">
+                    <div className="aspect-square bg-[#f5f5f5] relative overflow-hidden mb-4">
                       {product.fotos && product.fotos.length > 0 ? (
                         <img
                           src={product.fotos[0]}
@@ -109,17 +109,17 @@ export default async function CategoriesPage() {
                       )}
                       {product.stock === 0 && (
                         <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                          <span className="px-3 py-1.5 border border-[#333333] text-[11px] font-medium uppercase tracking-wider text-[#333333]">
+                          <span className="px-3 py-1.5 border border-[#1a1a1a] text-[11px] font-medium uppercase tracking-wider text-[#1a1a1a]">
                             Sin stock
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="space-y-1">
-                      <h3 className="kith-font-serif text-[13px] sm:text-[14px] leading-snug text-[#333333] group-hover:text-[#828282] transition-colors">
+                      <h3 className="plug-font-serif text-[13px] sm:text-[14px] leading-snug text-[#1a1a1a] group-hover:text-[#777777] transition-colors">
                         {product.nombre}
                       </h3>
-                      <p className="text-[12px] sm:text-[13px] font-medium text-[#333333]">
+                      <p className="text-[12px] sm:text-[13px] font-medium text-[#1a1a1a]">
                         {formatPrice(product.precio_ars)}
                       </p>
                     </div>

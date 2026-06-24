@@ -100,7 +100,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                 </p>
                 <Link
                   href={slide.href}
-                  className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-white hover:text-[#333333] transition-all duration-200"
+                  className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-white hover:text-[#1a1a1a] transition-all duration-200"
                 >
                   {slide.cta}
                 </Link>

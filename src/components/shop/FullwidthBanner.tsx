@@ -35,7 +35,7 @@ export function FullwidthBanner({
         }`}
       >
         <div className="max-w-2xl">
-          <h2 className="kith-font-serif text-3xl sm:text-5xl lg:text-6xl text-white mb-3 drop-shadow-sm">
+          <h2 className="plug-font-serif text-3xl sm:text-5xl lg:text-6xl text-white mb-3 drop-shadow-sm">
             {title}
           </h2>
           <p className="text-[13px] sm:text-[15px] text-white/90 leading-relaxed mb-6 max-w-lg drop-shadow-sm">
@@ -48,14 +48,14 @@ export function FullwidthBanner({
           >
             <Link
               href={primaryCta.href}
-              className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 bg-white text-[#333333] text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-[#f2f2f2] transition-colors"
+              className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 bg-white text-[#1a1a1a] text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-[#f5f5f5] transition-colors"
             >
               {primaryCta.label}
             </Link>
             {secondaryCta && (
               <Link
                 href={secondaryCta.href}
-                className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-white hover:text-[#333333] transition-all duration-200"
+                className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-white hover:text-[#1a1a1a] transition-all duration-200"
               >
                 {secondaryCta.label}
               </Link>

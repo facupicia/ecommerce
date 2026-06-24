@@ -43,7 +43,7 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
           <div className="hidden sm:flex items-center gap-2">
             <button
               onClick={() => scroll("left")}
-              className="w-10 h-10 flex items-center justify-center border border-[#d9d9d9] text-[#333333] hover:border-[#333333] transition-colors"
+              className="w-10 h-10 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
               aria-label="Anterior"
             >
               <svg
@@ -62,7 +62,7 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
             </button>
             <button
               onClick={() => scroll("right")}
-              className="w-10 h-10 flex items-center justify-center border border-[#d9d9d9] text-[#333333] hover:border-[#333333] transition-colors"
+              className="w-10 h-10 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
               aria-label="Siguiente"
             >
               <svg
@@ -95,7 +95,7 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
             href={`/producto/${product.slug}`}
             className="group flex-shrink-0 w-[260px] sm:w-[300px] lg:w-[320px] snap-start"
           >
-            <div className="aspect-[3/4] bg-[#f2f2f2] relative overflow-hidden mb-3">
+            <div className="aspect-[3/4] bg-[#f5f5f5] relative overflow-hidden mb-3">
               {product.fotos && product.fotos.length > 0 ? (
                 <img
                   src={product.fotos[0]}
@@ -121,7 +121,7 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
               )}
               {product.stock === 0 && (
                 <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                  <span className="px-3 py-1.5 border border-[#333333] text-[10px] font-medium uppercase tracking-wider text-[#333333]">
+                  <span className="px-3 py-1.5 border border-[#1a1a1a] text-[10px] font-medium uppercase tracking-wider text-[#1a1a1a]">
                     Sin stock
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
             </div>
             <div className="space-y-1">
               {product.categoria && (
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#828282]">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#777777]">
                   {product.categoria}
                 </p>
               )}
@@ -137,12 +137,12 @@ export function ProductCarousel({ title, products }: ProductCarouselProps) {
                 {product.nombre}
               </h3>
               <div className="flex items-baseline gap-2">
-                <span className="text-[12px] sm:text-[13px] font-medium text-[#333333]">
+                <span className="text-[12px] sm:text-[13px] font-medium text-[#1a1a1a]">
                   {formatPrice(product.precio_ars)}
                 </span>
                 {product.precio_original_ars &&
                   product.precio_original_ars > product.precio_ars && (
-                    <span className="text-[11px] text-[#828282] line-through">
+                    <span className="text-[11px] text-[#777777] line-through">
                       {formatPrice(product.precio_original_ars)}
                     </span>
                   )}

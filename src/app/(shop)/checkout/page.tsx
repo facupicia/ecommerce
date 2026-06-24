@@ -89,10 +89,10 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-24 text-center">
-        <h2 className="kith-font-serif text-3xl text-[#333333] mb-3">
+        <h2 className="plug-font-serif text-3xl text-[#1a1a1a] mb-3">
           No hay nada que pagar
         </h2>
-        <p className="text-[14px] text-[#828282] mb-8">
+        <p className="text-[14px] text-[#777777] mb-8">
           Agregá productos al carrito antes de iniciar el pago.
         </p>
         <Link href="/" className="kith-btn">
@@ -104,7 +104,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
-      <h1 className="kith-font-serif text-3xl sm:text-4xl text-[#333333] mb-10 lg:mb-12">
+      <h1 className="plug-font-serif text-3xl sm:text-4xl text-[#1a1a1a] mb-10 lg:mb-12">
         Finalizar compra
       </h1>
 
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
         <div className="lg:col-span-3">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="border border-[#d9d9d9] p-6 lg:p-8 space-y-6">
-              <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333]">
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a]">
                 Datos de contacto
               </h2>
 
@@ -121,7 +121,7 @@ export default function CheckoutPage() {
                 <div>
                   <label
                     htmlFor="nombre"
-                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a1a1a] mb-2"
                   >
                     Nombre completo *
                   </label>
@@ -132,14 +132,14 @@ export default function CheckoutPage() {
                     required
                     value={form.nombre}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="Tu nombre"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a1a1a] mb-2"
                   >
                     Email *
                   </label>
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
                     required
                     value={form.email}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="tu@email.com"
                   />
                 </div>
@@ -160,7 +160,7 @@ export default function CheckoutPage() {
                 <div>
                   <label
                     htmlFor="telefono"
-                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a1a1a] mb-2"
                   >
                     Teléfono *
                   </label>
@@ -171,14 +171,14 @@ export default function CheckoutPage() {
                     required
                     value={form.telefono}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="+54 9 261 123-4567"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="direccion"
-                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a1a1a] mb-2"
                   >
                     Dirección de envío *
                   </label>
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
                     required
                     value={form.direccion}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="Calle, número, ciudad"
                   />
                 </div>
@@ -198,7 +198,7 @@ export default function CheckoutPage() {
               <div>
                 <label
                   htmlFor="notas"
-                  className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
+                  className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a1a1a] mb-2"
                 >
                   Notas adicionales
                 </label>
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
                   rows={3}
                   value={form.notas}
                   onChange={handleChange}
-                  className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors resize-none"
+                  className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none"
                   placeholder="Indicaciones de entrega, horarios, etc."
                 />
               </div>
@@ -257,8 +257,8 @@ export default function CheckoutPage() {
 
         {/* Order summary */}
         <div className="lg:col-span-2">
-          <div className="kith-bg-footer p-6 lg:p-8 sticky top-24">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333] mb-6">
+          <div className="plug-bg-footer p-6 lg:p-8 sticky top-24">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a] mb-6">
               Tu pedido
             </h2>
 
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#828282]">
+                      <div className="w-full h-full flex items-center justify-center text-[#777777]">
                         <svg
                           className="w-5 h-5"
                           fill="none"
@@ -291,12 +291,12 @@ export default function CheckoutPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] font-medium text-[#333333] truncate">
+                    <p className="text-[13px] font-medium text-[#1a1a1a] truncate">
                       {item.nombre}
                     </p>
-                    <p className="text-[11px] text-[#828282]">x{item.cantidad}</p>
+                    <p className="text-[11px] text-[#777777]">x{item.cantidad}</p>
                   </div>
-                  <span className="text-[13px] font-medium text-[#333333]">
+                  <span className="text-[13px] font-medium text-[#1a1a1a]">
                     {formatPrice(item.precio_ars * item.cantidad)}
                   </span>
                 </div>
@@ -304,17 +304,17 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mt-6 pt-6 border-t border-[#d9d9d9] space-y-2 text-[13px]">
-              <div className="flex justify-between text-[#828282]">
+              <div className="flex justify-between text-[#777777]">
                 <span>Subtotal</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <div className="flex justify-between text-[#828282]">
+              <div className="flex justify-between text-[#777777]">
                 <span>Envío</span>
-                <span className="text-[#333333] font-medium">A coordinar</span>
+                <span className="text-[#1a1a1a] font-medium">A coordinar</span>
               </div>
               <div className="pt-3 border-t border-[#d9d9d9] flex justify-between text-[15px]">
-                <span className="font-medium text-[#333333]">Total</span>
-                <span className="font-medium text-[#333333]">
+                <span className="font-medium text-[#1a1a1a]">Total</span>
+                <span className="font-medium text-[#1a1a1a]">
                   {formatPrice(total)}
                 </span>
               </div>

@@ -18,10 +18,10 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-24 text-center">
-        <h2 className="kith-font-serif text-3xl text-[#333333] mb-3">
+        <h2 className="plug-font-serif text-3xl text-[#1a1a1a] mb-3">
           Tu carrito está vacío
         </h2>
-        <p className="text-[14px] text-[#828282] mb-8">
+        <p className="text-[14px] text-[#777777] mb-8">
           Explorá nuestros productos y agregá lo que te guste.
         </p>
         <Link href="/" className="kith-btn">
@@ -34,12 +34,12 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
       <div className="flex items-center justify-between mb-10 lg:mb-12">
-        <h1 className="kith-font-serif text-3xl sm:text-4xl text-[#333333]">
+        <h1 className="plug-font-serif text-3xl sm:text-4xl text-[#1a1a1a]">
           Carrito
         </h1>
         <button
           onClick={clearCart}
-          className="text-[12px] uppercase tracking-[0.1em] text-[#828282] hover:text-[#333333] transition-colors"
+          className="text-[12px] uppercase tracking-[0.1em] text-[#777777] hover:text-[#1a1a1a] transition-colors"
         >
           Vaciar carrito
         </button>
@@ -55,7 +55,7 @@ export default function CartPage() {
             >
               <Link
                 href={`/producto/${item.slug}`}
-                className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-[#f2f2f2] overflow-hidden"
+                className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 bg-[#f5f5f5] overflow-hidden"
               >
                 {item.imagen ? (
                   <img
@@ -86,11 +86,11 @@ export default function CartPage() {
                 <div>
                   <Link
                     href={`/producto/${item.slug}`}
-                    className="kith-font-serif text-[15px] sm:text-[16px] text-[#333333] hover:text-[#828282] transition-colors line-clamp-1"
+                    className="plug-font-serif text-[15px] sm:text-[16px] text-[#1a1a1a] hover:text-[#777777] transition-colors line-clamp-1"
                   >
                     {item.nombre}
                   </Link>
-                  <p className="text-[13px] font-medium text-[#333333] mt-1">
+                  <p className="text-[13px] font-medium text-[#1a1a1a] mt-1">
                     {formatPrice(item.precio_ars)}
                   </p>
                 </div>
@@ -101,7 +101,7 @@ export default function CartPage() {
                       onClick={() =>
                         updateQuantity(item.product_id, item.cantidad - 1)
                       }
-                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#333333] hover:border-[#333333] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
                       aria-label="Reducir cantidad"
                     >
                       <svg
@@ -118,14 +118,14 @@ export default function CartPage() {
                         />
                       </svg>
                     </button>
-                    <span className="w-8 text-center text-[13px] font-medium text-[#333333]">
+                    <span className="w-8 text-center text-[13px] font-medium text-[#1a1a1a]">
                       {item.cantidad}
                     </span>
                     <button
                       onClick={() =>
                         updateQuantity(item.product_id, item.cantidad + 1)
                       }
-                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#333333] hover:border-[#333333] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
                       aria-label="Aumentar cantidad"
                     >
                       <svg
@@ -145,12 +145,12 @@ export default function CartPage() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span className="text-[13px] font-medium text-[#333333]">
+                    <span className="text-[13px] font-medium text-[#1a1a1a]">
                       {formatPrice(item.precio_ars * item.cantidad)}
                     </span>
                     <button
                       onClick={() => removeFromCart(item.product_id)}
-                      className="text-[#828282] hover:text-[#333333] transition-colors"
+                      className="text-[#777777] hover:text-[#1a1a1a] transition-colors"
                       aria-label="Eliminar producto"
                     >
                       <svg
@@ -176,23 +176,23 @@ export default function CartPage() {
 
         {/* Summary */}
         <div className="lg:col-span-1">
-          <div className="kith-bg-footer p-6 lg:p-8 sticky top-24">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333] mb-6">
+          <div className="plug-bg-footer p-6 lg:p-8 sticky top-24">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a] mb-6">
               Resumen del pedido
             </h2>
 
             <div className="space-y-3 text-[13px]">
-              <div className="flex justify-between text-[#828282]">
+              <div className="flex justify-between text-[#777777]">
                 <span>Productos ({items.reduce((s, i) => s + i.cantidad, 0)})</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <div className="flex justify-between text-[#828282]">
+              <div className="flex justify-between text-[#777777]">
                 <span>Envío</span>
-                <span className="text-[#333333] font-medium">A calcular</span>
+                <span className="text-[#1a1a1a] font-medium">A calcular</span>
               </div>
               <div className="pt-3 border-t border-[#d9d9d9] flex justify-between text-[15px]">
-                <span className="font-medium text-[#333333]">Total</span>
-                <span className="font-medium text-[#333333]">
+                <span className="font-medium text-[#1a1a1a]">Total</span>
+                <span className="font-medium text-[#1a1a1a]">
                   {formatPrice(total)}
                 </span>
               </div>
@@ -207,7 +207,7 @@ export default function CartPage() {
 
             <Link
               href="/"
-              className="block text-center mt-4 text-[12px] uppercase tracking-[0.1em] text-[#828282] hover:text-[#333333] transition-colors"
+              className="block text-center mt-4 text-[12px] uppercase tracking-[0.1em] text-[#777777] hover:text-[#1a1a1a] transition-colors"
             >
               Seguir comprando
             </Link>

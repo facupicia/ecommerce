@@ -29,14 +29,14 @@ export function Footer() {
             >
               THEPLUG
             </Link>
-            <p className="mt-4 text-[13px] leading-relaxed text-[#828282] max-w-xs">
+            <p className="mt-4 text-[13px] leading-relaxed text-[#777777] max-w-xs">
               Ropa importada. Style desde Rosario al país.
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333] mb-4">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a] mb-4">
               Navegación
             </h3>
             <ul className="space-y-2.5">
@@ -44,7 +44,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-[13px] text-[#828282] hover:text-[#333333] transition-colors"
+                    className="text-[13px] text-[#777777] hover:text-[#1a1a1a] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -55,7 +55,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333] mb-4">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a] mb-4">
               Contacto
             </h3>
             <ul className="space-y-2.5">
@@ -63,19 +63,19 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-[13px] text-[#828282] hover:text-[#333333] transition-colors"
+                    className="text-[13px] text-[#777777] hover:text-[#1a1a1a] transition-colors"
                   >
                     {link.label}
                   </a>
                 </li>
               ))}
-              <li className="text-[13px] text-[#828282]">Rosario, Argentina</li>
+              <li className="text-[13px] text-[#777777]">Rosario, Argentina</li>
             </ul>
           </div>
 
           {/* Social */}
           <div>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333] mb-4">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a] mb-4">
               Seguinos
             </h3>
             <ul className="space-y-2.5">
@@ -83,7 +83,7 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-[13px] text-[#828282] hover:text-[#333333] transition-colors"
+                    className="text-[13px] text-[#777777] hover:text-[#1a1a1a] transition-colors"
                   >
                     {link.label}
                   </a>
@@ -95,7 +95,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-[#d9d9d9]">
-          <p className="text-[11px] text-[#828282] text-center tracking-wide">
+          <p className="text-[11px] text-[#777777] text-center tracking-wide">
             © {new Date().getFullYear()} THEPLUG. Todos los derechos reservados.
           </p>
         </div>

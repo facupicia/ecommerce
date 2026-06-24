@@ -20,7 +20,7 @@ export function Header() {
           <div className="flex items-center gap-6">
             <button
               onClick={() => setMenuOpen(true)}
-              className="p-2 -ml-2 text-[#333333] hover:text-[#828282] transition-colors lg:hidden"
+              className="p-2 -ml-2 text-[#1a1a1a] hover:text-[#777777] transition-colors lg:hidden"
               aria-label="Abrir menú"
             >
               <svg
@@ -43,7 +43,7 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#333333] hover:text-[#828282] transition-colors"
+                  className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#1a1a1a] hover:text-[#777777] transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -54,7 +54,7 @@ export function Header() {
           {/* Center — logo */}
           <Link
             href="/"
-            className="inline-block px-1.5 py-0.5 bg-[#333333] text-white text-[14px] sm:text-[16px] font-bold uppercase tracking-[0.15em] hover:bg-[#828282] transition-colors"
+            className="inline-block px-1.5 py-0.5 bg-[#1a1a1a] text-white text-[14px] sm:text-[16px] font-bold uppercase tracking-[0.15em] hover:bg-[#777777] transition-colors"
           >
             THEPLUG
           </Link>
@@ -75,12 +75,12 @@ export function Header() {
           />
           <div className="fixed inset-y-0 left-0 z-50 w-[300px] max-w-[80vw] bg-white shadow-xl flex flex-col">
             <div className="flex items-center justify-between h-[60px] px-4 border-b border-[#d9d9d9]">
-              <span className="inline-block px-1.5 py-0.5 bg-[#333333] text-white text-sm font-bold uppercase tracking-[0.15em]">
+              <span className="inline-block px-1.5 py-0.5 bg-[#1a1a1a] text-white text-sm font-bold uppercase tracking-[0.15em]">
                 THEPLUG
               </span>
               <button
                 onClick={() => setMenuOpen(false)}
-                className="p-2 -mr-2 text-[#333333]"
+                className="p-2 -mr-2 text-[#1a1a1a]"
                 aria-label="Cerrar menú"
               >
                 <svg
@@ -104,7 +104,7 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="block text-sm font-medium uppercase tracking-[0.2em] text-[#333333] hover:text-[#828282] transition-colors"
+                  className="block text-sm font-medium uppercase tracking-[0.2em] text-[#1a1a1a] hover:text-[#777777] transition-colors"
                 >
                   {link.label}
                 </Link>

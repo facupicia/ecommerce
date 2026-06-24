@@ -47,10 +47,10 @@ export default async function ShopHomePage() {
     console.error("Error fetching products:", error);
     return (
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-24 text-center">
-        <h2 className="kith-font-serif text-3xl text-[#333333] mb-2">
+        <h2 className="plug-font-serif text-3xl text-[#1a1a1a] mb-2">
           Error al cargar productos
         </h2>
-        <p className="text-[#828282]">{error.message}</p>
+        <p className="text-[#777777]">{error.message}</p>
       </div>
     );
   }

@@ -36,10 +36,10 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
             <button
               key={i}
               onClick={() => setSelected(i)}
-              className={`aspect-square bg-[#f2f2f2] overflow-hidden border transition-colors ${
+              className={`aspect-square bg-[#f5f5f5] overflow-hidden border transition-colors ${
                 selected === i
-                  ? "border-[#333333]"
-                  : "border-transparent hover:border-[#828282]"
+                  ? "border-[#1a1a1a]"
+                  : "border-transparent hover:border-[#777777]"
               }`}
               aria-label={`Ver imagen ${i + 1} de ${nombre}`}
             >
@@ -55,7 +55,7 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
 
       {/* Main image */}
       <div className="flex-1 min-w-0">
-        <div className="aspect-square bg-[#f2f2f2] overflow-hidden">
+        <div className="aspect-square bg-[#f5f5f5] overflow-hidden">
           {validFotos.length > 0 ? (
             <img
               src={validFotos[selected]}
@@ -76,9 +76,9 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
               <button
                 key={i}
                 onClick={() => setSelected(i)}
-                className={`flex-shrink-0 w-16 aspect-square bg-[#f2f2f2] overflow-hidden border transition-colors ${
+                className={`flex-shrink-0 w-16 aspect-square bg-[#f5f5f5] overflow-hidden border transition-colors ${
                   selected === i
-                    ? "border-[#333333]"
+                    ? "border-[#1a1a1a]"
                     : "border-transparent"
                 }`}
                 aria-label={`Ver imagen ${i + 1} de ${nombre}`}
