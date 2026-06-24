@@ -12,6 +12,7 @@ interface CloudinaryImageProps {
   className?: string;
   sizes?: string;
   priority?: boolean;
+  loading?: "eager" | "lazy";
 }
 
 export function CloudinaryImage({
@@ -23,6 +24,7 @@ export function CloudinaryImage({
   className,
   sizes,
   priority,
+  loading,
 }: CloudinaryImageProps) {
   if (!src) {
     return (
@@ -48,7 +50,15 @@ export function CloudinaryImage({
   }
 
   if (!isCloudinarySource(src)) {
-    return <img src={src} alt={alt} className={className} />;
+    return (
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+        loading={loading}
+        decoding="async"
+      />
+    );
   }
 
   return (
@@ -61,6 +71,7 @@ export function CloudinaryImage({
       className={className}
       sizes={sizes}
       priority={priority}
+      loading={loading}
     />
   );
 }

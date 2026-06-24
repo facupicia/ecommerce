@@ -63,20 +63,14 @@ export default function AdminProductEditPage() {
     setLoading(false);
   }, [params.id, isNew]);
 
-  // Load existing marcas and indumentarias from all products
+  // Load existing marcas and indumentarias from a lightweight meta endpoint
   const loadExistingOptions = useCallback(async () => {
     try {
-      const res = await fetch("/api/products", { credentials: "same-origin" });
+      const res = await fetch("/api/products/meta", { credentials: "same-origin" });
       const data = await res.json();
-      if (res.ok && data.products) {
-        const marcas = new Set<string>();
-        const indumentarias = new Set<string>();
-        for (const p of data.products) {
-          if (p.marca) marcas.add(p.marca);
-          if (p.indumentaria) indumentarias.add(p.indumentaria);
-        }
-        setExistingMarcas(Array.from(marcas).sort());
-        setExistingIndumentarias(Array.from(indumentarias).sort());
+      if (res.ok) {
+        setExistingMarcas(data.marcas || []);
+        setExistingIndumentarias(data.indumentarias || []);
       }
     } catch { /* ignore */ }
   }, []);

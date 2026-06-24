@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/supabase";
 import {
   getMercadoPagoPayment,
   verifyMercadoPagoSignature,
@@ -10,10 +10,6 @@ import {
   upsertPayment,
 } from "@/lib/order-helpers";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY || ""
-);
 
 /**
  * Mercado Pago requiere una respuesta 200/201 para dejar de reintentar.

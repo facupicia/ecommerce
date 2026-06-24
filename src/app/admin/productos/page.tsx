@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import Link from "next/link";
 import {
   Package,
@@ -17,6 +17,8 @@ import { ShopProduct, CssbuyOrder } from "@/lib/types";
 import { uid } from "@/lib/utils";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
+const PAGE_SIZE = 25;
+
 export default function AdminProductosPage() {
   const [products, setProducts] = useState<ShopProduct[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,18 +28,37 @@ export default function AdminProductosPage() {
   const [importing, setImporting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Debounce search input so we don't refetch on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 250);
+    return () => clearTimeout(t);
+  }, [search]);
+
   const loadProducts = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch("/api/products", { credentials: "same-origin" });
+      const params = new URLSearchParams();
+      params.set("limit", String(PAGE_SIZE));
+      params.set("offset", String(page * PAGE_SIZE));
+      if (debouncedSearch) params.set("q", debouncedSearch);
+      const res = await fetch(`/api/products?${params.toString()}`, {
+        credentials: "same-origin",
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error cargando productos");
       setProducts(data.products || []);
+      setTotalCount(data.count ?? data.products?.length ?? 0);
     } catch (e: any) {
       setError(e.message);
     }
     setLoading(false);
-  }, []);
+  }, [page, debouncedSearch]);
 
   useEffect(() => {
     loadProducts();
@@ -178,11 +199,14 @@ export default function AdminProductosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Productos</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {products.length} producto{products.length !== 1 ? "s" : ""}
+            {totalCount} producto{totalCount !== 1 ? "s" : ""}
+            {debouncedSearch && (
+              <span className="ml-1">· filtrando “{debouncedSearch}”</span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -206,6 +230,30 @@ export default function AdminProductosPage() {
             Nuevo
           </Link>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(0);
+          }}
+          placeholder="Buscar producto..."
+          className="flex-1 max-w-md bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+        />
+        {search && (
+          <button
+            onClick={() => {
+              setSearch("");
+              setPage(0);
+            }}
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            Limpiar
+          </button>
+        )}
       </div>
 
       {error && (
@@ -342,126 +390,181 @@ export default function AdminProductosPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Producto
-                  </th>
-                  <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Precio
-                  </th>
-                  <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Stock
-                  </th>
-                  <th className="text-center py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Publicado
-                  </th>
-                  <th className="text-center py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="border-b border-border/50 hover:bg-secondary/30 transition-colors"
-                  >
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        {product.fotos?.[0] && (
-                          <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                            <CloudinaryImage
-                              src={product.fotos[0]}
-                              alt=""
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <div>
-                          <Link
-                            href={`/admin/productos/${product.id}`}
-                            className="font-medium text-foreground hover:text-primary transition-colors"
-                          >
-                            {product.nombre}
-                          </Link>
-                          <p className="text-xs text-muted-foreground">
-                            {[
-                              product.categoria || "Sin categoría",
-                              product.marca && `${product.marca}`,
-                              product.indumentaria && `${product.indumentaria}`,
-                              product.cssbuy_oid && `CSSBuy #${product.cssbuy_oid}`,
-                            ].filter(Boolean).join(" · ")}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4 text-right tabular-nums font-medium">
-                      <InlineNumberInput
-                        value={product.precio_ars || 0}
-                        prefix="$"
-                        min={0}
-                        step={0.01}
-                        onSave={(val) => updateProductField(product, "precio_ars", val)}
-                      />
-                    </td>
-                    <td className="py-3 px-4 text-right tabular-nums">
-                      <InlineNumberInput
-                        value={product.stock || 0}
-                        min={0}
-                        step={1}
-                        onSave={(val) => updateProductField(product, "stock", val)}
-                      />
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => togglePublished(product)}
-                        className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border transition-colors ${
-                          product.publicado
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                            : "bg-secondary/50 text-muted-foreground border-border"
-                        }`}
-                      >
-                        {product.publicado ? (
-                          <Eye className="w-3 h-3" />
-                        ) : (
-                          <EyeOff className="w-3 h-3" />
-                        )}
-                        {product.publicado ? "Visible" : "Oculto"}
-                      </button>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-center gap-1">
-                        <Link
-                          href={`/admin/productos/${product.id}`}
-                          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
-                          title="Editar"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Link>
-                        <button
-                          onClick={() => deleteProduct(product)}
-                          className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+        <>
+          <div className="bg-card border border-border rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Producto
+                    </th>
+                    <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Precio
+                    </th>
+                    <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Stock
+                    </th>
+                    <th className="text-center py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Publicado
+                    </th>
+                    <th className="text-center py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      Acciones
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {products.map((product) => (
+                    <ProductRow
+                      key={product.id}
+                      product={product}
+                      onTogglePublished={togglePublished}
+                      onDelete={deleteProduct}
+                      onUpdateField={updateProductField}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Pagination */}
+          {totalCount > PAGE_SIZE && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Página {page + 1} de {Math.ceil(totalCount / PAGE_SIZE)} ·{" "}
+                {totalCount} productos
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="px-3 py-2 rounded-lg border border-border bg-card text-sm hover:bg-secondary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Anterior
+                </button>
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={(page + 1) * PAGE_SIZE >= totalCount}
+                  className="px-3 py-2 rounded-lg border border-border bg-card text-sm hover:bg-secondary/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Siguiente
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
 }
+
+const ProductRow = memo(function ProductRow({
+  product,
+  onTogglePublished,
+  onDelete,
+  onUpdateField,
+}: {
+  product: ShopProduct;
+  onTogglePublished: (product: ShopProduct) => void;
+  onDelete: (product: ShopProduct) => void;
+  onUpdateField: (
+    product: ShopProduct,
+    field: "precio_ars" | "stock",
+    value: number
+  ) => void;
+}) {
+  return (
+    <tr className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
+      <td className="py-3 px-4">
+        <div className="flex items-center gap-3">
+          {product.fotos?.[0] && (
+            <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+              <CloudinaryImage
+                src={product.fotos[0]}
+                alt=""
+                fill
+                sizes="40px"
+                loading="lazy"
+                className="object-cover"
+              />
+            </div>
+          )}
+          <div>
+            <Link
+              href={`/admin/productos/${product.id}`}
+              className="font-medium text-foreground hover:text-primary transition-colors"
+            >
+              {product.nombre}
+            </Link>
+            <p className="text-xs text-muted-foreground">
+              {[
+                product.categoria || "Sin categoría",
+                product.marca && `${product.marca}`,
+                product.indumentaria && `${product.indumentaria}`,
+                product.cssbuy_oid && `CSSBuy #${product.cssbuy_oid}`,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          </div>
+        </div>
+      </td>
+      <td className="py-3 px-4 text-right tabular-nums font-medium">
+        <InlineNumberInput
+          value={product.precio_ars || 0}
+          prefix="$"
+          min={0}
+          step={0.01}
+          onSave={(val) => onUpdateField(product, "precio_ars", val)}
+        />
+      </td>
+      <td className="py-3 px-4 text-right tabular-nums">
+        <InlineNumberInput
+          value={product.stock || 0}
+          min={0}
+          step={1}
+          onSave={(val) => onUpdateField(product, "stock", val)}
+        />
+      </td>
+      <td className="py-3 px-4 text-center">
+        <button
+          onClick={() => onTogglePublished(product)}
+          className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border transition-colors ${
+            product.publicado
+              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+              : "bg-secondary/50 text-muted-foreground border-border"
+          }`}
+        >
+          {product.publicado ? (
+            <Eye className="w-3 h-3" />
+          ) : (
+            <EyeOff className="w-3 h-3" />
+          )}
+          {product.publicado ? "Visible" : "Oculto"}
+        </button>
+      </td>
+      <td className="py-3 px-4">
+        <div className="flex items-center justify-center gap-1">
+          <Link
+            href={`/admin/productos/${product.id}`}
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+            title="Editar"
+          >
+            <Edit className="w-4 h-4" />
+          </Link>
+          <button
+            onClick={() => onDelete(product)}
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            title="Eliminar"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+});
 
 function InlineNumberInput({
   value,
