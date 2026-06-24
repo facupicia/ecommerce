@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
-import { AddToCartButton } from "@/components/AddToCartButton";
+import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
 import { ProductImageGallery } from "@/components/shop/ProductImageGallery";
 import { ProductDetailTabs } from "@/components/shop/ProductDetailTabs";
 import { ProductGrid } from "@/components/shop/ProductGrid";
@@ -75,6 +75,14 @@ export default async function ProductDetailPage({ params }: Props) {
             {p.categoria || "—"}
           </div>
           <div>
+            <span className="text-[#1a1a1a] font-medium">Marca:</span>{" "}
+            {p.marca || "—"}
+          </div>
+          <div>
+            <span className="text-[#1a1a1a] font-medium">Indumentaria:</span>{" "}
+            {p.indumentaria || "—"}
+          </div>
+          <div>
             <span className="text-[#1a1a1a] font-medium">Stock:</span>{" "}
             {p.stock > 0 ? `${p.stock} unidades` : "Sin stock"}
           </div>
@@ -141,9 +149,15 @@ export default async function ProductDetailPage({ params }: Props) {
 
           {/* Info */}
           <div className="flex flex-col lg:pt-2">
+            {p.marca && (
+              <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#1a1a1a] mb-1">
+                {p.marca}
+              </p>
+            )}
             {p.categoria && (
               <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[var(--plug-gray)] mb-3">
                 {p.categoria}
+                {p.indumentaria && ` · ${p.indumentaria}`}
               </p>
             )}
 
@@ -169,29 +183,9 @@ export default async function ProductDetailPage({ params }: Props) {
                 )}
             </div>
 
-            {/* Stock */}
+            {/* Interactive Purchase controls */}
             <div className="mb-8">
-              {p.stock > 5 ? (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#1a1a1a]" />
-                  Stock disponible
-                </span>
-              ) : p.stock > 0 ? (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--plug-gray)]" />
-                  Solo quedan {p.stock} unidades
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#d9d9d9]" />
-                  Sin stock
-                </span>
-              )}
-            </div>
-
-            {/* Add to cart */}
-            <div className="mb-8">
-              <AddToCartButton product={p} fullWidth />
+              <ProductPurchasePanel product={p} />
             </div>
 
             {/* Notes */}

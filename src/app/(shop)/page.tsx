@@ -58,8 +58,6 @@ export default async function ShopHomePage() {
         image="/img/Gemini_Generated_Image_h45s2oh45s2oh45s (1).png"
         title=""
         description=""
-        primaryCta={{ label: "Shop now", href: "/categorias" }}
-        secondaryCta={{ label: "A closer look", href: "/categorias" }}
       />
 
       {/* 4. Looks grid */}

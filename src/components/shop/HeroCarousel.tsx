@@ -18,22 +18,14 @@ interface HeroCarouselProps {
 
 export function HeroCarousel({ slides }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const goTo = useCallback(
     (index: number) => {
-      let next = index;
-      if (next < 0) next = slides.length - 1;
-      if (next >= slides.length) next = 0;
-      setCurrent(next);
-      if (containerRef.current) {
-        const width = containerRef.current.offsetWidth;
-        containerRef.current.scrollTo({
-          left: width * next,
-          behavior: "smooth",
-        });
-      }
+      let nextIndex = index;
+      if (nextIndex < 0) nextIndex = slides.length - 1;
+      if (nextIndex >= slides.length) nextIndex = 0;
+      setCurrent(nextIndex);
     },
     [slides.length]
   );
@@ -41,81 +33,99 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
   const next = useCallback(() => goTo(current + 1), [current, goTo]);
   const prev = useCallback(() => goTo(current - 1), [current, goTo]);
 
-  useEffect(() => {
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
-      setCurrent((c) => {
-        const next = c + 1 >= slides.length ? 0 : c + 1;
-        if (containerRef.current) {
-          const width = containerRef.current.offsetWidth;
-          containerRef.current.scrollTo({
-            left: width * next,
-            behavior: "smooth",
-          });
-        }
-        return next;
-      });
-    }, 6000);
+      setCurrent((c) => (c + 1 >= slides.length ? 0 : c + 1));
+    }, 8000);
+  }, [slides.length]);
+
+  useEffect(() => {
+    resetTimer();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [slides.length]);
+  }, [resetTimer]);
 
-  const handleScroll = () => {
-    if (!containerRef.current) return;
-    const width = containerRef.current.offsetWidth;
-    const index = Math.round(containerRef.current.scrollLeft / width);
-    setCurrent(index);
+  const handleGoTo = (index: number) => {
+    goTo(index);
+    resetTimer();
   };
 
-  return (
-    <section className="relative w-full h-[calc(100vh-60px)] overflow-hidden bg-[#1a1a1a]">
-      <div
-        ref={containerRef}
-        onScroll={handleScroll}
-        className="flex h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide scroll-smooth"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        {slides.map((slide) => (
-          <div
-            key={slide.id}
-            className="relative flex-shrink-0 w-full h-full snap-start"
-          >
-            {/* Background image */}
-            <img
-              src={slide.image}
-              alt={slide.title}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+  const handleNext = () => {
+    next();
+    resetTimer();
+  };
 
-            {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-16">
-              <div className="max-w-2xl">
-                <h2 className="plug-font-serif text-3xl sm:text-5xl lg:text-6xl text-white mb-3 drop-shadow-sm">
-                  {slide.title}
-                </h2>
-                <p className="text-[13px] sm:text-[15px] text-white leading-relaxed mb-6 max-w-lg drop-shadow-sm">
-                  {slide.subtitle}
-                </p>
-                <Link
-                  href={slide.href}
-                  className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-white hover:text-[#1a1a1a] transition-all duration-200"
+  const handlePrev = () => {
+    prev();
+    resetTimer();
+  };
+
+  if (!slides || slides.length === 0) return null;
+
+  return (
+    <section className="relative w-full h-[calc(100vh-60px)] overflow-hidden bg-[#0d0d0d]">
+      {/* Slides Container */}
+      <div className="relative w-full h-full">
+        {slides.map((slide, index) => {
+          const isActive = index === current;
+          return (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 w-full h-full transition-all duration-1000 ease-in-out ${
+                isActive
+                  ? "opacity-100 z-10 pointer-events-auto"
+                  : "opacity-0 z-0 pointer-events-none"
+              }`}
+            >
+              {/* Background image with slow zoom effect */}
+              <img
+                src={slide.image}
+                alt={slide.title || "Slide"}
+                className={`absolute inset-0 w-full h-full object-cover transition-transform duration-[8000ms] ease-out ${
+                  isActive ? "scale-105" : "scale-100"
+                }`}
+              />
+              {/* Premium dark gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/20" />
+
+              {/* Content */}
+              <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-20">
+                <div
+                  className={`max-w-2xl transition-all duration-1000 delay-300 transform ${
+                    isActive ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
+                  }`}
                 >
-                  {slide.cta}
-                </Link>
+                  {slide.title && (
+                    <h2 className="plug-font-serif text-4xl sm:text-5xl lg:text-6xl text-white mb-4 drop-shadow-md leading-tight">
+                      {slide.title}
+                    </h2>
+                  )}
+                  {slide.subtitle && (
+                    <p className="text-[13px] sm:text-[15px] text-white/90 leading-relaxed mb-8 max-w-lg drop-shadow-sm font-light">
+                      {slide.subtitle}
+                    </p>
+                  )}
+                  <Link
+                    href={slide.href}
+                    className="inline-flex items-center justify-center min-w-[150px] px-6 py-3.5 border border-white bg-white text-black text-[11px] font-bold uppercase tracking-[0.18em] transition-all duration-300 shadow-md"
+                  >
+                    {slide.cta}
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Arrows */}
+      {/* Navigation Arrows */}
       {slides.length > 1 && (
         <>
           <button
-            onClick={prev}
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm transition-colors"
+            onClick={handlePrev}
+            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/30 text-white/80 hover:bg-black/60 hover:text-white backdrop-blur-sm transition-all duration-200 border border-white/5"
             aria-label="Anterior"
           >
             <svg
@@ -133,8 +143,8 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             </svg>
           </button>
           <button
-            onClick={next}
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm transition-colors"
+            onClick={handleNext}
+            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/30 text-white/80 hover:bg-black/60 hover:text-white backdrop-blur-sm transition-all duration-200 border border-white/5"
             aria-label="Siguiente"
           >
             <svg
@@ -152,14 +162,16 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             </svg>
           </button>
 
-          {/* Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
+          {/* Dots Indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
             {slides.map((_, i) => (
               <button
                 key={i}
-                onClick={() => goTo(i)}
-                className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  i === current ? "bg-white w-4" : "bg-white/70 hover:bg-white"
+                onClick={() => handleGoTo(i)}
+                className={`transition-all duration-300 ${
+                  i === current
+                    ? "bg-white w-6 h-1.5 rounded-full"
+                    : "bg-white/40 w-1.5 h-1.5 rounded-full hover:bg-white/80"
                 }`}
                 aria-label={`Ir a slide ${i + 1}`}
               />

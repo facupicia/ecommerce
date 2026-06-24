@@ -80,7 +80,7 @@ export default function AdminProductosPage() {
       precio_ars: 0,
       precio_original_ars: null,
       fotos: order.imagen ? [order.imagen] : [],
-      categoria: "importado",
+      categoria: "",
       stock: order.cantidad || 1,
       publicado: false,
       cssbuy_oid: order.oid,
@@ -383,8 +383,12 @@ export default function AdminProductosPage() {
                             {product.nombre}
                           </Link>
                           <p className="text-xs text-muted-foreground">
-                            {product.categoria || "Sin categoría"}
-                            {product.cssbuy_oid && ` · CSSBuy #${product.cssbuy_oid}`}
+                            {[
+                              product.categoria || "Sin categoría",
+                              product.marca && `${product.marca}`,
+                              product.indumentaria && `${product.indumentaria}`,
+                              product.cssbuy_oid && `CSSBuy #${product.cssbuy_oid}`,
+                            ].filter(Boolean).join(" · ")}
                           </p>
                         </div>
                       </div>

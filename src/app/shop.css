@@ -18,16 +18,16 @@
   /* THEPLUG tokens */
   --plug-black: #1a1a1a;
   --plug-white: #ffffff;
-  --plug-gray: #595959;
+  --plug-gray: #454545;
   --plug-light-gray: #ebebeb;
   --plug-border: #d9d9d9;
   --plug-footer: #f5f5f5;
   --plug-bg: #ffffff;
-  --font-serif: Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-sans-custom), system-ui, -apple-system, sans-serif;
 
   background: var(--plug-bg);
   color: var(--plug-black);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans-custom), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,6 +42,7 @@
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: -0.01em;
+  color: var(--plug-black);
 }
 
 .plug-font-serif {
@@ -79,14 +80,18 @@
   color: var(--plug-white);
 }
 
-.plug-btn-dark {
-  background: var(--plug-black);
-  color: var(--plug-white);
+.plug-btn-dark,
+.plug-btn.plug-btn-dark {
+  background: var(--plug-black) !important;
+  color: var(--plug-white) !important;
+  border-color: var(--plug-black) !important;
 }
 
-.plug-btn-dark:hover {
-  background: var(--plug-white);
-  color: var(--plug-black);
+.plug-btn-dark:hover,
+.plug-btn.plug-btn-dark:hover {
+  background: var(--plug-white) !important;
+  color: var(--plug-black) !important;
+  border-color: var(--plug-black) !important;
 }
 
 .plug-btn:disabled,
@@ -184,3 +189,226 @@
   text-transform: uppercase;
   color: var(--plug-gray);
 }
+
+/* Glassmorphic Navigation Header */
+.plug-header-glass {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.82);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Link Underline Hover Effect */
+.plug-nav-link {
+  position: relative;
+}
+.plug-nav-link::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--plug-black);
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+.plug-nav-link:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+/* Size Selector Button */
+.plug-size-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--plug-border);
+  background: var(--plug-white);
+  color: var(--plug-black);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.plug-size-btn:hover:not(:disabled) {
+  border-color: var(--plug-black);
+}
+.plug-size-btn-active {
+  border-color: var(--plug-black);
+  background: var(--plug-black);
+  color: var(--plug-white);
+}
+.plug-size-btn:disabled {
+  opacity: 0.3;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* WhatsApp Floating Button */
+.plug-whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.plug-whatsapp-float:hover {
+  transform: translateY(-4px);
+  background-color: #ffffff;
+  color: #1a1a1a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-color: var(--plug-black);
+}
+.plug-whatsapp-pulse {
+  position: relative;
+}
+.plug-whatsapp-pulse::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #25d366;
+  opacity: 0.4;
+  animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  z-index: -1;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+  80%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Quick Add Button overlay for product cards */
+.plug-quick-add {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  transform: translateY(100%);
+  opacity: 0;
+  background-color: rgba(26, 26, 26, 0.95);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  backdrop-filter: blur(4px);
+}
+.group:hover .plug-quick-add {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* LED stock status indicator */
+.plug-stock-led {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.plug-stock-led-available {
+  background-color: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  animation: led-glow 2s infinite;
+}
+.plug-stock-led-warning {
+  background-color: #f59e0b;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+  animation: led-glow 2s infinite;
+}
+.plug-stock-led-empty {
+  background-color: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes led-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Inputs styling for checkout */
+.plug-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--plug-border);
+  background-color: var(--plug-white);
+  color: var(--plug-black);
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+.plug-input:focus {
+  outline: none;
+  border-color: var(--plug-black);
+  box-shadow: 0 0 0 1px var(--plug-black);
+}
+
+/* Newsletter dark section */
+.plug-newsletter-section {
+  background-color: #111111;
+  color: #ffffff;
+  border-top: 1px solid #222222;
+}
+
+.plug-newsletter-input {
+  background-color: transparent;
+  border: 1px solid #333333;
+  color: #ffffff;
+  padding: 12px 16px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+.plug-newsletter-input:focus {
+  outline: none;
+  border-color: #ffffff;
+  box-shadow: 0 0 0 1px #ffffff;
+}
+
+.plug-newsletter-btn {
+  background-color: #ffffff;
+  color: #000000;
+  border: 1px solid #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+.plug-newsletter-btn:hover {
+  background-color: #111111;
+  color: #ffffff;
+}
+

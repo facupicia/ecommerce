@@ -43,7 +43,7 @@ export function ProductDetailTabs({ tabs }: ProductDetailTabsProps) {
           tab.id === active ? (
             <div
               key={tab.id}
-              className="text-[14px] leading-[1.7] text-[var(--plug-gray)]"
+              className="text-[14px] leading-[1.7] text-[var(--plug-gray)] animate-[plugFadeUp_0.3s_ease-out]"
             >
               {tab.content}
             </div>

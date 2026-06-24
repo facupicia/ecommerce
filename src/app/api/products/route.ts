@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g } = body;
+    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g, marca, indumentaria } = body;
 
     if (!slug || !nombre) return Response.json({ error: "slug y nombre requeridos" }, { status: 400 });
 
@@ -34,6 +34,8 @@ export async function POST(req: Request) {
       publicado: publicado ?? false,
       cssbuy_oid: cssbuy_oid || null,
       peso_g: peso_g || 0,
+      marca: marca || null,
+      indumentaria: indumentaria || null,
     }).select();
 
     if (error) {

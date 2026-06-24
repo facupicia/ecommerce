@@ -55,12 +55,13 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
 
       {/* Main image */}
       <div className="flex-1 min-w-0">
-        <div className="aspect-square bg-[#f5f5f5] overflow-hidden">
+        <div className="aspect-square bg-[#f5f5f5] overflow-hidden border border-[#ebebeb] rounded-sm">
           {validFotos.length > 0 ? (
             <img
+              key={selected}
               src={validFotos[selected]}
               alt={nombre}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105 cursor-zoom-in"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">

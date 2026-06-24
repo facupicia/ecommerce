@@ -4,7 +4,7 @@ interface FullwidthBannerProps {
   image: string;
   title: string;
   description: string;
-  primaryCta: { label: string; href: string };
+  primaryCta?: { label: string; href: string };
   secondaryCta?: { label: string; href: string };
   align?: "left" | "center";
 }
@@ -46,20 +46,6 @@ export function FullwidthBanner({
               align === "center" ? "justify-center" : "justify-start"
             }`}
           >
-            <Link
-              href={primaryCta.href}
-              className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 bg-white text-[#1a1a1a] text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-[#f5f5f5] transition-colors"
-            >
-              {primaryCta.label}
-            </Link>
-            {secondaryCta && (
-              <Link
-                href={secondaryCta.href}
-                className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium  bg-white! uppercase tracking-[0.15em] hover:bg-white hover:text-[#1a1a1a] transition-all duration-200"
-              >
-                {secondaryCta.label}
-              </Link>
-            )}
           </div>
         </div>
       </div>

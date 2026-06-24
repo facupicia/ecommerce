@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 const footerLinks = {
@@ -7,12 +9,11 @@ const footerLinks = {
     { href: "/carrito", label: "Carrito" },
   ],
   atencion: [
-    { label: "WhatsApp: +54 9 341 123-4567", href: "https://wa.me/5493411234567" },
-    { label: "Email: hola@theplug.com.ar", href: "mailto:hola@theplug.com.ar" },
+    { label: "WhatsApp: +54 9 3464 698460", href: "https://wa.me/543464698460" },
   ],
   redes: [
-    { label: "Instagram", href: "#" },
-    { label: "Facebook", href: "#" },
+    { label: "Instagram", href: "https://www.instagram.com/theplug.ros/?hl=es-la" },
+
   ],
 };
 
@@ -25,13 +26,36 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <Link
               href="/"
-              className="inline-block px-2 py-1  text-white text-lg font-bold uppercase tracking-[0.15em]"
+              className="inline-block px-2.5 py-1  text-white text-sm font-black uppercase tracking-[0.2em] shadow-sm"
             >
               THEPLUG
             </Link>
             <p className="mt-4 text-[13px] leading-relaxed text-[var(--plug-gray)] max-w-xs">
               Ropa importada. Style desde Rosario al país.
             </p>
+            <div className="mt-6 max-w-xs">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  alert("¡Gracias por suscribirte!");
+                  (e.target as HTMLFormElement).reset();
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  type="email"
+                  placeholder="Tu email"
+                  required
+                  className="flex-1 px-3 py-2 border border-[#d9d9d9] bg-white text-[12px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-black text-white text-[10px] font-bold uppercase tracking-[0.1em] hover:bg-neutral-800 transition-colors"
+                >
+                  Ok
+                </button>
+              </form>
+            </div>
           </div>
 
           {/* Navigation */}

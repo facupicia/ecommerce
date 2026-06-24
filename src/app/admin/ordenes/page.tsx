@@ -284,7 +284,14 @@ function DetailModal({ order, onClose }: { order: ShopOrder; onClose: () => void
                         className="w-8 h-8 rounded object-cover bg-muted flex-shrink-0"
                       />
                     )}
-                    <span className="truncate">{item.nombre}</span>
+                    <div className="truncate flex items-center gap-1.5">
+                      <span className="truncate">{item.nombre}</span>
+                      {item.talle && (
+                        <span className="inline-block text-[9px] font-extrabold bg-primary/10 text-primary border border-primary/20 px-1 py-0.5 rounded uppercase leading-none">
+                          {item.talle}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right tabular-nums text-xs text-muted-foreground">
                     x{item.cantidad} · ${item.precio_ars.toLocaleString("es-AR")}

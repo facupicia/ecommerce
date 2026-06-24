@@ -32,6 +32,8 @@ export default function AdminProductEditPage() {
     stock: 0,
     talles: [],
     color: "",
+    marca: null,
+    indumentaria: null,
     publicado: false,
     cssbuy_oid: null,
     peso_g: 0,
@@ -41,6 +43,8 @@ export default function AdminProductEditPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
+  const [existingMarcas, setExistingMarcas] = useState<string[]>([]);
+  const [existingIndumentarias, setExistingIndumentarias] = useState<string[]>([]);
 
   const loadProduct = useCallback(async () => {
     if (isNew) return;
@@ -58,9 +62,28 @@ export default function AdminProductEditPage() {
     setLoading(false);
   }, [params.id, isNew]);
 
+  // Load existing marcas and indumentarias from all products
+  const loadExistingOptions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/products", { credentials: "same-origin" });
+      const data = await res.json();
+      if (res.ok && data.products) {
+        const marcas = new Set<string>();
+        const indumentarias = new Set<string>();
+        for (const p of data.products) {
+          if (p.marca) marcas.add(p.marca);
+          if (p.indumentaria) indumentarias.add(p.indumentaria);
+        }
+        setExistingMarcas(Array.from(marcas).sort());
+        setExistingIndumentarias(Array.from(indumentarias).sort());
+      }
+    } catch { /* ignore */ }
+  }, []);
+
   useEffect(() => {
     loadProduct();
-  }, [loadProduct]);
+    loadExistingOptions();
+  }, [loadProduct, loadExistingOptions]);
 
   function updateField(field: keyof ShopProduct, value: any) {
     setProduct((prev) => ({ ...prev, [field]: value }));
@@ -325,6 +348,32 @@ export default function AdminProductEditPage() {
           </div>
         </div>
 
+        {/* Marca */}
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            Marca
+          </label>
+          <ChipSelector
+            options={mergeOptions(MARCA_OPTIONS, existingMarcas)}
+            value={product.marca || null}
+            onChange={(val) => updateField("marca", val)}
+            placeholder="Marca personalizada..."
+          />
+        </div>
+
+        {/* Indumentaria */}
+        <div>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            Indumentaria
+          </label>
+          <ChipSelector
+            options={mergeOptions(INDUMENTARIA_OPTIONS, existingIndumentarias)}
+            value={product.indumentaria || null}
+            onChange={(val) => updateField("indumentaria", val)}
+            placeholder="Tipo personalizado..."
+          />
+        </div>
+
         {/* Talles */}
         <div>
           <label className="block text-xs font-medium text-muted-foreground mb-1.5">
@@ -528,6 +577,110 @@ function TallesEditor({ talles, onChange }: { talles: string[]; onChange: (t: st
           +
         </button>
       </div>
+    </div>
+  );
+}
+
+// Preset options
+const MARCA_OPTIONS = ["Nike", "Adidas", "Essentials", "Stüssy", "New Balance"];
+const INDUMENTARIA_OPTIONS = ["Remera", "Buzo", "Campera", "Pantalón"];
+
+// Merge preset options with dynamic ones from DB (deduped, presets first)
+function mergeOptions(presets: string[], existing: string[]): string[] {
+  const set = new Set(presets);
+  const merged = [...presets];
+  for (const v of existing) {
+    if (!set.has(v)) {
+      merged.push(v);
+      set.add(v);
+    }
+  }
+  return merged;
+}
+
+// Generic chip selector — used for both marca and indumentaria
+function ChipSelector({
+  options,
+  value,
+  onChange,
+  placeholder,
+}: {
+  options: string[];
+  value: string | null;
+  onChange: (val: string | null) => void;
+  placeholder?: string;
+}) {
+  const [customInput, setCustomInput] = useState("");
+
+  function select(option: string) {
+    onChange(value === option ? null : option);
+  }
+
+  function addCustom() {
+    const t = customInput.trim();
+    if (t) {
+      onChange(t);
+      setCustomInput("");
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((opt) => {
+          const active = value === opt;
+          return (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => select(opt)}
+              className={`text-xs px-2.5 py-1 rounded-md border transition-colors ${
+                active
+                  ? "bg-primary/20 border-primary/50 text-primary"
+                  : "bg-secondary/30 border-border text-muted-foreground hover:border-primary/30"
+              }`}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      <div className="flex gap-1.5">
+        <input
+          type="text"
+          value={customInput}
+          onChange={(e) => setCustomInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addCustom();
+            }
+          }}
+          placeholder={placeholder || "Personalizado..."}
+          className="flex-1 bg-secondary/50 border border-border rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+        />
+        <button
+          type="button"
+          onClick={addCustom}
+          className="text-xs bg-secondary/50 border border-border rounded-lg px-3 py-1.5 hover:bg-secondary/80 transition-colors"
+        >
+          +
+        </button>
+      </div>
+      {value && !options.includes(value) && (
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs px-2.5 py-1 rounded-md border bg-primary/20 border-primary/50 text-primary">
+            {value}
+          </span>
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </div>
   );
 }

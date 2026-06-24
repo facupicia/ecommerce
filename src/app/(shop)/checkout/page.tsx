@@ -51,6 +51,7 @@ export default function CheckoutPage() {
           items: items.map((i) => ({
             product_id: i.product_id,
             nombre: i.nombre,
+            talle: i.talle || null,
             precio_ars: i.precio_ars,
             cantidad: i.cantidad,
             imagen: i.imagen,
@@ -294,7 +295,15 @@ export default function CheckoutPage() {
                     <p className="text-[13px] font-medium text-[#1a1a1a] truncate">
                       {item.nombre}
                     </p>
-                    <p className="text-[11px] text-[var(--plug-gray)]">x{item.cantidad}</p>
+                    <p className="text-[11px] text-[var(--plug-gray)] flex items-center gap-1.5">
+                      <span>x{item.cantidad}</span>
+                      {item.talle && (
+                        <>
+                          <span className="w-1 h-1 rounded-full bg-neutral-300" />
+                          <span>Talle: {item.talle}</span>
+                        </>
+                      )}
+                    </p>
                   </div>
                   <span className="text-[13px] font-medium text-[#1a1a1a]">
                     {formatPrice(item.precio_ars * item.cantidad)}

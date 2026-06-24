@@ -90,6 +90,11 @@ export default function CartPage() {
                   >
                     {item.nombre}
                   </Link>
+                  {item.talle && (
+                    <p className="text-[12px] text-[var(--plug-gray)] mt-0.5">
+                      Talle: <span className="font-semibold text-[#1a1a1a]">{item.talle}</span>
+                    </p>
+                  )}
                   <p className="text-[13px] font-medium text-[#1a1a1a] mt-1">
                     {formatPrice(item.precio_ars)}
                   </p>
@@ -99,9 +104,9 @@ export default function CartPage() {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() =>
-                        updateQuantity(item.product_id, item.cantidad - 1)
+                        updateQuantity(item.product_id, item.cantidad - 1, item.talle)
                       }
-                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors cursor-pointer"
                       aria-label="Reducir cantidad"
                     >
                       <svg
@@ -123,9 +128,9 @@ export default function CartPage() {
                     </span>
                     <button
                       onClick={() =>
-                        updateQuantity(item.product_id, item.cantidad + 1)
+                        updateQuantity(item.product_id, item.cantidad + 1, item.talle)
                       }
-                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors"
+                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors cursor-pointer"
                       aria-label="Aumentar cantidad"
                     >
                       <svg
@@ -149,8 +154,8 @@ export default function CartPage() {
                       {formatPrice(item.precio_ars * item.cantidad)}
                     </span>
                     <button
-                      onClick={() => removeFromCart(item.product_id)}
-                      className="text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
+                      onClick={() => removeFromCart(item.product_id, item.talle)}
+                      className="text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors cursor-pointer"
                       aria-label="Eliminar producto"
                     >
                       <svg

@@ -40,6 +40,8 @@ export interface ShopProduct {
   stock: number;
   talles: string[];
   color: string;
+  marca: string | null;
+  indumentaria: string | null;
   publicado: boolean;
   cssbuy_oid: string | null;
   peso_g: number;
@@ -68,6 +70,7 @@ export interface ShopOrderItem {
   precio_ars: number;
   cantidad: number;
   imagen: string;
+  talle?: string | null;
 }
 
 export interface FxRates {

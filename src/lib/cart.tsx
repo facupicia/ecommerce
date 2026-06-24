@@ -18,13 +18,14 @@ export interface CartItem {
   cantidad: number;
   imagen: string;
   slug: string;
+  talle?: string;
 }
 
 interface CartContextValue {
   items: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (product_id: string) => void;
-  updateQuantity: (product_id: string, cantidad: number) => void;
+  removeFromCart: (product_id: string, talle?: string) => void;
+  updateQuantity: (product_id: string, cantidad: number, talle?: string) => void;
   clearCart: () => void;
   itemCount: number;
   total: number;
@@ -77,7 +78,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = useCallback((newItem: CartItem) => {
     setItems((prev) => {
-      const idx = prev.findIndex((i) => i.product_id === newItem.product_id);
+      const idx = prev.findIndex(
+        (i) => i.product_id === newItem.product_id && i.talle === newItem.talle
+      );
       if (idx >= 0) {
         const updated = [...prev];
         updated[idx] = {
@@ -90,19 +93,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const removeFromCart = useCallback((product_id: string) => {
-    setItems((prev) => prev.filter((i) => i.product_id !== product_id));
+  const removeFromCart = useCallback((product_id: string, talle?: string) => {
+    setItems((prev) =>
+      prev.filter((i) => !(i.product_id === product_id && i.talle === talle))
+    );
   }, []);
 
   const updateQuantity = useCallback(
-    (product_id: string, cantidad: number) => {
+    (product_id: string, cantidad: number, talle?: string) => {
       if (cantidad <= 0) {
-        removeFromCart(product_id);
+        removeFromCart(product_id, talle);
         return;
       }
       setItems((prev) =>
         prev.map((i) =>
-          i.product_id === product_id ? { ...i, cantidad } : i
+          i.product_id === product_id && i.talle === talle
+            ? { ...i, cantidad }
+            : i
         )
       );
     },

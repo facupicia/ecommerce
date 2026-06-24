@@ -27,7 +27,7 @@
   --kith-border: #d9d9d9;
   --kith-footer: #f2f2f2;
   --kith-bg: #ffffff;
-  --font-serif: Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-sans-custom), sans-serif;
 }
 
 @theme inline {
@@ -49,8 +49,9 @@
   --color-warning: var(--warning);
   --color-ring: var(--ring);
   --radius: var(--radius);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans-custom);
+  --font-serif: var(--font-sans-custom);
+  --font-mono: monospace;
 }
 
 body {
