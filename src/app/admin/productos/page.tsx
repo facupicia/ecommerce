@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   Loader2,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { ShopProduct, CssbuyOrder } from "@/lib/types";
 import { uid } from "@/lib/utils";
 
@@ -28,15 +27,13 @@ export default function AdminProductosPage() {
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("shop_products")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      setError(error.message);
-    } else {
-      setProducts(data || []);
+    try {
+      const res = await fetch("/api/products", { credentials: "same-origin" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error cargando productos");
+      setProducts(data.products || []);
+    } catch (e: any) {
+      setError(e.message);
     }
     setLoading(false);
   }, []);
@@ -48,16 +45,14 @@ export default function AdminProductosPage() {
   async function loadWarehouse() {
     setLoadingWarehouse(true);
     setError(null);
-    const { data, error } = await supabase
-      .from("cssbuy_warehouse")
-      .select("*")
-      .order("fecha_pedido", { ascending: false });
-
-    if (error) {
-      setError("Error cargando warehouse: " + error.message);
-    } else {
-      setWarehouseItems(data || []);
+    try {
+      const res = await fetch("/api/warehouse", { credentials: "same-origin" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error cargando warehouse");
+      setWarehouseItems(data.orders || []);
       setShowImport(true);
+    } catch (e: any) {
+      setError("Error cargando warehouse: " + e.message);
     }
     setLoadingWarehouse(false);
   }
@@ -66,13 +61,16 @@ export default function AdminProductosPage() {
     setImporting(order.oid);
     setError(null);
 
-    const slug =
+    const slugBase =
       (order.producto || `producto-${order.oid}`)
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "") +
-      "-" +
-      order.oid.slice(0, 6);
+        .replace(/^-|-$/g, "")
+        .slice(0, 60);
+
+    // El sufijo con timestamp evita colisiones si el mismo item se importa
+    // más de una vez o si hay productos manuales con slug similar.
+    const slug = `${slugBase}-${order.oid.slice(0, 8)}-${Date.now().toString(36)}`;
 
     const newProduct: Partial<ShopProduct> = {
       id: uid(),
@@ -91,30 +89,42 @@ export default function AdminProductosPage() {
       updated_at: new Date().toISOString(),
     };
 
-    const { error } = await supabase.from("shop_products").insert(newProduct);
-
-    if (error) {
-      setError("Error al importar: " + error.message);
-    } else {
+    try {
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newProduct),
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al importar");
       await loadProducts();
+    } catch (e: any) {
+      setError("Error al importar: " + e.message);
     }
     setImporting(null);
   }
 
   async function togglePublished(product: ShopProduct) {
-    const { error } = await supabase
-      .from("shop_products")
-      .update({ publicado: !product.publicado, updated_at: new Date().toISOString() })
-      .eq("id", product.id);
-
-    if (error) {
-      setError("Error: " + error.message);
-    } else {
+    try {
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          publicado: !product.publicado,
+          updated_at: new Date().toISOString(),
+        }),
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error");
       setProducts((prev) =>
         prev.map((p) =>
           p.id === product.id ? { ...p, publicado: !p.publicado } : p
         )
       );
+    } catch (e: any) {
+      setError("Error: " + e.message);
     }
   }
 
@@ -122,15 +132,44 @@ export default function AdminProductosPage() {
     if (!confirm(`¿Eliminar "${product.nombre}"? Esta acción no se puede deshacer.`))
       return;
 
-    const { error } = await supabase
-      .from("shop_products")
-      .delete()
-      .eq("id", product.id);
-
-    if (error) {
-      setError("Error: " + error.message);
-    } else {
+    try {
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error");
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
+    } catch (e: any) {
+      setError("Error: " + e.message);
+    }
+  }
+
+  async function updateProductField(
+    product: ShopProduct,
+    field: "precio_ars" | "stock",
+    value: number
+  ) {
+    const current = product[field] ?? 0;
+    if (value === current) return;
+
+    try {
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          [field]: value,
+          updated_at: new Date().toISOString(),
+        }),
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error");
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, [field]: value } : p))
+      );
+    } catch (e: any) {
+      setError("Error: " + e.message);
     }
   }
 
@@ -351,18 +390,21 @@ export default function AdminProductosPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4 text-right tabular-nums font-medium">
-                      ${(product.precio_ars || 0).toLocaleString("es-AR")}
+                      <InlineNumberInput
+                        value={product.precio_ars || 0}
+                        prefix="$"
+                        min={0}
+                        step={0.01}
+                        onSave={(val) => updateProductField(product, "precio_ars", val)}
+                      />
                     </td>
                     <td className="py-3 px-4 text-right tabular-nums">
-                      <span
-                        className={
-                          (product.stock || 0) === 0
-                            ? "text-destructive"
-                            : "text-muted-foreground"
-                        }
-                      >
-                        {product.stock || 0}
-                      </span>
+                      <InlineNumberInput
+                        value={product.stock || 0}
+                        min={0}
+                        step={1}
+                        onSave={(val) => updateProductField(product, "stock", val)}
+                      />
                     </td>
                     <td className="py-3 px-4 text-center">
                       <button
@@ -406,6 +448,59 @@ export default function AdminProductosPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function InlineNumberInput({
+  value,
+  onSave,
+  prefix,
+  min,
+  step,
+}: {
+  value: number;
+  onSave: (val: number) => void;
+  prefix?: string;
+  min?: number;
+  step?: number;
+}) {
+  const [draft, setDraft] = useState(String(value));
+
+  // Sincronizar si el valor cambia desde fuera
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  function commit() {
+    const num = step === 1 ? parseInt(draft, 10) : parseFloat(draft);
+    const normalized = isNaN(num) ? 0 : Math.max(min ?? 0, num);
+    if (normalized !== value) {
+      onSave(normalized);
+    } else {
+      setDraft(String(value));
+    }
+  }
+
+  return (
+    <div className="inline-flex items-center justify-end gap-1">
+      {prefix && <span className="text-xs text-muted-foreground">{prefix}</span>}
+      <input
+        type="number"
+        min={min ?? 0}
+        step={step ?? 1}
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            commit();
+            (e.target as HTMLInputElement).blur();
+          }
+        }}
+        className="w-20 text-right bg-secondary/50 border border-border rounded px-2 py-1 text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-primary/50"
+      />
     </div>
   );
 }

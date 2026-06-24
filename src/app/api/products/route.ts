@@ -1,8 +1,8 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("shop_products")
       .select("*")
       .order("created_at", { ascending: false });
@@ -17,11 +17,12 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g } = body;
-    
+    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g } = body;
+
     if (!slug || !nombre) return Response.json({ error: "slug y nombre requeridos" }, { status: 400 });
 
-    const { data, error } = await supabase.from("shop_products").upsert({
+    const { data, error } = await supabaseAdmin.from("shop_products").insert({
+      id: id || undefined,
       slug,
       nombre,
       descripcion: descripcion || "",
@@ -33,9 +34,14 @@ export async function POST(req: Request) {
       publicado: publicado ?? false,
       cssbuy_oid: cssbuy_oid || null,
       peso_g: peso_g || 0,
-    }, { onConflict: "slug" }).select();
+    }).select();
 
-    if (error) return Response.json({ error: error.message }, { status: 500 });
+    if (error) {
+      if (error.code === "23505") {
+        return Response.json({ error: "El slug ya existe" }, { status: 409 });
+      }
+      return Response.json({ error: error.message }, { status: 500 });
+    }
     return Response.json({ product: data?.[0] });
   } catch (err) {
     return Response.json({ error: err instanceof Error ? err.message : "Error" }, { status: 500 });

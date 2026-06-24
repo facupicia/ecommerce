@@ -1,7 +1,12 @@
 import { FxRates, ShipmentCosts, AduanaConfig, Product, ProductCalc, CalculationResult } from "./types";
 
 export function uid(): string {
-  return Math.random().toString(36).slice(2, 10);
+  // UUID v4 (compatible con columnas uuid de Supabase)
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
 }
 
 export function fmtUSD(n: number): string {

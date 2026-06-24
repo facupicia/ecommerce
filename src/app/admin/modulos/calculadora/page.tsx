@@ -20,7 +20,6 @@ import {
 import { Product, FxRates, ShipmentCosts, AduanaConfig, CalculationResult } from "@/lib/types";
 import { calcularTodo, fmtUSD, fmtARS, fmtPct, uid } from "@/lib/utils";
 import { CssbuyOrder } from "@/lib/types";
-import { supabase } from "@/lib/supabase";
 
 export default function CalculatorPage() {
   const [fx, setFx] = useState<FxRates>({ blue: 0, oficial: 0, mep: 0, cny: 7.2 });
@@ -50,17 +49,15 @@ export default function CalculatorPage() {
   const [uploadMsg, setUploadMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Cargar warehouse orders de Supabase
+  // Cargar warehouse orders
   const loadOrders = useCallback(async () => {
     setOrdersLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("cssbuy_warehouse")
-        .select("*")
-        .eq("estado", "In Warehouse")
-        .order("fecha_pedido", { ascending: false });
-      if (error) throw error;
-      setOrders((data || []) as CssbuyOrder[]);
+      const res = await fetch("/api/warehouse", { credentials: "same-origin" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error cargando warehouse");
+      const items = (data.orders || []) as CssbuyOrder[];
+      setOrders(items.filter((o) => o.estado === "In Warehouse"));
     } catch (e: any) {
       console.error("Error loading warehouse orders:", e);
     } finally {
@@ -135,9 +132,15 @@ export default function CalculatorPage() {
   const descuentoCuponCNY = cupon100 && freightCalculado >= 500 ? 100 : 0;
   const freightConDescuentoCNY = Math.max(0, freightCalculado - descuentoCuponCNY);
 
-  if (lineaEnvio !== "custom" && pesoTotalG > 0 && freightConDescuentoCNY !== envio.freightCNY) {
-    setEnvio((prev) => ({ ...prev, freightCNY: freightConDescuentoCNY }));
-  }
+  // Sincronizar freight calculado con el estado de envío (solo líneas auto)
+  useEffect(() => {
+    if (lineaEnvio === "custom" || pesoTotalG === 0) return;
+    setEnvio((prev) =>
+      prev.freightCNY === freightConDescuentoCNY
+        ? prev
+        : { ...prev, freightCNY: freightConDescuentoCNY }
+    );
+  }, [lineaEnvio, pesoTotalG, freightConDescuentoCNY]);
 
   const addProducto = useCallback(() => {
     setProductos((prev) => [

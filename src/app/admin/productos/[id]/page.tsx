@@ -12,7 +12,6 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
 import { ShopProduct } from "@/lib/types";
 import { uid } from "@/lib/utils";
 
@@ -44,16 +43,15 @@ export default function AdminProductEditPage() {
   const loadProduct = useCallback(async () => {
     if (isNew) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("shop_products")
-      .select("*")
-      .eq("id", params.id)
-      .single();
-
-    if (error || !data) {
-      setError("Producto no encontrado: " + (error?.message || ""));
-    } else {
-      setProduct(data);
+    try {
+      const res = await fetch(`/api/products/${params.id}`, {
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Producto no encontrado");
+      setProduct(data.product);
+    } catch (e: any) {
+      setError("Producto no encontrado: " + e.message);
     }
     setLoading(false);
   }, [params.id, isNew]);
@@ -105,35 +103,51 @@ export default function AdminProductEditPage() {
       return;
     }
 
-    if (!product.slug?.trim()) {
-      generateSlug();
-      return;
+    let slug = product.slug?.trim();
+    if (!slug) {
+      slug =
+        (product.nombre || "producto")
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-|-$/g, "") +
+        "-" +
+        Date.now().toString(36);
     }
 
     const payload = {
       ...product,
+      slug,
       updated_at: new Date().toISOString(),
     };
 
-    if (isNew) {
-      payload.created_at = new Date().toISOString();
-      const { error: insertError } = await supabase.from("shop_products").insert(payload);
-      if (insertError) {
-        setError("Error al crear: " + insertError.message);
-      } else {
+    try {
+      if (isNew) {
+        const res = await fetch("/api/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...payload,
+            created_at: new Date().toISOString(),
+          }),
+          credentials: "same-origin",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al crear");
         setSuccess(true);
         setTimeout(() => router.push("/admin/productos"), 1000);
-      }
-    } else {
-      const { error: updateError } = await supabase
-        .from("shop_products")
-        .update(payload)
-        .eq("id", product.id);
-      if (updateError) {
-        setError("Error al guardar: " + updateError.message);
       } else {
+        const res = await fetch(`/api/products/${product.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          credentials: "same-origin",
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error al guardar");
         setSuccess(true);
       }
+    } catch (e: any) {
+      setError(e.message);
     }
 
     setSaving(false);
@@ -142,15 +156,16 @@ export default function AdminProductEditPage() {
   async function handleDelete() {
     if (!confirm("¿Eliminar este producto permanentemente?")) return;
 
-    const { error } = await supabase
-      .from("shop_products")
-      .delete()
-      .eq("id", product.id);
-
-    if (error) {
-      setError("Error al eliminar: " + error.message);
-    } else {
+    try {
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al eliminar");
       router.push("/admin/productos");
+    } catch (e: any) {
+      setError(e.message);
     }
   }
 

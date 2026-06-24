@@ -1,14 +1,93 @@
-/* Shop light theme overrides */
+/* Shop light theme — Kith-inspired minimal editorial aesthetic */
 .shop-layout {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #333333;
   --card: #ffffff;
-  --card-foreground: #171717;
-  --border: #e5e7eb;
-  --secondary: #f9fafb;
-  --secondary-foreground: #171717;
-  --muted: #f3f4f6;
-  --muted-foreground: #6b7280;
-  --accent: #f3f4f6;
-  --accent-foreground: #171717;
+  --card-foreground: #333333;
+  --border: #d9d9d9;
+  --secondary: #f2f2f2;
+  --secondary-foreground: #333333;
+  --muted: #f2f2f2;
+  --muted-foreground: #828282;
+  --accent: #f2f2f2;
+  --accent-foreground: #333333;
+  --primary: #333333;
+  --primary-foreground: #ffffff;
+  --destructive: #ef4444;
+
+  /* Kith tokens */
+  --kith-black: #333333;
+  --kith-white: #ffffff;
+  --kith-gray: #828282;
+  --kith-border: #d9d9d9;
+  --kith-footer: #f2f2f2;
+  --kith-bg: #ffffff;
+  --font-serif: Georgia, "Times New Roman", serif;
+
+  background: var(--kith-bg);
+  color: var(--kith-black);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.shop-layout a {
+  color: inherit;
+}
+
+/* Kith-style utility classes */
+.kith-text {
+  color: var(--kith-black);
+}
+
+.kith-text-muted {
+  color: var(--kith-gray);
+}
+
+.kith-border {
+  border-color: var(--kith-border);
+}
+
+.kith-bg-footer {
+  background-color: var(--kith-footer);
+}
+
+.kith-font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Button variants */
+.kith-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 7.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--kith-black);
+  background: var(--kith-white);
+  color: var(--kith-black);
+  transition: all 0.2s ease-in-out;
+}
+
+.kith-btn:hover {
+  background: var(--kith-black);
+  color: var(--kith-white);
+}
+
+.kith-btn-dark {
+  background: var(--kith-black);
+  color: var(--kith-white);
+}
+
+.kith-btn-dark:hover {
+  background: var(--kith-white);
+  color: var(--kith-black);
+}
+
+.kith-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

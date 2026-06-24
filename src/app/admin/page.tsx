@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { ShopOrder, ShopProduct } from "@/lib/types";
 import { Package, ShoppingCart, Clock, DollarSign } from "lucide-react";
 import Link from "next/link";
@@ -7,20 +7,29 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   // Fetch stats
-  const [{ count: totalProducts }, { count: totalOrders }, { count: pendingOrders }, { data: recentOrders }] =
-    await Promise.all([
-      supabase.from("shop_products").select("*", { count: "exact", head: true }),
-      supabase.from("shop_orders").select("*", { count: "exact", head: true }),
-      supabase
-        .from("shop_orders")
-        .select("*", { count: "exact", head: true })
-        .eq("estado", "pending"),
-      supabase
-        .from("shop_orders")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(10),
-    ]);
+  const [
+    { count: totalProducts },
+    { count: totalOrders },
+    { count: pendingOrders },
+    { data: recentOrders },
+    { data: revenueOrders },
+  ] = await Promise.all([
+    supabaseAdmin.from("shop_products").select("*", { count: "exact", head: true }),
+    supabaseAdmin.from("shop_orders").select("*", { count: "exact", head: true }),
+    supabaseAdmin
+      .from("shop_orders")
+      .select("*", { count: "exact", head: true })
+      .eq("estado", "pending"),
+    supabaseAdmin
+      .from("shop_orders")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(10),
+    supabaseAdmin
+      .from("shop_orders")
+      .select("total_ars,estado")
+      .neq("estado", "cancelled"),
+  ]);
 
   const orders = (recentOrders || []) as ShopOrder[];
 
@@ -48,7 +57,7 @@ export default async function AdminDashboardPage() {
     },
   ];
 
-  const totalRevenue = orders
+  const totalRevenue = (revenueOrders || [])
     .filter((o) => o.estado !== "cancelled")
     .reduce((sum, o) => sum + (o.total_ars || 0), 0);
 

@@ -19,6 +19,15 @@
   --warning: #f59e0b;
   --ring: #22c55e;
   --radius: 0.5rem;
+
+  /* Shop Kith-inspired palette */
+  --kith-black: #333333;
+  --kith-white: #ffffff;
+  --kith-gray: #828282;
+  --kith-border: #d9d9d9;
+  --kith-footer: #f2f2f2;
+  --kith-bg: #ffffff;
+  --font-serif: Georgia, "Times New Roman", serif;
 }
 
 @theme inline {

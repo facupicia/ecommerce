@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // GET single product by slug or id
 export async function GET(req: Request) {
@@ -7,7 +7,7 @@ export async function GET(req: Request) {
     const id = url.pathname.split("/").pop();
     if (!id) return Response.json({ error: "ID requerido" }, { status: 400 });
 
-    const { data, error } = await supabase.from("shop_products").select("*").eq("id", id).single();
+    const { data, error } = await supabaseAdmin.from("shop_products").select("*").eq("id", id).single();
     if (error) return Response.json({ error: error.message }, { status: 404 });
     return Response.json({ product: data });
   } catch (err) {
@@ -23,7 +23,7 @@ export async function PATCH(req: Request) {
     if (!id) return Response.json({ error: "ID requerido" }, { status: 400 });
 
     const body = await req.json();
-    const { data, error } = await supabase.from("shop_products").update(body).eq("id", id).select();
+    const { data, error } = await supabaseAdmin.from("shop_products").update(body).eq("id", id).select();
     if (error) return Response.json({ error: error.message }, { status: 500 });
     return Response.json({ product: data?.[0] });
   } catch (err) {
@@ -38,7 +38,7 @@ export async function DELETE(req: Request) {
     const id = url.pathname.split("/").pop();
     if (!id) return Response.json({ error: "ID requerido" }, { status: 400 });
 
-    const { error } = await supabase.from("shop_products").delete().eq("id", id);
+    const { error } = await supabaseAdmin.from("shop_products").delete().eq("id", id);
     if (error) return Response.json({ error: error.message }, { status: 500 });
     return Response.json({ success: true });
   } catch (err) {

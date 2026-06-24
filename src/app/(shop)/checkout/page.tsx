@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
+import Link from "next/link";
 
 function formatPrice(ars: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -69,15 +70,11 @@ export default function CheckoutPage() {
       }
 
       const data = await res.json();
-
-      // Clear cart and redirect to Mercado Pago (or order confirmation)
       clearCart();
 
       if (data.mp_init_point) {
-        // Mercado Pago redirect URL
         window.location.href = data.mp_init_point;
       } else {
-        // Fallback: redirect to order confirmation
         router.push(`/checkout/confirmado?order=${data.order_id}`);
       }
     } catch (err) {
@@ -91,50 +88,32 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 text-center">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 mb-6">
-          <svg
-            className="w-10 h-10 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-3">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-24 text-center">
+        <h2 className="kith-font-serif text-3xl text-[#333333] mb-3">
           No hay nada que pagar
         </h2>
-        <p className="text-gray-500 mb-8">
+        <p className="text-[14px] text-[#828282] mb-8">
           Agregá productos al carrito antes de iniciar el pago.
         </p>
-        <a
-          href="/"
-          className="inline-flex items-center px-6 py-3 bg-emerald-600 text-white rounded-full font-semibold hover:bg-emerald-700 transition-colors"
-        >
+        <Link href="/" className="kith-btn">
           Ver productos
-        </a>
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-10">
+    <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
+      <h1 className="kith-font-serif text-3xl sm:text-4xl text-[#333333] mb-10 lg:mb-12">
         Finalizar compra
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-16">
         {/* Form */}
         <div className="lg:col-span-3">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
-              <h2 className="text-lg font-bold text-gray-900">
+            <div className="border border-[#d9d9d9] p-6 lg:p-8 space-y-6">
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333]">
                 Datos de contacto
               </h2>
 
@@ -142,7 +121,7 @@ export default function CheckoutPage() {
                 <div>
                   <label
                     htmlFor="nombre"
-                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
                   >
                     Nombre completo *
                   </label>
@@ -153,14 +132,14 @@ export default function CheckoutPage() {
                     required
                     value={form.nombre}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-gray-900"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
                     placeholder="Tu nombre"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
                   >
                     Email *
                   </label>
@@ -171,7 +150,7 @@ export default function CheckoutPage() {
                     required
                     value={form.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-gray-900"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
                     placeholder="tu@email.com"
                   />
                 </div>
@@ -181,7 +160,7 @@ export default function CheckoutPage() {
                 <div>
                   <label
                     htmlFor="telefono"
-                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
                   >
                     Teléfono *
                   </label>
@@ -192,14 +171,14 @@ export default function CheckoutPage() {
                     required
                     value={form.telefono}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-gray-900"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
                     placeholder="+54 9 261 123-4567"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="direccion"
-                    className="block text-sm font-medium text-gray-700 mb-1.5"
+                    className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
                   >
                     Dirección de envío *
                   </label>
@@ -210,7 +189,7 @@ export default function CheckoutPage() {
                     required
                     value={form.direccion}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-gray-900"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors"
                     placeholder="Calle, número, ciudad"
                   />
                 </div>
@@ -219,7 +198,7 @@ export default function CheckoutPage() {
               <div>
                 <label
                   htmlFor="notas"
-                  className="block text-sm font-medium text-gray-700 mb-1.5"
+                  className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#333333] mb-2"
                 >
                   Notas adicionales
                 </label>
@@ -229,14 +208,14 @@ export default function CheckoutPage() {
                   rows={3}
                   value={form.notas}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow text-gray-900 resize-none"
+                  className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#333333] placeholder:text-[#828282] focus:outline-none focus:border-[#333333] transition-colors resize-none"
                   placeholder="Indicaciones de entrega, horarios, etc."
                 />
               </div>
             </div>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+              <div className="p-4 border border-red-200 bg-red-50 text-[13px] text-red-700">
                 {error}
               </div>
             )}
@@ -244,12 +223,12 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3.5 bg-emerald-600 text-white rounded-full font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-lg"
+              className="kith-btn-dark kith-btn w-full"
             >
               {submitting ? (
                 <span className="inline-flex items-center gap-2">
                   <svg
-                    className="animate-spin w-5 h-5"
+                    className="animate-spin w-4 h-4"
                     fill="none"
                     viewBox="0 0 24 24"
                   >
@@ -259,7 +238,7 @@ export default function CheckoutPage() {
                       cy="12"
                       r="10"
                       stroke="currentColor"
-                      strokeWidth="4"
+                      strokeWidth={4}
                     />
                     <path
                       className="opacity-75"
@@ -278,15 +257,15 @@ export default function CheckoutPage() {
 
         {/* Order summary */}
         <div className="lg:col-span-2">
-          <div className="bg-gray-50 rounded-2xl p-6 sticky top-24">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
+          <div className="kith-bg-footer p-6 lg:p-8 sticky top-24">
+            <h2 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#333333] mb-6">
               Tu pedido
             </h2>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               {items.map((item) => (
                 <div key={item.product_id} className="flex items-center gap-3">
-                  <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gray-200 overflow-hidden">
+                  <div className="w-12 h-12 flex-shrink-0 bg-[#d9d9d9] overflow-hidden">
                     {item.imagen ? (
                       <img
                         src={item.imagen}
@@ -294,17 +273,17 @@ export default function CheckoutPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <div className="w-full h-full flex items-center justify-center text-[#828282]">
                         <svg
                           className="w-5 h-5"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
+                          strokeWidth={1}
                         >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            strokeWidth={1}
                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14"
                           />
                         </svg>
@@ -312,32 +291,30 @@ export default function CheckoutPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
+                    <p className="text-[13px] font-medium text-[#333333] truncate">
                       {item.nombre}
                     </p>
-                    <p className="text-xs text-gray-500">x{item.cantidad}</p>
+                    <p className="text-[11px] text-[#828282]">x{item.cantidad}</p>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className="text-[13px] font-medium text-[#333333]">
                     {formatPrice(item.precio_ars * item.cantidad)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4 pt-4 border-t border-gray-200 space-y-2 text-sm">
-              <div className="flex justify-between text-gray-600">
+            <div className="mt-6 pt-6 border-t border-[#d9d9d9] space-y-2 text-[13px]">
+              <div className="flex justify-between text-[#828282]">
                 <span>Subtotal</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+              <div className="flex justify-between text-[#828282]">
                 <span>Envío</span>
-                <span className="text-emerald-600 font-medium">
-                  A coordinar
-                </span>
+                <span className="text-[#333333] font-medium">A coordinar</span>
               </div>
-              <div className="pt-3 border-t border-gray-200 flex justify-between text-base">
-                <span className="font-bold text-gray-900">Total</span>
-                <span className="font-bold text-gray-900">
+              <div className="pt-3 border-t border-[#d9d9d9] flex justify-between text-[15px]">
+                <span className="font-medium text-[#333333]">Total</span>
+                <span className="font-medium text-[#333333]">
                   {formatPrice(total)}
                 </span>
               </div>
