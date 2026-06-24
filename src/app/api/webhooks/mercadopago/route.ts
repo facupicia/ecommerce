@@ -10,6 +10,18 @@ import {
   upsertPayment,
 } from "@/lib/order-helpers";
 
+/**
+ * Convierte la respuesta del SDK de Mercado Pago en un objeto plano
+ * seguro para guardar en Supabase (evita referencias circulares, getters, etc.).
+ */
+function safePaymentResponse(payment: any): Record<string, any> | null {
+  try {
+    return JSON.parse(JSON.stringify(payment));
+  } catch (serializationError) {
+    console.error("Error serializando pago de MP:", serializationError);
+    return null;
+  }
+}
 
 /**
  * Mercado Pago requiere una respuesta 200/201 para dejar de reintentar.
@@ -39,10 +51,11 @@ export async function POST(request: Request) {
     }
 
     console.log(
-      `Mercado Pago webhook. Topic: "${topic}", ID: "${paymentId}"`
+      `[MP Webhook] Topic: "${topic}", Action: "${body.action}", ID: "${paymentId}"`
     );
 
     if (topic !== "payment" || !paymentId) {
+      console.log(`[MP Webhook] Ignorado: topic no es payment o sin ID`);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
@@ -57,28 +70,38 @@ export async function POST(request: Request) {
       );
       if (!isValid) {
         console.warn(
-          `Firma de webhook inválida para payment ${paymentId}. Ignorando.`
+          `[MP Webhook] Firma inválida para payment ${paymentId}. Ignorando.`
         );
         return NextResponse.json({ received: true }, { status: 200 });
       }
     } else {
       console.warn(
-        "MERCADOPAGO_WEBHOOK_SECRET no está configurado. El webhook se procesará sin verificar firma."
+        "[MP Webhook] MERCADOPAGO_WEBHOOK_SECRET no configurado. Procesando sin verificar firma."
       );
     }
 
     // Obtener el pago desde Mercado Pago.
-    const paymentClient = getMercadoPagoPayment();
-    const payment = await paymentClient.get({ id: Number(paymentId) });
+    let payment: any;
+    try {
+      const paymentClient = getMercadoPagoPayment();
+      payment = await paymentClient.get({ id: Number(paymentId) });
+    } catch (mpError) {
+      console.error(
+        `[MP Webhook] Error obteniendo pago ${paymentId} desde MP:`,
+        mpError
+      );
+      return NextResponse.json({ received: true }, { status: 200 });
+    }
+
     const orderId = payment.external_reference;
     const status = payment.status;
 
     console.log(
-      `Mercado Pago payment ${paymentId} status: "${status}" (Order: "${orderId}")`
+      `[MP Webhook] Payment ${paymentId} status: "${status}" (Order: "${orderId}")`
     );
 
     if (!orderId) {
-      console.warn(`Payment ${paymentId} sin external_reference.`);
+      console.warn(`[MP Webhook] Payment ${paymentId} sin external_reference.`);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
@@ -90,26 +113,34 @@ export async function POST(request: Request) {
       .single();
 
     if (orderError || !order) {
-      console.error(`Orden ${orderId} no encontrada:`, orderError);
+      console.error(`[MP Webhook] Orden ${orderId} no encontrada:`, orderError);
       return NextResponse.json({ received: true }, { status: 200 });
     }
 
-    // Guardar o actualizar el pago en shop_payments.
-    await upsertPayment({
-      order_id: orderId,
-      mp_payment_id: String(paymentId),
-      mp_status: status ?? null,
-      mp_status_detail: payment.status_detail ?? null,
-      monto_pagado:
-        status === "approved" ? Number(payment.transaction_amount) : null,
-      metodo_pago: payment.payment_method_id ?? null,
-      cuotas: payment.installments ?? null,
-      fecha_pago: payment.date_approved ?? null,
-      raw_response: payment as unknown as Record<string, any>,
-    });
+    // Guardar o actualizar el pago en shop_payments (no bloquea el flujo).
+    try {
+      await upsertPayment({
+        order_id: orderId,
+        mp_payment_id: String(paymentId),
+        mp_status: status ?? null,
+        mp_status_detail: payment.status_detail ?? null,
+        monto_pagado:
+          status === "approved" ? Number(payment.transaction_amount) : null,
+        metodo_pago: payment.payment_method_id ?? null,
+        cuotas: payment.installments ?? null,
+        fecha_pago: payment.date_approved ?? null,
+        raw_response: safePaymentResponse(payment),
+      });
+    } catch (paymentError) {
+      console.error(
+        `[MP Webhook] Error guardando pago ${paymentId} en DB:`,
+        paymentError
+      );
+    }
 
     // Idempotencia: si ya está pagada, solo guardamos el payment_id.
     if (order.estado === "paid") {
+      console.log(`[MP Webhook] Orden ${orderId} ya estaba paid`);
       if (!order.mp_payment_id || order.mp_payment_id !== String(paymentId)) {
         await supabaseAdmin
           .from("shop_orders")
@@ -124,7 +155,7 @@ export async function POST(request: Request) {
       const stockResult = await deductStockForOrder(orderId, order.items);
       if (!stockResult.ok) {
         console.error(
-          `Error descontando stock para orden ${orderId}:`,
+          `[MP Webhook] Error descontando stock para orden ${orderId}:`,
           stockResult.error
         );
         // Continuamos igual para no perder la venta; se puede revisar manualmente.
@@ -139,7 +170,10 @@ export async function POST(request: Request) {
         .eq("id", orderId);
 
       if (updateError) {
-        console.error(`Error actualizando orden ${orderId}:`, updateError);
+        console.error(
+          `[MP Webhook] Error actualizando orden ${orderId}:`,
+          updateError
+        );
       } else {
         await createOrderLog({
           order_id: orderId,
@@ -152,10 +186,13 @@ export async function POST(request: Request) {
             source: "mercadopago_webhook",
           },
         });
-        console.log(`Orden ${orderId} marcada como paid`);
+        console.log(`[MP Webhook] Orden ${orderId} marcada como paid`);
       }
     } else {
       // Guardar el payment_id para trazabilidad aunque no esté aprobado.
+      console.log(
+        `[MP Webhook] Payment ${paymentId} no aprobado (${status}). Guardando mp_payment_id.`
+      );
       await supabaseAdmin
         .from("shop_orders")
         .update({ mp_payment_id: String(paymentId) })
@@ -164,7 +201,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
-    console.error("Error crítico en webhook de Mercado Pago:", error);
+    console.error("[MP Webhook] Error crítico:", error);
     return NextResponse.json(
       {
         received: true,
