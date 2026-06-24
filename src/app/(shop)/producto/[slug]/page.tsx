@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
 import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
@@ -10,6 +11,56 @@ export const dynamic = "force-dynamic";
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+
+  const { data: product } = await supabasePublic
+    .from("shop_products")
+    .select("*")
+    .eq("slug", slug)
+    .eq("publicado", true)
+    .single();
+
+  if (!product) {
+    return {
+      title: "Producto no encontrado | THEPLUG",
+    };
+  }
+
+  const p = product as ShopProduct;
+  const title = `${p.nombre} | THEPLUG`;
+  const cleanDescription = p.descripcion
+    ? p.descripcion.replace(/\n/g, " ").slice(0, 155) + (p.descripcion.length > 155 ? "..." : "")
+    : `Compra ${p.nombre} en THEPLUG. Ropa importada premium en Rosario, Argentina.`;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const ogImages = p.fotos && p.fotos.length > 0
+    ? [{ url: p.fotos[0], width: 800, height: 1000, alt: p.nombre }]
+    : [];
+
+  return {
+    title,
+    description: cleanDescription,
+    alternates: {
+      canonical: `/producto/${slug}`,
+    },
+    openGraph: {
+      title,
+      description: cleanDescription,
+      url: `/producto/${slug}`,
+      siteName: "THEPLUG",
+      type: "website",
+      images: ogImages,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: cleanDescription,
+      images: ogImages.map((img) => img.url),
+    },
+  };
 }
 
 function formatPrice(ars: number): string {
@@ -120,8 +171,37 @@ export default async function ProductDetailPage({ params }: Props) {
     },
   ];
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const productUrl = `${siteUrl}/producto/${p.slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": p.nombre,
+    "image": p.fotos && p.fotos.length > 0 ? p.fotos : [`${siteUrl}/favicon.ico`],
+    "description": p.descripcion || `Compra ${p.nombre} en THEPLUG.`,
+    "sku": p.id.slice(0, 8).toUpperCase(),
+    "brand": {
+      "@type": "Brand",
+      "name": p.marca || "THEPLUG"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": productUrl,
+      "priceCurrency": "ARS",
+      "price": p.precio_ars,
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": p.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    }
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-8 lg:py-12">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-[var(--plug-gray)] mb-8 lg:mb-12">

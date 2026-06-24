@@ -162,3 +162,40 @@ export interface Cotizacion {
   productos: Product[];
   resultados: CalculationResult;
 }
+
+// ── Admin / Payments / Logs ──────────────────────────────
+
+export interface ShopOrderLog {
+  id: string;
+  order_id: string;
+  estado_anterior: string | null;
+  estado_nuevo: string;
+  tipo: "webhook" | "manual" | "system";
+  metadata: Record<string, any>;
+  created_at: string;
+}
+
+export interface ShopPayment {
+  id: string;
+  order_id: string;
+  mp_payment_id: string | null;
+  mp_status: string | null;
+  mp_status_detail: string | null;
+  monto_pagado: number | null;
+  metodo_pago: string | null;
+  cuotas: number | null;
+  fecha_pago: string | null;
+  raw_response: Record<string, any> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ShopStockMovement {
+  id: string;
+  product_id: string;
+  cantidad: number;
+  tipo: "sale" | "restock" | "adjustment";
+  order_id: string | null;
+  motivo: string | null;
+  created_at: string;
+}

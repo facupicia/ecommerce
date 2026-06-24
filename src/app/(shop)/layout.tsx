@@ -6,10 +6,6 @@ import { getShopSettings } from "@/lib/settings";
 import { ComingSoon } from "@/components/shop/ComingSoon";
 import "@/app/shop.css";
 
-export const metadata = {
-  title: "THEPLUG — Rosario, Argentina",
-  description: "Ropa importada. Style desde Rosario al país.",
-};
 
 export default async function ShopLayout({
   children,

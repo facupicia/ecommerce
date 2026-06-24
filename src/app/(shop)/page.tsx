@@ -43,8 +43,34 @@ export default async function ShopHomePage() {
   const featured = items.slice(0, 8);
   const looks = items.slice(8);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    "name": "THEPLUG",
+    "url": siteUrl,
+    "logo": `${siteUrl}/favicon.ico`,
+    "image": `${siteUrl}/img/Gemini_Generated_Image_mx9i5gmx9i5gmx9i.png`,
+    "description": "Ropa importada premium. El mejor style streetwear desde Rosario a todo el país.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Rosario",
+      "addressRegion": "Santa Fe",
+      "addressCountry": "AR"
+    },
+    "sameAs": [
+      "https://www.instagram.com/theplug.ros/?hl=es-la"
+    ]
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       {/* 1. Fullscreen hero carousel */}
       <HeroCarousel slides={heroSlides} />
 

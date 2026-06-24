@@ -8,9 +8,48 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "600", "700"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+
 export const metadata: Metadata = {
-  title: "THEPLUG — Rosario, Argentina",
-  description: "Ropa importada. Style desde Rosario al país.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "THEPLUG — Rosario, Argentina",
+    template: "%s | THEPLUG",
+  },
+  description: "Ropa importada premium. El mejor style streetwear desde Rosario a todo el país.",
+  keywords: ["ropa importada", "streetwear rosario", "ropa streetwear", "tienda ropa argentina", "THEPLUG", "theplug rosario"],
+  authors: [{ name: "THEPLUG" }],
+  creator: "THEPLUG",
+  publisher: "THEPLUG",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: "./",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_AR",
+    url: siteUrl,
+    siteName: "THEPLUG",
+    title: "THEPLUG — Rosario, Argentina",
+    description: "Ropa importada premium. El mejor style streetwear desde Rosario a todo el país.",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 512,
+        height: 512,
+        alt: "THEPLUG Rosario",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "THEPLUG — Rosario, Argentina",
+    description: "Ropa importada premium. El mejor style streetwear desde Rosario a todo el país.",
+    images: ["/favicon.ico"],
+  },
 };
 
 export default function RootLayout({
