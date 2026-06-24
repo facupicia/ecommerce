@@ -26,7 +26,7 @@ export function ProductDetailTabs({ tabs }: ProductDetailTabsProps) {
             className={`relative flex-1 pb-3 text-[11px] font-bold uppercase tracking-[0.1em] transition-colors ${
               active === tab.id
                 ? "text-[#1a1a1a]"
-                : "text-[#777777] hover:text-[#1a1a1a]"
+                : "text-[var(--plug-gray)] hover:text-[#1a1a1a]"
             }`}
           >
             {tab.label}
@@ -43,7 +43,7 @@ export function ProductDetailTabs({ tabs }: ProductDetailTabsProps) {
           tab.id === active ? (
             <div
               key={tab.id}
-              className="text-[14px] leading-[1.7] text-[#777777]"
+              className="text-[14px] leading-[1.7] text-[var(--plug-gray)]"
             >
               {tab.content}
             </div>

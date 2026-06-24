@@ -9,7 +9,7 @@ export function CartIcon() {
   return (
     <Link href="/carrito" className="relative p-2 -mr-2" aria-label="Carrito">
       <svg
-        className="w-6 h-6 text-[#333333] hover:text-[#828282] transition-colors"
+        className="w-6 h-6 text-[#1a1a1a] hover:text-[#595959] transition-colors"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

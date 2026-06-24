@@ -95,7 +95,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                 <h2 className="plug-font-serif text-3xl sm:text-5xl lg:text-6xl text-white mb-3 drop-shadow-sm">
                   {slide.title}
                 </h2>
-                <p className="text-[13px] sm:text-[15px] text-white/90 leading-relaxed mb-6 max-w-lg drop-shadow-sm">
+                <p className="text-[13px] sm:text-[15px] text-white leading-relaxed mb-6 max-w-lg drop-shadow-sm">
                   {slide.subtitle}
                 </p>
                 <Link
@@ -115,7 +115,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
         <>
           <button
             onClick={prev}
-            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm transition-colors"
             aria-label="Anterior"
           >
             <svg
@@ -134,7 +134,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
           </button>
           <button
             onClick={next}
-            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 backdrop-blur-sm transition-colors"
             aria-label="Siguiente"
           >
             <svg
@@ -159,7 +159,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                 key={i}
                 onClick={() => goTo(i)}
                 className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                  i === current ? "bg-white w-4" : "bg-white/50 hover:bg-white/80"
+                  i === current ? "bg-white w-4" : "bg-white/70 hover:bg-white"
                 }`}
                 aria-label={`Ir a slide ${i + 1}`}
               />

@@ -27,7 +27,7 @@ export default async function CategoriesPage() {
         <h2 className="text-xl font-bold text-[#1a1a1a] mb-2">
           Error al cargar categorías
         </h2>
-        <p className="text-[#777777]">{error.message}</p>
+        <p className="text-[var(--plug-gray)]">{error.message}</p>
       </div>
     );
   }
@@ -46,13 +46,13 @@ export default async function CategoriesPage() {
   return (
     <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
       <section className="mb-12 lg:mb-16 text-center max-w-2xl mx-auto">
-        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#777777] mb-4">
+        <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[var(--plug-gray)] mb-4">
           Explorar
         </p>
         <h1 className="plug-font-serif text-4xl sm:text-5xl text-[#1a1a1a] mb-4">
           Categorías
         </h1>
-        <p className="text-[15px] leading-relaxed text-[#777777]">
+        <p className="text-[15px] leading-relaxed text-[var(--plug-gray)]">
           Encontrá lo que buscás navegando por nuestras categorías.
         </p>
       </section>
@@ -62,7 +62,7 @@ export default async function CategoriesPage() {
           <h3 className="text-lg font-medium text-[#1a1a1a] mb-1">
             No hay categorías disponibles
           </h3>
-          <p className="text-[#777777]">Pronto tendremos productos publicados.</p>
+          <p className="text-[var(--plug-gray)]">Pronto tendremos productos publicados.</p>
         </div>
       ) : (
         <div className="space-y-16 lg:space-y-20">
@@ -72,7 +72,7 @@ export default async function CategoriesPage() {
                 <h2 className="plug-font-serif text-2xl sm:text-3xl text-[#1a1a1a] capitalize">
                   {cat}
                 </h2>
-                <span className="text-[11px] uppercase tracking-[0.2em] text-[#777777]">
+                <span className="text-[11px] uppercase tracking-[0.2em] text-[var(--plug-gray)]">
                   {grouped[cat].length} productos
                 </span>
               </div>
@@ -91,7 +91,7 @@ export default async function CategoriesPage() {
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#d9d9d9]">
+                        <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">
                           <svg
                             className="w-16 h-16"
                             fill="none"
@@ -116,7 +116,7 @@ export default async function CategoriesPage() {
                       )}
                     </div>
                     <div className="space-y-1">
-                      <h3 className="plug-font-serif text-[13px] sm:text-[14px] leading-snug text-[#1a1a1a] group-hover:text-[#777777] transition-colors">
+                      <h3 className="plug-font-serif text-[13px] sm:text-[14px] leading-snug text-[#1a1a1a] group-hover:text-[var(--plug-gray)] transition-colors">
                         {product.nombre}
                       </h3>
                       <p className="text-[12px] sm:text-[13px] font-medium text-[#1a1a1a]">

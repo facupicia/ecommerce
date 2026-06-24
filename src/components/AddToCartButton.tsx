@@ -30,7 +30,7 @@ export function AddToCartButton({ product, fullWidth = false }: Props) {
     return (
       <button
         disabled
-        className="kith-btn w-full sm:w-auto cursor-not-allowed opacity-50"
+        className="plug-btn w-full sm:w-auto cursor-not-allowed"
       >
         Sin stock
       </button>
@@ -41,8 +41,8 @@ export function AddToCartButton({ product, fullWidth = false }: Props) {
       <button
         onClick={handleAdd}
         disabled={added}
-        className={`kith-btn ${fullWidth ? "w-full" : "w-full sm:w-auto"} ${
-          added ? "kith-btn-dark" : ""
+        className={`plug-btn ${fullWidth ? "w-full" : "w-full sm:w-auto"} ${
+          added ? "plug-btn-dark" : ""
         }`}
       >
       {added ? (

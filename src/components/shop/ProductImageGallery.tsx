@@ -39,7 +39,7 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
               className={`aspect-square bg-[#f5f5f5] overflow-hidden border transition-colors ${
                 selected === i
                   ? "border-[#1a1a1a]"
-                  : "border-transparent hover:border-[#777777]"
+                  : "border-transparent hover:border-[var(--plug-gray)]"
               }`}
               aria-label={`Ver imagen ${i + 1} de ${nombre}`}
             >
@@ -63,7 +63,7 @@ export function ProductImageGallery({ fotos, nombre }: ProductImageGalleryProps)
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[#d9d9d9]">
+            <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">
               {placeholderSvg}
             </div>
           )}

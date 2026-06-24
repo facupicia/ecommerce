@@ -10,30 +10,14 @@ export const dynamic = "force-dynamic";
 const heroSlides = [
   {
     id: "1",
-    image: "https://placehold.co/1920x1080/1a1a1a/ffffff?text=Nueva+Colección",
-    title: "Nueva Colección",
+    image: "/img/Gemini_Generated_Image_ne7ss5ne7ss5ne7s (2).png",
+    title: "",
     subtitle:
-      "Descubrí las últimas piezas seleccionadas traídas especialmente para esta temporada.",
+      "No solo seguimos las tendencias, las creamos. Tenemos las prendas más exclusivas del momento para quienes no se conforman con lo común.",
     cta: "Ver ahora",
     href: "/categorias",
   },
-  {
-    id: "2",
-    image: "https://placehold.co/1920x1080/2a2a2a/ffffff?text=Edición+Limitada",
-    title: "Edición Limitada",
-    subtitle:
-      "Productos exclusivos con stock limitado. No te quedes sin el tuyo.",
-    cta: "Descubrir",
-    href: "/categorias",
-  },
-  {
-    id: "3",
-    image: "https://placehold.co/1920x1080/151515/ffffff?text=Envío+a+todo+el+país",
-    title: "Envío a todo el país",
-    subtitle: "Comprá con confianza. Recibí tus productos importados en la puerta de tu casa.",
-    cta: "Comprar",
-    href: "/categorias",
-  },
+  
 ];
 
 export default async function ShopHomePage() {
@@ -50,7 +34,7 @@ export default async function ShopHomePage() {
         <h2 className="plug-font-serif text-3xl text-[#1a1a1a] mb-2">
           Error al cargar productos
         </h2>
-        <p className="text-[#777777]">{error.message}</p>
+        <p className="text-[var(--plug-gray)]">{error.message}</p>
       </div>
     );
   }
@@ -66,14 +50,14 @@ export default async function ShopHomePage() {
 
       {/* 2. Featured products carousel */}
       {featured.length > 0 && (
-        <ProductCarousel title="Destacados" products={featured} />
+        <ProductCarousel title="" products={featured} />
       )}
 
       {/* 3. Fullwidth editorial banner */}
       <FullwidthBanner
-        image="https://placehold.co/1920x1080/4a5d4a/ffffff?text=Summer+2026"
-        title="Summer 2026"
-        description="Piezas livianas, colores frescos y la mejor calidad en productos importados para la temporada."
+        image="/img/Gemini_Generated_Image_h45s2oh45s2oh45s (1).png"
+        title=""
+        description=""
         primaryCta={{ label: "Shop now", href: "/categorias" }}
         secondaryCta={{ label: "A closer look", href: "/categorias" }}
       />
@@ -87,8 +71,8 @@ export default async function ShopHomePage() {
 
       {/* 5. Final fullwidth banner */}
       <FullwidthBanner
-        image="https://placehold.co/1920x1080/5a5a5a/ffffff?text=&Kin+Summer"
-        title="&Kin Summer"
+        image="/img/Gemini_Generated_Image_mx9i5gmx9i5gmx9i.png"
+        title=""
         description="Una mirada diferente sobre el ready-to-wear, con fabricaciones únicas y un enfoque sin marcas."
         primaryCta={{ label: "Shop now", href: "/categorias" }}
         secondaryCta={{ label: "A closer look", href: "/categorias" }}

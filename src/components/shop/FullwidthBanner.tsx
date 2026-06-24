@@ -38,7 +38,7 @@ export function FullwidthBanner({
           <h2 className="plug-font-serif text-3xl sm:text-5xl lg:text-6xl text-white mb-3 drop-shadow-sm">
             {title}
           </h2>
-          <p className="text-[13px] sm:text-[15px] text-white/90 leading-relaxed mb-6 max-w-lg drop-shadow-sm">
+          <p className="text-[13px] sm:text-[15px] text-white leading-relaxed mb-6 max-w-lg drop-shadow-sm">
             {description}
           </p>
           <div
@@ -55,7 +55,7 @@ export function FullwidthBanner({
             {secondaryCta && (
               <Link
                 href={secondaryCta.href}
-                className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium uppercase tracking-[0.15em] hover:bg-white hover:text-[#1a1a1a] transition-all duration-200"
+                className="inline-flex items-center justify-center min-w-[140px] px-6 py-3 border border-white text-white text-[11px] font-medium  bg-white! uppercase tracking-[0.15em] hover:bg-white hover:text-[#1a1a1a] transition-all duration-200"
               >
                 {secondaryCta.label}
               </Link>

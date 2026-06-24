@@ -21,10 +21,10 @@ export default function CartPage() {
         <h2 className="plug-font-serif text-3xl text-[#1a1a1a] mb-3">
           Tu carrito está vacío
         </h2>
-        <p className="text-[14px] text-[#777777] mb-8">
+        <p className="text-[14px] text-[var(--plug-gray)] mb-8">
           Explorá nuestros productos y agregá lo que te guste.
         </p>
-        <Link href="/" className="kith-btn">
+        <Link href="/" className="plug-btn">
           Ver productos
         </Link>
       </div>
@@ -39,7 +39,7 @@ export default function CartPage() {
         </h1>
         <button
           onClick={clearCart}
-          className="text-[12px] uppercase tracking-[0.1em] text-[#777777] hover:text-[#1a1a1a] transition-colors"
+          className="text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
         >
           Vaciar carrito
         </button>
@@ -64,7 +64,7 @@ export default function CartPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#d9d9d9]">
+                  <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">
                     <svg
                       className="w-8 h-8"
                       fill="none"
@@ -86,7 +86,7 @@ export default function CartPage() {
                 <div>
                   <Link
                     href={`/producto/${item.slug}`}
-                    className="plug-font-serif text-[15px] sm:text-[16px] text-[#1a1a1a] hover:text-[#777777] transition-colors line-clamp-1"
+                    className="plug-font-serif text-[15px] sm:text-[16px] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors line-clamp-1"
                   >
                     {item.nombre}
                   </Link>
@@ -150,7 +150,7 @@ export default function CartPage() {
                     </span>
                     <button
                       onClick={() => removeFromCart(item.product_id)}
-                      className="text-[#777777] hover:text-[#1a1a1a] transition-colors"
+                      className="text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
                       aria-label="Eliminar producto"
                     >
                       <svg
@@ -182,11 +182,11 @@ export default function CartPage() {
             </h2>
 
             <div className="space-y-3 text-[13px]">
-              <div className="flex justify-between text-[#777777]">
+              <div className="flex justify-between text-[var(--plug-gray)]">
                 <span>Productos ({items.reduce((s, i) => s + i.cantidad, 0)})</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <div className="flex justify-between text-[#777777]">
+              <div className="flex justify-between text-[var(--plug-gray)]">
                 <span>Envío</span>
                 <span className="text-[#1a1a1a] font-medium">A calcular</span>
               </div>
@@ -200,14 +200,14 @@ export default function CartPage() {
 
             <Link
               href="/checkout"
-              className="kith-btn-dark kith-btn w-full mt-8"
+              className="plug-btn-dark plug-btn w-full mt-8"
             >
               Ir a pagar
             </Link>
 
             <Link
               href="/"
-              className="block text-center mt-4 text-[12px] uppercase tracking-[0.1em] text-[#777777] hover:text-[#1a1a1a] transition-colors"
+              className="block text-center mt-4 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
             >
               Seguir comprando
             </Link>

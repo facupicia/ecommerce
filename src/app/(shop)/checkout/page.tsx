@@ -92,10 +92,10 @@ export default function CheckoutPage() {
         <h2 className="plug-font-serif text-3xl text-[#1a1a1a] mb-3">
           No hay nada que pagar
         </h2>
-        <p className="text-[14px] text-[#777777] mb-8">
+        <p className="text-[14px] text-[var(--plug-gray)] mb-8">
           Agregá productos al carrito antes de iniciar el pago.
         </p>
-        <Link href="/" className="kith-btn">
+        <Link href="/" className="plug-btn">
           Ver productos
         </Link>
       </div>
@@ -132,7 +132,7 @@ export default function CheckoutPage() {
                     required
                     value={form.nombre}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="Tu nombre"
                   />
                 </div>
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
                     required
                     value={form.email}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="tu@email.com"
                   />
                 </div>
@@ -171,7 +171,7 @@ export default function CheckoutPage() {
                     required
                     value={form.telefono}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="+54 9 261 123-4567"
                   />
                 </div>
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
                     required
                     value={form.direccion}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
                     placeholder="Calle, número, ciudad"
                   />
                 </div>
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
                   rows={3}
                   value={form.notas}
                   onChange={handleChange}
-                  className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#777777] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none"
+                  className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none"
                   placeholder="Indicaciones de entrega, horarios, etc."
                 />
               </div>
@@ -223,7 +223,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="kith-btn-dark kith-btn w-full"
+              className="plug-btn-dark plug-btn w-full"
             >
               {submitting ? (
                 <span className="inline-flex items-center gap-2">
@@ -273,7 +273,7 @@ export default function CheckoutPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#777777]">
+                      <div className="w-full h-full flex items-center justify-center text-[#1a1a1a]">
                         <svg
                           className="w-5 h-5"
                           fill="none"
@@ -294,7 +294,7 @@ export default function CheckoutPage() {
                     <p className="text-[13px] font-medium text-[#1a1a1a] truncate">
                       {item.nombre}
                     </p>
-                    <p className="text-[11px] text-[#777777]">x{item.cantidad}</p>
+                    <p className="text-[11px] text-[var(--plug-gray)]">x{item.cantidad}</p>
                   </div>
                   <span className="text-[13px] font-medium text-[#1a1a1a]">
                     {formatPrice(item.precio_ars * item.cantidad)}
@@ -304,11 +304,11 @@ export default function CheckoutPage() {
             </div>
 
             <div className="mt-6 pt-6 border-t border-[#d9d9d9] space-y-2 text-[13px]">
-              <div className="flex justify-between text-[#777777]">
+              <div className="flex justify-between text-[var(--plug-gray)]">
                 <span>Subtotal</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <div className="flex justify-between text-[#777777]">
+              <div className="flex justify-between text-[var(--plug-gray)]">
                 <span>Envío</span>
                 <span className="text-[#1a1a1a] font-medium">A coordinar</span>
               </div>

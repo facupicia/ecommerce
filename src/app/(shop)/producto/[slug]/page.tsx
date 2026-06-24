@@ -116,7 +116,7 @@ export default async function ProductDetailPage({ params }: Props) {
     <>
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-8 lg:py-12">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-[#777777] mb-8 lg:mb-12">
+        <nav className="flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-[var(--plug-gray)] mb-8 lg:mb-12">
           <a href="/" className="hover:text-[#1a1a1a] transition-colors">
             Inicio
           </a>
@@ -142,7 +142,7 @@ export default async function ProductDetailPage({ params }: Props) {
           {/* Info */}
           <div className="flex flex-col lg:pt-2">
             {p.categoria && (
-              <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[#777777] mb-3">
+              <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[var(--plug-gray)] mb-3">
                 {p.categoria}
               </p>
             )}
@@ -159,7 +159,7 @@ export default async function ProductDetailPage({ params }: Props) {
               {p.precio_original_ars &&
                 p.precio_original_ars > p.precio_ars && (
                   <>
-                    <span className="text-base text-[#777777] line-through">
+                    <span className="text-base text-[var(--plug-gray)] line-through">
                       {formatPrice(p.precio_original_ars)}
                     </span>
                     <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">
@@ -172,17 +172,17 @@ export default async function ProductDetailPage({ params }: Props) {
             {/* Stock */}
             <div className="mb-8">
               {p.stock > 5 ? (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#777777]">
+                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#1a1a1a]" />
                   Stock disponible
                 </span>
               ) : p.stock > 0 ? (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#777777]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#777777]" />
+                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--plug-gray)]" />
                   Solo quedan {p.stock} unidades
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[#777777]">
+                <span className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)]">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#d9d9d9]" />
                   Sin stock
                 </span>
@@ -195,7 +195,7 @@ export default async function ProductDetailPage({ params }: Props) {
             </div>
 
             {/* Notes */}
-            <div className="mb-10 space-y-3 text-[12px] leading-[1.6] text-[#777777]">
+            <div className="mb-10 space-y-3 text-[12px] leading-[1.6] text-[var(--plug-gray)]">
               <p className="uppercase tracking-[0.1em]">
                 Venta final. No se aceptan cambios ni devoluciones.
               </p>

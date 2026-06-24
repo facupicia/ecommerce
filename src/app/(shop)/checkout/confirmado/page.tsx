@@ -21,14 +21,14 @@ export default function OrderConfirmedPage() {
       <h1 className="plug-font-serif text-3xl sm:text-4xl text-[#1a1a1a] mb-3">
         ¡Pedido confirmado!
       </h1>
-      <p className="text-[14px] text-[#777777] mb-2 max-w-md mx-auto">
+      <p className="text-[14px] text-[var(--plug-gray)] mb-2 max-w-md mx-auto">
         Gracias por tu compra. Te vamos a contactar pronto para coordinar el
         envío y el pago.
       </p>
-      <p className="text-[12px] text-[#777777] mb-8">
+      <p className="text-[12px] text-[var(--plug-gray)] mb-8">
         Si tenés alguna duda, escribinos a hola@tienda.com
       </p>
-      <Link href="/" className="kith-btn">
+      <Link href="/" className="plug-btn">
         Volver a la tienda
       </Link>
     </div>

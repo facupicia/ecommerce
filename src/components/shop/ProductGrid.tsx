@@ -56,7 +56,7 @@ export function ProductGrid({ title, products }: ProductGridProps) {
                       className="w-full h-full object-cover plug-img-hover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#d9d9d9]">
+                    <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">
                       <svg
                         className="w-12 h-12"
                         fill="none"
@@ -92,7 +92,7 @@ export function ProductGrid({ title, products }: ProductGridProps) {
                   {product.categoria && (
                     <p className="plug-tag">{product.categoria}</p>
                   )}
-                  <h3 className="plug-font-serif text-[14px] sm:text-[15px] leading-snug text-[#1a1a1a] group-hover:text-[#777777] transition-colors line-clamp-2">
+                  <h3 className="plug-font-serif text-[14px] sm:text-[15px] leading-snug text-[#1a1a1a] group-hover:text-[var(--plug-gray)] transition-colors line-clamp-2">
                     {product.nombre}
                   </h3>
                   <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export function ProductGrid({ title, products }: ProductGridProps) {
                       {formatPrice(product.precio_ars)}
                     </span>
                     {hasDiscount && (
-                      <span className="text-[12px] text-[#999999] line-through">
+                      <span className="text-[12px] text-[#737373] line-through">
                         {formatPrice(product.precio_original_ars!)}
                       </span>
                     )}

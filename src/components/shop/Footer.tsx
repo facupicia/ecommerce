@@ -25,11 +25,11 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <Link
               href="/"
-              className="inline-block px-2 py-1 bg-[#333333] text-white text-lg font-bold uppercase tracking-[0.15em]"
+              className="inline-block px-2 py-1  text-white text-lg font-bold uppercase tracking-[0.15em]"
             >
               THEPLUG
             </Link>
-            <p className="mt-4 text-[13px] leading-relaxed text-[#777777] max-w-xs">
+            <p className="mt-4 text-[13px] leading-relaxed text-[var(--plug-gray)] max-w-xs">
               Ropa importada. Style desde Rosario al país.
             </p>
           </div>
@@ -44,7 +44,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-[13px] text-[#777777] hover:text-[#1a1a1a] transition-colors"
+                    className="text-[13px] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -63,13 +63,13 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-[13px] text-[#777777] hover:text-[#1a1a1a] transition-colors"
+                    className="text-[13px] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
                   >
                     {link.label}
                   </a>
                 </li>
               ))}
-              <li className="text-[13px] text-[#777777]">Rosario, Argentina</li>
+              <li className="text-[13px] text-[var(--plug-gray)]">Rosario, Argentina</li>
             </ul>
           </div>
 
@@ -83,7 +83,7 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    className="text-[13px] text-[#777777] hover:text-[#1a1a1a] transition-colors"
+                    className="text-[13px] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
                   >
                     {link.label}
                   </a>
@@ -95,7 +95,7 @@ export function Footer() {
 
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-[#d9d9d9]">
-          <p className="text-[11px] text-[#777777] text-center tracking-wide">
+          <p className="text-[11px] text-[var(--plug-gray)] text-center tracking-wide">
             © {new Date().getFullYear()} THEPLUG. Todos los derechos reservados.
           </p>
         </div>
