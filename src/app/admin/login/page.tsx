@@ -17,25 +17,22 @@ function LoginForm() {
     setError("");
     setLoading(true);
 
-    try {
-      const res = await fetch("/api/admin/auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
+    // Verify password via API, get token back
+    const res = await fetch("/api/admin/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        // Set cookie client-side for middleware
-        document.cookie = `admin_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
-        router.push(redirect);
-      } else {
-        setError(data.error || "Contraseña incorrecta");
-      }
-    } catch {
-      setError("Error de conexión");
-    } finally {
+    if (res.ok && data.token) {
+      // Set a non-httpOnly cookie so middleware can read it
+      document.cookie = "admin_token=" + data.token + ";path=/;max-age=2592000;SameSite=Lax";
+      // Use window.location for a hard navigation so cookies are sent
+      window.location.href = redirect;
+    } else {
+      setError(data.error || "Contraseña incorrecta");
       setLoading(false);
     }
   }
