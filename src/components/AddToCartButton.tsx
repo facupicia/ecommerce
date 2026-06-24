@@ -6,9 +6,10 @@ import { useState } from "react";
 
 interface Props {
   product: ShopProduct;
+  fullWidth?: boolean;
 }
 
-export function AddToCartButton({ product }: Props) {
+export function AddToCartButton({ product, fullWidth = false }: Props) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -37,11 +38,13 @@ export function AddToCartButton({ product }: Props) {
   }
 
   return (
-    <button
-      onClick={handleAdd}
-      disabled={added}
-      className={`kith-btn w-full sm:w-auto ${added ? "kith-btn-dark" : ""}`}
-    >
+      <button
+        onClick={handleAdd}
+        disabled={added}
+        className={`kith-btn ${fullWidth ? "w-full" : "w-full sm:w-auto"} ${
+          added ? "kith-btn-dark" : ""
+        }`}
+      >
       {added ? (
         <>
           <svg
