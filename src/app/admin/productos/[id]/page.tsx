@@ -92,10 +92,12 @@ export default function AdminProductEditPage() {
     loadExistingOptions();
   }, [loadProduct, loadExistingOptions]);
 
-  function loadCotizaciones() {
+  async function loadCotizaciones() {
     try {
-      const raw = localStorage.getItem("cssbuy-cotizaciones");
-      const items = raw ? (JSON.parse(raw) as Cotizacion[]) : [];
+      const res = await fetch("/api/cotizaciones", { credentials: "same-origin" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error");
+      const items = (data.cotizaciones || []) as Cotizacion[];
       setCotizaciones(items);
       setCotizacionId((prev) => {
         if (prev && items.some((c) => c.id === prev)) return prev;
