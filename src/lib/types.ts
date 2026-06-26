@@ -15,6 +15,43 @@ export interface CssbuyOrder {
   fecha_pedido: number;
 }
 
+export interface CssbuyTransaction {
+  rid: number;
+  uname: string;
+  type: number; // 1 = debit, 2 = credit
+  action: string;
+  money: string;
+  accountmoney: string;
+  remark: string;
+  addtime: number;
+  source: number;
+  id_type: number;
+  other_id: number;
+  purpose_id: string;
+  is_kc: number;
+  // parsed fields (filled by parser)
+  orderId?: string;
+  productName?: string;
+  productUrl?: string;
+  quantity?: number;
+  seller?: string;
+}
+
+export interface CssbuyRecordGroup {
+  orderId: string;
+  transactions: CssbuyTransaction[];
+  buyItemTotal: number;
+  serviceFeeTotal: number;
+  domesticShippingTotal: number;
+  adjustPriceTotal: number;
+  rechargeTotal: number;
+  otherTotal: number;
+  totalSpent: number;
+  productName?: string;
+  productUrl?: string;
+  quantity?: number;
+}
+
 export interface Product {
   id: string;
   nombre: string;
@@ -26,6 +63,7 @@ export interface Product {
   precioVentaUSD: number;
   link: string;
   imgURL: string;
+  oid?: string;
 }
 
 export interface ShopProduct {
@@ -95,6 +133,7 @@ export interface AduanaConfig {
   ivaPct: number;
   iibbPct: number;
   valorDeclaradoUSD: number | null;
+  pagoNetoImpuestosUSD: number | null;
 }
 
 export interface ProductCalc extends Product {

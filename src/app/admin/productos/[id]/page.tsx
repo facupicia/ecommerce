@@ -12,9 +12,21 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
-import { ShopProduct } from "@/lib/types";
+import { ShopProduct, CssbuyOrder, Cotizacion } from "@/lib/types";
 import { uid } from "@/lib/utils";
 import { ImageUploader } from "@/components/ui/ImageUploader";
+import {
+  loadCalcConfig,
+  estimateFromOrder,
+  estimateFromOrderAndCotizacionProduct,
+  formatARS,
+  CalcConfig,
+  PricingEstimate,
+  PricingEstimateBreakdown,
+  calculateProductEstimateBreakdown,
+  calculateProductEstimateBreakdownFromCotizacion,
+  buildProductFromOrder,
+} from "@/lib/pricing";
 
 export default function AdminProductEditPage() {
   const params = useParams();
@@ -46,6 +58,12 @@ export default function AdminProductEditPage() {
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
   const [existingMarcas, setExistingMarcas] = useState<string[]>([]);
   const [existingIndumentarias, setExistingIndumentarias] = useState<string[]>([]);
+  const [calcConfig, setCalcConfig] = useState<CalcConfig>(loadCalcConfig());
+  const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
+  const [cotizacionId, setCotizacionId] = useState<string | "current">("current");
+  const [estimate, setEstimate] = useState<PricingEstimate | null>(null);
+  const [estimateBreakdown, setEstimateBreakdown] = useState<PricingEstimateBreakdown | null>(null);
+  const [estimateLoading, setEstimateLoading] = useState(false);
 
   const loadProduct = useCallback(async () => {
     if (isNew) return;
@@ -80,8 +98,90 @@ export default function AdminProductEditPage() {
     loadExistingOptions();
   }, [loadProduct, loadExistingOptions]);
 
+  // Recargar configuración de calculadora cuando se vuelve a la pestaña
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setCalcConfig(loadCalcConfig());
+        loadCotizaciones();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
+
+  function loadCotizaciones() {
+    try {
+      const raw = localStorage.getItem("cssbuy-cotizaciones");
+      const items = raw ? (JSON.parse(raw) as Cotizacion[]) : [];
+      setCotizaciones(items);
+    } catch {
+      setCotizaciones([]);
+    }
+  }
+
+  useEffect(() => {
+    loadCotizaciones();
+  }, []);
+
+  // Calcular estimado cuando cambia el producto, la config o la cotización seleccionada
+  useEffect(() => {
+    async function computeEstimate() {
+      if (!product.cssbuy_oid) {
+        setEstimate(null);
+        setEstimateBreakdown(null);
+        return;
+      }
+      setEstimateLoading(true);
+      try {
+        const res = await fetch(`/api/warehouse?oid=${encodeURIComponent(product.cssbuy_oid)}`, {
+          credentials: "same-origin",
+        });
+        const data = await res.json();
+        if (!res.ok || !data.order) {
+          setEstimate(null);
+          setEstimateBreakdown(null);
+          return;
+        }
+        const order = data.order as CssbuyOrder;
+        const overrides = { pesoG: product.peso_g || order.peso_g || 0 };
+
+        const selectedCot = cotizaciones.find((c) => c.id === cotizacionId);
+        const est = selectedCot
+          ? estimateFromOrderAndCotizacionProduct(order, selectedCot, overrides)
+          : estimateFromOrder(order, calcConfig, overrides);
+        setEstimate(est);
+        if (est) {
+          const productForBreakdown = buildProductFromOrderForBreakdown(order, product.peso_g);
+          const breakdown = selectedCot
+            ? calculateProductEstimateBreakdownFromCotizacion(order, selectedCot, overrides)
+            : calculateProductEstimateBreakdown(productForBreakdown, calcConfig);
+          setEstimateBreakdown(breakdown);
+        } else {
+          setEstimateBreakdown(null);
+        }
+      } catch {
+        setEstimate(null);
+        setEstimateBreakdown(null);
+      } finally {
+        setEstimateLoading(false);
+      }
+    }
+    computeEstimate();
+  }, [product.cssbuy_oid, product.peso_g, calcConfig, cotizacionId, cotizaciones]);
+
   function updateField(field: keyof ShopProduct, value: any) {
     setProduct((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function applySuggestedPrice() {
+    if (estimate?.precioSugeridoARS) {
+      updateField("precio_ars", Math.round(estimate.precioSugeridoARS));
+    }
+  }
+
+  function buildProductFromOrderForBreakdown(order: CssbuyOrder, pesoG?: number) {
+    return buildProductFromOrder(order, { pesoG: pesoG || order.peso_g || 0 });
   }
 
   function generateSlug() {
@@ -312,6 +412,112 @@ export default function AdminProductEditPage() {
             />
           </div>
         </div>
+
+        {/* Estimado de calculadora */}
+        {product.cssbuy_oid && (
+          <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-primary">Estimado de calculadora</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Basado en la configuración guardada en el módulo Calculadora
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {cotizaciones.length > 0 && (
+                  <select
+                    value={cotizacionId}
+                    onChange={(e) => setCotizacionId(e.target.value)}
+                    className="text-xs bg-secondary/50 border border-border rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  >
+                    <option value="current">Cálculo individual</option>
+                    {cotizaciones.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nombre} ({new Date(c.fecha).toLocaleDateString("es-AR")})
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {estimate?.precioSugeridoARS ? (
+                  <button
+                    onClick={applySuggestedPrice}
+                    className="text-xs bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1.5 rounded-lg transition-colors"
+                    type="button"
+                  >
+                    Aplicar {formatARS(Math.round(estimate.precioSugeridoARS))}
+                  </button>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    {estimateLoading ? "Calculando..." : "Sin datos de warehouse"}
+                  </span>
+                )}
+              </div>
+            </div>
+            {cotizacionId === "current" && (
+              <p className="text-[10px] text-warning">
+                Modo individual: el envío e impuestos se asignan enteros a este producto. Para el cálculo real,
+                seleccioná la cotización donde está este producto.
+              </p>
+            )}
+
+            {estimate && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[11px]">
+                  <div className="bg-secondary/30 rounded-lg p-2">
+                    <p className="text-muted-foreground">Precio sugerido</p>
+                    <p className="font-medium tabular-nums">{formatARS(Math.round(estimate.precioSugeridoARS))}</p>
+                  </div>
+                  <div className="bg-secondary/30 rounded-lg p-2">
+                    <p className="text-muted-foreground">Costo unitario</p>
+                    <p className="font-medium tabular-nums">USD {estimate.costoUnitUSD.toFixed(2)}</p>
+                  </div>
+                  <div className="bg-secondary/30 rounded-lg p-2">
+                    <p className="text-muted-foreground">Ganancia</p>
+                    <p className={`font-medium tabular-nums ${estimate.gananciaUnitUSD >= 0 ? "text-emerald-400" : "text-destructive"}`}>
+                      USD {estimate.gananciaUnitUSD.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className="bg-secondary/30 rounded-lg p-2">
+                    <p className="text-muted-foreground">Margen</p>
+                    <p className="font-medium tabular-nums">{(estimate.margenPct * 100).toFixed(1)}%</p>
+                  </div>
+                </div>
+
+                {estimateBreakdown && (
+                  <div className="p-3 bg-secondary/20 rounded-lg text-[11px] space-y-1.5">
+                    <p className="text-xs font-medium text-muted-foreground">Desglose del costo unitario</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <div>
+                        <p className="text-muted-foreground">Producto FOB</p>
+                        <p className="tabular-nums">USD {estimateBreakdown.fobUSD.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Envío prorrateado</p>
+                        <p className="tabular-nums">USD {estimateBreakdown.envioProrrateadoUSD.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Impuestos ARG</p>
+                        <p className="tabular-nums">USD {estimateBreakdown.impuestosProrrateadosUSD.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Total costo</p>
+                        <p className="tabular-nums font-medium">USD {estimateBreakdown.costoUnitUSD.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/50">
+                      {(() => {
+                        const cot = cotizaciones.find((c) => c.id === cotizacionId);
+                        const cfg = cot ? { fx: cot.fx, envio: cot.envio } : { fx: calcConfig.fx, envio: calcConfig.envio };
+                        const label = cot ? `Cotización: ${cot.nombre} · ` : "Config actual · ";
+                        return `${label}CNY/USD ${cfg.fx.cny} · Blue $${cfg.fx.blue.toLocaleString("es-AR")} · Freight ¥${cfg.envio.freightCNY} · Markup ${cfg.envio.markup}x`;
+                      })()}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           {/* Categoría */}

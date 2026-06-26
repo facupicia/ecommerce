@@ -1,7 +1,20 @@
 import { supabaseAdmin } from "@/lib/supabase";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const oid = searchParams.get("oid")?.trim();
+
+    if (oid) {
+      const { data, error } = await supabaseAdmin
+        .from("cssbuy_warehouse")
+        .select("*")
+        .eq("oid", oid)
+        .maybeSingle();
+      if (error) return Response.json({ error: error.message }, { status: 500 });
+      return Response.json({ order: data });
+    }
+
     const { data, error } = await supabaseAdmin
       .from("cssbuy_warehouse")
       .select("*")

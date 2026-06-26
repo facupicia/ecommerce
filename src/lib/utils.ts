@@ -35,8 +35,8 @@ export function calcularTodo(
   const blue = fx.blue > 0 ? fx.blue : 1300;
   const alertas: { type: string; msg: string }[] = [];
 
-  // Calcular cada producto
-  const productosCalc: ProductCalc[] = productos.map((p) => {
+  // Paso 1: productos base
+  const productosBase = productos.map((p) => {
     const cantidad = Math.max(1, p.cantidad || 1);
     const precioUnitUSD = (p.precioCNY || 0) * cnyToUsd;
     const envioLocalUnitUSD = (p.envioLocalCNY || 0) * cnyToUsd;
@@ -44,7 +44,6 @@ export function calcularTodo(
     const costoProductoUnitUSD = precioUnitUSD + envioLocalUnitUSD;
     const pesoGTotal = (p.pesoG || 0) * cantidad;
     const costoUSD = costoProductoUnitUSD * cantidad;
-    const precioSugeridoUSD = costoProductoUnitUSD * (envio.markup || 2);
 
     return {
       ...p,
@@ -55,39 +54,27 @@ export function calcularTodo(
       costoProductoUnitUSD,
       costoUSD,
       pesoGTotal,
-      envioProrrateadoUSD: 0,
-      impuestosProrrateadoUSD: 0,
-      costoTotalUSD: 0,
-      costoUnitUSD: 0,
-      precioSugeridoUSD,
-      ventaUSD: precioSugeridoUSD * cantidad,
-      gananciaUnitUSD: 0,
-      gananciaTotalUSD: 0,
-      costoUnitARS: 0,
-      ventaUnitARS: 0,
-      gananciaUnitARS: 0,
-      gananciaTotalARS: 0,
     };
   });
 
-  const productosUSDTotal = productosCalc.reduce((s, p) => s + p.costoUSD, 0);
-  const pesoTotalG = productosCalc.reduce((s, p) => s + p.pesoGTotal, 0);
+  const productosUSDTotal = productosBase.reduce((s, p) => s + p.costoUSD, 0);
+  const pesoTotalG = productosBase.reduce((s, p) => s + p.pesoGTotal, 0);
 
-  // Envío
+  // Paso 2: envío
   const freightUSD = (envio.freightCNY || 0) * cnyToUsd;
   const serviceUSD = (envio.serviceCNY || 0) * cnyToUsd;
   const baseEnvio = freightUSD + serviceUSD;
   const recargaFee = baseEnvio * (envio.recargaPct || 0) + (envio.recargaFijo || 0);
   const costoEnvioTotalUSD = baseEnvio + recargaFee;
 
-  // Prorrateo de envío por peso
-  const pcWithShipping = productosCalc.map((p) => {
+  // Paso 3: prorratear envío por peso
+  const pcWithShipping = productosBase.map((p) => {
     const envioProrrateadoUSD = pesoTotalG > 0 ? (costoEnvioTotalUSD * p.pesoGTotal) / pesoTotalG : 0;
     const costoSinImpuestos = p.costoUSD + envioProrrateadoUSD;
     return { ...p, envioProrrateadoUSD, costoSinImpuestos };
   });
 
-  // FOB / Aduana
+  // Paso 4: FOB / Aduana
   const fobRealUSD = productosUSDTotal + envio.freightCNY * cnyToUsd;
   const fobDeclaradoUSD = aduana.valorDeclaradoUSD != null ? aduana.valorDeclaradoUSD : fobRealUSD;
   const ahorroSubdeclaracionUSD = fobRealUSD - fobDeclaradoUSD;
@@ -97,30 +84,58 @@ export function calcularTodo(
   const iva = fobUSD > 0 ? (fobUSD + arancel) * (aduana.ivaPct || 0.21) : 0;
   const iibb = fobUSD > 0 ? (fobUSD + arancel + iva) * (aduana.iibbPct || 0.03) : 0;
   const tasaEst = fobUSD > 0 ? fobUSD * 0.02 : 0;
-  const impuestosUSD = arancel + iva + iibb + tasaEst;
+  const impuestosCalculadosUSD = arancel + iva + iibb + tasaEst;
+
+  // Pago neto de impuestos:
+  // 1. Si el usuario ingresó un valor manual, lo respeta.
+  // 2. Si está dentro de franquicia y declaró más de USD 50, paga la mitad del excedente.
+  // 3. Si está dentro de franquicia y no supera los USD 50, no paga impuestos.
+  // 4. Si no está en franquicia, usa el cálculo normal.
+  let impuestosUSD: number;
+  if (aduana.pagoNetoImpuestosUSD != null) {
+    impuestosUSD = aduana.pagoNetoImpuestosUSD;
+  } else if (aduana.dentroFranquicia && aduana.valorDeclaradoUSD != null && aduana.valorDeclaradoUSD > 50) {
+    impuestosUSD = (aduana.valorDeclaradoUSD - 50) / 2;
+  } else if (aduana.dentroFranquicia) {
+    impuestosUSD = 0;
+  } else {
+    impuestosUSD = impuestosCalculadosUSD;
+  }
   const impuestosARS = impuestosUSD * blue;
 
-  const costoTotalUSD = productosUSDTotal + costoEnvioTotalUSD + impuestosUSD;
-  const costoTotalARS = costoTotalUSD * blue;
-
-  // Prorrateo de impuestos
-  const productosFinal = pcWithShipping.map((p) => {
+  // Paso 5: costos totales y precio sugerido (incluye envío + impuestos prorrateados)
+  const productosConCostoTotal = pcWithShipping.map((p) => {
     const impuestosProrrateadoUSD = pesoTotalG > 0 ? (impuestosUSD * p.pesoGTotal) / pesoTotalG : 0;
     const costoTotalProducto = p.costoSinImpuestos + impuestosProrrateadoUSD;
     const costoUnitUSD = p.cantidad > 0 ? costoTotalProducto / p.cantidad : 0;
-    const ventaUSD = p.precioSugeridoUSD * p.cantidad;
-    const gananciaTotalUSD = ventaUSD - costoTotalProducto;
-    const gananciaUnitUSD = p.cantidad > 0 ? gananciaTotalUSD / p.cantidad : 0;
+    const precioSugeridoUSD = costoUnitUSD * (envio.markup || 2);
 
     return {
       ...p,
       impuestosProrrateadoUSD,
       costoTotalUSD: costoTotalProducto,
       costoUnitUSD,
+      precioSugeridoUSD,
+    };
+  });
+
+  const costoPaqueteUSD = productosUSDTotal + costoEnvioTotalUSD;
+  const costoPaqueteARS = costoPaqueteUSD * blue;
+  const costoTotalUSD = costoPaqueteUSD + impuestosUSD;
+  const costoTotalARS = costoTotalUSD * blue;
+
+  // Paso 6: ganancias y totales
+  const productosFinal: ProductCalc[] = productosConCostoTotal.map((p) => {
+    const ventaUSD = p.precioSugeridoUSD * p.cantidad;
+    const gananciaTotalUSD = ventaUSD - p.costoTotalUSD;
+    const gananciaUnitUSD = p.cantidad > 0 ? gananciaTotalUSD / p.cantidad : 0;
+
+    return {
+      ...p,
       ventaUSD,
       gananciaUnitUSD,
       gananciaTotalUSD,
-      costoUnitARS: costoUnitUSD * blue,
+      costoUnitARS: p.costoUnitUSD * blue,
       ventaUnitARS: p.precioSugeridoUSD * blue,
       gananciaUnitARS: gananciaUnitUSD * blue,
       gananciaTotalARS: gananciaTotalUSD * blue,
@@ -147,8 +162,8 @@ export function calcularTodo(
     serviceUSD,
     recargaFee,
     costoEnvioTotalUSD,
-    costoPaqueteUSD: costoTotalUSD,
-    costoPaqueteARS: costoTotalARS,
+    costoPaqueteUSD,
+    costoPaqueteARS,
     fobRealUSD,
     fobDeclaradoUSD,
     ahorroSubdeclaracionUSD,

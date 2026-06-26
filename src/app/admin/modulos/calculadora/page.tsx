@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Plus,
   Trash2,
@@ -18,38 +20,63 @@ import {
   RefreshCw,
   Copy,
   Check,
+  Receipt,
+  Wallet,
 } from "lucide-react";
-import { Product, FxRates, ShipmentCosts, AduanaConfig, CalculationResult } from "@/lib/types";
+import { Product, FxRates, ShipmentCosts, AduanaConfig, CalculationResult, Cotizacion, CssbuyTransaction, CssbuyRecordGroup } from "@/lib/types";
 import { calcularTodo, fmtUSD, fmtARS, fmtPct, uid } from "@/lib/utils";
 import { CssbuyOrder } from "@/lib/types";
+import { loadCalcConfig, saveCalcConfig, CalcConfig } from "@/lib/pricing";
+import { parseRecords, groupRecordsByOrder, summarizeRecords, calculateRealItemCost } from "@/lib/cssbuy-records";
 
 export default function CalculatorPage() {
-  const [fx, setFx] = useState<FxRates>({ blue: 0, oficial: 0, mep: 0, cny: 7.2 });
-  const [envio, setEnvio] = useState<ShipmentCosts>({
-    freightCNY: 0,
-    serviceCNY: 0,
-    recargaPct: 0.03,
-    recargaFijo: 0.3,
-    platformFee: 0.35,
-    markup: 2.0,
-  });
+  const router = useRouter();
+  const initialConfig = loadCalcConfig();
+  const [fx, setFx] = useState<FxRates>(initialConfig.fx);
+  const [envio, setEnvio] = useState<ShipmentCosts>(initialConfig.envio);
   const [lineaEnvio, setLineaEnvio] = useState<string>("chinapost-sal");
   const [tarifaPorGramo, setTarifaPorGramo] = useState<number>(0);
   const [empaque, setEmpaque] = useState<"bag" | "box">("bag");
   const [cupon100, setCupon100] = useState(false);
-  const [aduana, setAduana] = useState<AduanaConfig>({
-    dentroFranquicia: false,
-    enviosAnio: 0,
-    ivaPct: 0.21,
-    iibbPct: 0.03,
-    valorDeclaradoUSD: null,
-  });
+  const [aduana, setAduana] = useState<AduanaConfig>(initialConfig.aduana);
   const [productos, setProductos] = useState<Product[]>([]);
+
+  // Cargar cotización pendiente si viene desde la página de cotizaciones
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem("cssbuy-cotizacion-cargar");
+    if (!raw) return;
+    try {
+      const cot: Cotizacion = JSON.parse(raw);
+      setFx(cot.fx);
+      setEnvio(cot.envio);
+      setAduana(cot.aduana);
+      setProductos(cot.productos);
+      // Actualizar inputs de envío derivados
+      setLineaEnvio("custom");
+      setTarifaPorGramo(0);
+    } catch {
+      // ignore
+    } finally {
+      localStorage.removeItem("cssbuy-cotizacion-cargar");
+    }
+  }, []);
 
   const [orders, setOrders] = useState<CssbuyOrder[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [uploadMsg, setUploadMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [records, setRecords] = useState<CssbuyTransaction[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("cssbuy-records") || "[]");
+    } catch {
+      return [];
+    }
+  });
+  const [recordUploadMsg, setRecordUploadMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const recordFileInputRef = useRef<HTMLInputElement>(null);
+  const [recordCopied, setRecordCopied] = useState(false);
 
   const CSSBUY_SCRAPER_SCRIPT = `// CSSBuy Warehouse Scraper — solo productos en almacén
 // 1. Andá a https://www.cssbuy.com/web/order y logueate
@@ -110,7 +137,7 @@ while(hm){
   hm=list.length>=P&&A.length<M;
   if(hm)pn++
 }
-console.log('\\n✅ '+A.length+' pedidos en almacén');
+ console.log('\\n✅ '+A.length+' pedidos en almacén');
 const blob=new Blob([JSON.stringify({orders:A,lastSync:new Date().toISOString()},null,2)],{type:'application/json'});
 const url=URL.createObjectURL(blob);
 const a=document.createElement('a');a.href=url;a.download='orders.json';a.click();
@@ -119,12 +146,77 @@ console.log('💾 orders.json descargado!');
 console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,50),estado:o.estado,peso:o.peso_g,precio:o.precio_unitario_cny})))
 })();`;
 
+  const CSSBUY_RECORD_SCRAPER_SCRIPT = `// CSSBuy Balance Record Scraper — todos los movimientos de dinero
+// 1. Andá a https://www.cssbuy.com/web/record y logueate
+// 2. F12 → Console → Pegá esto → Enter
+// 3. Elegí el rango de fechas en los prompts
+// 4. Se descarga records.json, subilo en esta página
+
+(async()=>{
+const P=50,M=5000,A=[];
+
+function getCsrf(){
+  let cs='';
+  try{cs=document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')||''}catch{}
+  if(!cs){const m=document.documentElement.innerHTML.match(/csrf[_-]?token['"\\s:=]+['"]?([a-zA-Z0-9]+)/i);if(m)cs=m[1]}
+  return cs;
+}
+
+const csrf=getCsrf();
+const sTime=prompt('Fecha inicio (YYYY-MM-DD):','2026-06-23');
+const eTime=prompt('Fecha fin (YYYY-MM-DD):','2026-06-25');
+if(!sTime||!eTime){console.log('Cancelado');return}
+
+let pn=1,hm=true;
+while(hm){
+  const params=new URLSearchParams();
+  params.set('type','0');
+  params.set('query','');
+  params.set('pageSize',String(P));
+  params.set('pageNum',String(pn));
+  params.set('sTime',sTime);
+  params.set('eTime',eTime);
+  if(csrf)params.set('_token',csrf);
+  const res=await fetch('https://www.cssbuy.com/web/record',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest','X-CSRF-Token':csrf,'X-XSRF-TOKEN':csrf,Accept:'application/json, text/javascript, */*; q=0.01'},
+    body:params.toString()
+  });
+  const text=await res.text();
+  let data;try{data=JSON.parse(text)}catch{console.error('No JSON:',text.substring(0,500));break}
+  const list=Array.isArray(data?.data)?data.data:[];
+  const total=data?.total||0;
+  for(const it of list)A.push(it);
+  console.log('Pág '+pn+': '+list.length+' records. Acumulado '+A.length+'/'+total);
+  hm=list.length>=P&&A.length<M&&A.length<total;
+  if(hm)pn++;
+}
+
+console.log('\\n✅ '+A.length+' movimientos descargados');
+const blob=new Blob([JSON.stringify({records:A,lastSync:new Date().toISOString(),sTime,eTime,total:A.length},null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='records.json';a.click();
+URL.revokeObjectURL(url);
+console.log('💾 records.json descargado!');
+console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String(r.remark).substring(0,60)})))
+})();`;
+
   const [copied, setCopied] = useState(false);
   const copyScript = async () => {
     try {
       await navigator.clipboard.writeText(CSSBUY_SCRAPER_SCRIPT);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert("No se pudo copiar al portapapeles");
+    }
+  };
+
+  const copyRecordScript = async () => {
+    try {
+      await navigator.clipboard.writeText(CSSBUY_RECORD_SCRAPER_SCRIPT);
+      setRecordCopied(true);
+      setTimeout(() => setRecordCopied(false), 2000);
     } catch {
       alert("No se pudo copiar al portapapeles");
     }
@@ -147,6 +239,12 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
   }, []);
 
   useEffect(() => { loadOrders(); }, [loadOrders]);
+
+  // Persistir configuración de calculadora para usarla en precios sugeridos
+  useEffect(() => {
+    const config: CalcConfig = { fx, envio, aduana };
+    saveCalcConfig(config);
+  }, [fx, envio, aduana]);
 
   // Upload orders.json
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,6 +272,27 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  // Upload records.json
+  const handleRecordUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setRecordUploadMsg(null);
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const recordsArray = Array.isArray(json) ? json : json.records || [];
+      if (recordsArray.length === 0) throw new Error("No records found in file");
+
+      const parsed = parseRecords(recordsArray);
+      setRecords(parsed);
+      localStorage.setItem("cssbuy-records", JSON.stringify(parsed));
+      setRecordUploadMsg({ type: "success", text: `${parsed.length} movimientos importados` });
+    } catch (err: any) {
+      setRecordUploadMsg({ type: "error", text: err.message });
+    }
+    if (recordFileInputRef.current) recordFileInputRef.current.value = "";
+  };
+
   const [nombreEnvio, setNombreEnvio] = useState("");
   const [cotizaciones, setCotizaciones] = useState<any[]>(() => {
     try {
@@ -184,6 +303,28 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
   });
 
   const resultados = useMemo(() => calcularTodo(productos, fx, envio, aduana), [productos, fx, envio, aduana]);
+
+  const recordGroups = useMemo(() => groupRecordsByOrder(records), [records]);
+  const recordMapByOrderId = useMemo(() => {
+    const map = new Map<string, CssbuyRecordGroup>();
+    for (const g of recordGroups) map.set(g.orderId, g);
+    return map;
+  }, [recordGroups]);
+
+  const findRecordGroup = useCallback(
+    (product: Product): CssbuyRecordGroup | undefined => {
+      if (product.oid && recordMapByOrderId.has(product.oid)) {
+        return recordMapByOrderId.get(product.oid);
+      }
+      if (product.link) {
+        return recordGroups.find((g) =>
+          g.transactions.some((t) => t.productUrl && t.productUrl === product.link)
+        );
+      }
+      return undefined;
+    },
+    [recordGroups, recordMapByOrderId]
+  );
 
   const pesoTotalG = productos.reduce((s, p) => s + (p.pesoG || 0) * (p.cantidad || 1), 0);
 
@@ -266,6 +407,7 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
           precioVentaUSD: 0,
           link: order.url || "",
           imgURL: order.imagen || "",
+          oid: order.oid || undefined,
         },
       ]);
     },
@@ -357,7 +499,7 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
     setNombreEnvio("");
     setProductos([]);
     setEnvio({ freightCNY: 0, serviceCNY: 0, recargaPct: 0.03, recargaFijo: 0.3, platformFee: 0.35, markup: 2.0 });
-    setAduana({ dentroFranquicia: false, enviosAnio: 0, ivaPct: 0.21, iibbPct: 0.03, valorDeclaradoUSD: null });
+    setAduana({ dentroFranquicia: false, enviosAnio: 0, ivaPct: 0.21, iibbPct: 0.03, valorDeclaradoUSD: null, pagoNetoImpuestosUSD: null });
   }, []);
 
   const actualizarDolar = async () => {
@@ -433,6 +575,63 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
           <textarea
             readOnly
             value={CSSBUY_SCRAPER_SCRIPT}
+            className="w-full h-32 bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-[11px] font-mono text-zinc-400 focus:outline-none resize-none"
+          />
+        </div>
+      </div>
+
+      {/* Upload records.json */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Upload className="w-4 h-4 text-emerald-400" />
+            <h3 className="text-sm font-semibold text-zinc-100">Movimientos CSSBuy (record)</h3>
+            <span className="text-xs text-zinc-500">
+              {records.length > 0 ? `${records.length} movimientos` : "Sin datos"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1.5 rounded-lg transition-colors cursor-pointer">
+              <Upload className="w-3 h-3" /> Subir records.json
+              <input
+                ref={recordFileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleRecordUpload}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+        {recordUploadMsg && (
+          <div
+            className={`mt-3 p-2 rounded-lg text-xs ${
+              recordUploadMsg.type === "success"
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : "bg-red-500/10 text-red-400 border border-red-500/20"
+            }`}
+          >
+            {recordUploadMsg.text}
+          </div>
+        )}
+
+        <div className="mt-4 p-3 bg-zinc-950 border border-zinc-800 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-xs font-medium text-zinc-200">Script para extraer movimientos de CSSBuy</p>
+              <p className="text-[11px] text-zinc-500">Pegalo en la consola de cssbuy.com/web/record</p>
+            </div>
+            <button
+              onClick={copyRecordScript}
+              className="flex items-center gap-1 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2 py-1.5 rounded-lg transition-colors"
+            >
+              {recordCopied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+              {recordCopied ? "Copiado" : "Copiar"}
+            </button>
+          </div>
+          <textarea
+            readOnly
+            value={CSSBUY_RECORD_SCRAPER_SCRIPT}
             className="w-full h-32 bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-[11px] font-mono text-zinc-400 focus:outline-none resize-none"
           />
         </div>
@@ -655,6 +854,28 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
           </div>
         </div>
 
+        {/* Reconciliación con movimientos reales */}
+        {records.length > 0 && (
+          <RecordReconciliationPanel
+            productos={productos}
+            recordGroups={recordGroups}
+            findRecordGroup={findRecordGroup}
+            onApplyCostos={(id, costoCNY) => {
+              const prod = productos.find((p) => p.id === id);
+              if (!prod) return;
+              // Split real cost into item price + local shipping/service using existing proportions when possible
+              const currentProductTotal = prod.precioCNY + prod.envioLocalCNY;
+              if (currentProductTotal > 0) {
+                const ratio = prod.precioCNY / currentProductTotal;
+                updateProducto(id, "precioCNY", Math.round(costoCNY * ratio * 100) / 100);
+                updateProducto(id, "envioLocalCNY", Math.round(costoCNY * (1 - ratio) * 100) / 100);
+              } else {
+                updateProducto(id, "precioCNY", Math.round(costoCNY * 100) / 100);
+              }
+            }}
+          />
+        )}
+
         {/* Envío CSSBuy */}
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
@@ -847,7 +1068,7 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
                 Dentro de franquicia $50 (1 de tus primeros 5 envíos del año)
               </label>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div>
                 <label className="block text-xs text-muted-foreground mb-1">Envíos del año</label>
                 <input
@@ -892,18 +1113,42 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
                   className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50"
                 />
               </div>
+              <div>
+                <label className="block text-xs text-muted-foreground mb-1">Pago neto impuestos (USD)</label>
+                <input
+                  type="number"
+                  step={0.01}
+                  value={aduana.pagoNetoImpuestosUSD || ""}
+                  onChange={(e) =>
+                    setAduana((prev) => ({ ...prev, pagoNetoImpuestosUSD: parseFloat(e.target.value) || null }))
+                  }
+                  placeholder="auto"
+                  className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+                />
+              </div>
             </div>
+            {aduana.pagoNetoImpuestosUSD != null && (
+              <p className="text-xs text-warning">
+                Se usa el pago neto ingresado ({fmtUSD(aduana.pagoNetoImpuestosUSD)}) en lugar del impuesto calculado.
+              </p>
+            )}
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={guardarCotizacion}
             className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
           >
             <Save className="w-4 h-4" /> Guardar cotización
           </button>
+          <Link
+            href="/admin/modulos/calculadora/cotizaciones"
+            className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors"
+          >
+            <Save className="w-4 h-4" /> Ver cotizaciones
+          </Link>
           <button
             onClick={exportarCSV}
             className="flex items-center gap-2 bg-secondary text-secondary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-secondary/80 transition-colors"
@@ -926,6 +1171,157 @@ console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,
         </div>
       </div>
       </div>
+    </div>
+  );
+}
+
+function RecordReconciliationPanel({
+  productos,
+  recordGroups,
+  findRecordGroup,
+  onApplyCostos,
+}: {
+  productos: Product[];
+  recordGroups: CssbuyRecordGroup[];
+  findRecordGroup: (p: Product) => CssbuyRecordGroup | undefined;
+  onApplyCostos: (id: string, costoCNY: number) => void;
+}) {
+  const rows = productos.map((p) => {
+    const group = findRecordGroup(p);
+    const realCost = group ? calculateRealItemCost(group) : 0;
+    const estimatedCost = p.precioCNY + p.envioLocalCNY;
+    const diff = realCost - estimatedCost;
+    return { producto: p, group, realCost, estimatedCost, diff };
+  });
+
+  const linkedCount = rows.filter((r) => r.group).length;
+
+  return (
+    <div className="bg-card border border-border rounded-xl p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Receipt className="w-4 h-4 text-primary" />
+          <h3 className="text-sm font-semibold">Reconciliación con movimientos reales</h3>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {linkedCount} de {productos.length} vinculados · {recordGroups.length} órdenes en records
+        </span>
+      </div>
+
+      {productos.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Agregá productos para comparar con los movimientos reales.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Producto
+                </th>
+                <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">
+                  Estimado ¥
+                </th>
+                <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">
+                  Real ¥
+                </th>
+                <th className="text-right py-2 px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">
+                  Dif.
+                </th>
+                <th className="text-left py-2 px-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Detalle
+                </th>
+                <th className="w-24"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(({ producto, group, realCost, estimatedCost, diff }) => (
+                <tr key={producto.id} className="border-b border-border/50 hover:bg-secondary/20 transition-colors">
+                  <td className="py-2 px-2">
+                    <div className="flex items-center gap-2">
+                      {producto.imgURL && <img src={producto.imgURL} alt="" className="w-8 h-8 rounded object-cover bg-muted" />}
+                      <div>
+                        <p className="text-xs font-medium line-clamp-1">{producto.nombre || "Sin nombre"}</p>
+                        {group && <p className="text-[10px] text-muted-foreground">{group.orderId}</p>}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-2 px-2 text-right tabular-nums text-xs">¥{estimatedCost.toFixed(2)}</td>
+                  <td className="py-2 px-2 text-right tabular-nums text-xs font-medium">
+                    {group ? `¥${realCost.toFixed(2)}` : "—"}
+                  </td>
+                  <td className="py-2 px-2 text-right tabular-nums text-xs">
+                    {group ? (
+                      <span className={diff > 0.01 ? "text-amber-400" : diff < -0.01 ? "text-emerald-400" : "text-muted-foreground"}>
+                        {diff > 0 ? "+" : ""}
+                        {diff.toFixed(2)}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td className="py-2 px-2 text-xs">
+                    {group ? (
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+                        <span>Item: ¥{Math.abs(group.buyItemTotal).toFixed(2)}</span>
+                        {Math.abs(group.serviceFeeTotal) > 0 && <span>Servicio: ¥{Math.abs(group.serviceFeeTotal).toFixed(2)}</span>}
+                        {Math.abs(group.domesticShippingTotal) > 0 && (
+                          <span>Local: ¥{Math.abs(group.domesticShippingTotal).toFixed(2)}</span>
+                        )}
+                        {Math.abs(group.adjustPriceTotal) > 0 && (
+                          <span>Ajuste: ¥{Math.abs(group.adjustPriceTotal).toFixed(2)}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground">Sin movimientos vinculados</span>
+                    )}
+                  </td>
+                  <td className="py-2 px-2 text-right">
+                    {group && (
+                      <button
+                        onClick={() => onApplyCostos(producto.id, realCost)}
+                        className="text-[10px] bg-secondary hover:bg-secondary/80 text-secondary-foreground px-2 py-1 rounded-md transition-colors"
+                      >
+                        Aplicar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {recordGroups.length > 0 && (
+        <div className="mt-4 p-3 bg-secondary/30 rounded-lg">
+          <div className="flex items-center gap-2 mb-2">
+            <Wallet className="w-3 h-3 text-muted-foreground" />
+            <p className="text-xs font-medium">Resumen de records importados</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            <div>
+              <p className="text-muted-foreground text-[10px]">Movimientos</p>
+              <p className="tabular-nums font-medium">{recordGroups.reduce((s, g) => s + g.transactions.length, 0)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-[10px]">Órdenes</p>
+              <p className="tabular-nums font-medium">{recordGroups.length}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-[10px]">Gastado ¥</p>
+              <p className="tabular-nums font-medium">
+                ¥{recordGroups.reduce((s, g) => s + Math.abs(g.totalSpent), 0).toFixed(2)}
+              </p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-[10px]">En compras ¥</p>
+              <p className="tabular-nums font-medium">
+                ¥{recordGroups.reduce((s, g) => s + Math.abs(g.buyItemTotal), 0).toFixed(2)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1001,19 +1397,26 @@ function ResultsPanel({ resultados, platformFee }: { resultados: CalculationResu
               valueClass="text-emerald-400"
             />
           )}
-          {r.detalleImpuestos.franquicia ? (
-            <div className="p-2 bg-primary/10 rounded-lg text-xs text-primary">Franquicia $50 aplicada. Impuestos = $0</div>
-          ) : (
-            <>
-              <Row label="Arancel 50%" value={fmtUSD(r.detalleImpuestos.arancel)} />
-              <Row label="IVA 21%" value={fmtUSD(r.detalleImpuestos.iva)} />
-              <Row label="IIBB" value={fmtUSD(r.detalleImpuestos.iibb)} />
-              <Row label="Tasa estadística 3%" value={fmtUSD(r.detalleImpuestos.tasaEst)} />
-              <div className="pt-2 border-t border-border">
-                <Row label="Total impuestos" value={fmtUSD(r.impuestosUSD)} valueClass="text-destructive" bold />
-              </div>
-            </>
+          {r.detalleImpuestos.franquicia && (
+            <div className="p-2 bg-primary/10 rounded-lg text-xs text-primary">
+              Franquicia USD 50 aplicada.
+              {r.fobDeclaradoUSD > 50 ? (
+                <>
+                  {" "}Valor declarado USD {r.fobDeclaradoUSD.toFixed(2)} → paga la mitad del excedente: {" "}
+                  <span className="font-medium">{fmtUSD(r.impuestosUSD)}</span>
+                </>
+              ) : (
+                " Impuestos = $0"
+              )}
+            </div>
           )}
+          <Row label="Arancel 50%" value={fmtUSD(r.detalleImpuestos.arancel)} />
+          <Row label="IVA 21%" value={fmtUSD(r.detalleImpuestos.iva)} />
+          <Row label="IIBB" value={fmtUSD(r.detalleImpuestos.iibb)} />
+          <Row label="Tasa estadística 3%" value={fmtUSD(r.detalleImpuestos.tasaEst)} />
+          <div className="pt-2 border-t border-border">
+            <Row label="Total impuestos" value={fmtUSD(r.impuestosUSD)} valueClass="text-destructive" bold />
+          </div>
           <div className="pt-2 border-t border-border">
             <Row label="Costo final puesto" value={fmtUSD(r.costoTotalUSD)} bold />
           </div>

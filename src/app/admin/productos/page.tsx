@@ -16,6 +16,12 @@ import {
 import { ShopProduct, CssbuyOrder } from "@/lib/types";
 import { uid } from "@/lib/utils";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import {
+  loadCalcConfig,
+  estimateFromOrder,
+  formatARS,
+  CalcConfig,
+} from "@/lib/pricing";
 
 const PAGE_SIZE = 25;
 
@@ -32,12 +38,25 @@ export default function AdminProductosPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [calcConfig, setCalcConfig] = useState<CalcConfig>(loadCalcConfig());
+  const [pricing, setPricing] = useState<Record<string, { loading: boolean; value: number | null }>>({});
 
   // Debounce search input so we don't refetch on every keystroke
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 250);
     return () => clearTimeout(t);
   }, [search]);
+
+  // Recargar configuración de calculadora cuando el usuario vuelva a la pestaña
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setCalcConfig(loadCalcConfig());
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -83,6 +102,9 @@ export default function AdminProductosPage() {
     setImporting(order.oid);
     setError(null);
 
+    const estimate = estimateFromOrder(order, calcConfig);
+    const precioSugerido = estimate?.precioSugeridoARS ?? 0;
+
     const slugBase =
       (order.producto || `producto-${order.oid}`)
         .toLowerCase()
@@ -99,7 +121,7 @@ export default function AdminProductosPage() {
       slug,
       nombre: order.producto || `CSSBuy #${order.oid}`,
       descripcion: `Importado de ${order.vendedor || "CSSBuy"}. Variante: ${order.variante || "N/A"}`,
-      precio_ars: 0,
+      precio_ars: Math.round(precioSugerido),
       precio_original_ars: null,
       fotos: order.imagen ? [order.imagen] : [],
       categoria: "",
@@ -193,6 +215,32 @@ export default function AdminProductosPage() {
     } catch (e: any) {
       setError("Error: " + e.message);
     }
+  }
+
+  async function calculateSuggestedPrice(product: ShopProduct): Promise<number | null> {
+    if (!product.cssbuy_oid) return null;
+    setPricing((prev) => ({ ...prev, [product.id]: { loading: true, value: prev[product.id]?.value ?? null } }));
+    try {
+      const res = await fetch(`/api/warehouse?oid=${encodeURIComponent(product.cssbuy_oid)}`, {
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok || !data.order) throw new Error(data.error || "No se encontró la orden");
+      const estimate = estimateFromOrder(data.order, calcConfig);
+      const value = estimate ? Math.round(estimate.precioSugeridoARS) : null;
+      setPricing((prev) => ({ ...prev, [product.id]: { loading: false, value } }));
+      return value;
+    } catch (e: any) {
+      setError("Error calculando precio: " + e.message);
+      setPricing((prev) => ({ ...prev, [product.id]: { loading: false, value: prev[product.id]?.value ?? null } }));
+      return null;
+    }
+  }
+
+  async function applySuggestedPrice(product: ShopProduct) {
+    const price = await calculateSuggestedPrice(product);
+    if (price == null) return;
+    await updateProductField(product, "precio_ars", price);
   }
 
   const alreadyImported = new Set(products.map((p) => p.cssbuy_oid).filter(Boolean) as string[]);
@@ -415,13 +463,15 @@ export default function AdminProductosPage() {
                 </thead>
                 <tbody>
                   {products.map((product) => (
-                    <ProductRow
-                      key={product.id}
-                      product={product}
-                      onTogglePublished={togglePublished}
-                      onDelete={deleteProduct}
-                      onUpdateField={updateProductField}
-                    />
+                  <ProductRow
+                    key={product.id}
+                    product={product}
+                    onTogglePublished={togglePublished}
+                    onDelete={deleteProduct}
+                    onUpdateField={updateProductField}
+                    onApplySuggested={applySuggestedPrice}
+                    pricing={pricing}
+                  />
                   ))}
                 </tbody>
               </table>
@@ -464,6 +514,8 @@ const ProductRow = memo(function ProductRow({
   onTogglePublished,
   onDelete,
   onUpdateField,
+  onApplySuggested,
+  pricing,
 }: {
   product: ShopProduct;
   onTogglePublished: (product: ShopProduct) => void;
@@ -473,6 +525,8 @@ const ProductRow = memo(function ProductRow({
     field: "precio_ars" | "stock",
     value: number
   ) => void;
+  onApplySuggested: (product: ShopProduct) => void;
+  pricing: Record<string, { loading: boolean; value: number | null }>;
 }) {
   return (
     <tr className="border-b border-border/50 hover:bg-secondary/30 transition-colors">
@@ -511,13 +565,37 @@ const ProductRow = memo(function ProductRow({
         </div>
       </td>
       <td className="py-3 px-4 text-right tabular-nums font-medium">
-        <InlineNumberInput
-          value={product.precio_ars || 0}
-          prefix="$"
-          min={0}
-          step={0.01}
-          onSave={(val) => onUpdateField(product, "precio_ars", val)}
-        />
+        <div className="flex flex-col items-end gap-1">
+          <InlineNumberInput
+            value={product.precio_ars || 0}
+            prefix="$"
+            min={0}
+            step={0.01}
+            onSave={(val) => onUpdateField(product, "precio_ars", val)}
+          />
+          {product.cssbuy_oid && (
+            <div className="flex items-center gap-1">
+              {pricing[product.id]?.loading ? (
+                <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+              ) : pricing[product.id]?.value != null ? (
+                <button
+                  onClick={() => onApplySuggested(product)}
+                  className="text-[10px] text-emerald-400 hover:text-emerald-300 underline"
+                  title="Aplicar precio calculado"
+                >
+                  Sugerido: {formatARS(pricing[product.id].value!)}
+                </button>
+              ) : (
+                <button
+                  onClick={() => onApplySuggested(product)}
+                  className="text-[10px] text-muted-foreground hover:text-primary underline"
+                >
+                  Calcular precio
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </td>
       <td className="py-3 px-4 text-right tabular-nums">
         <InlineNumberInput
