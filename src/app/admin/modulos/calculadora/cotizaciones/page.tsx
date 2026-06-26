@@ -7,22 +7,6 @@ import { ArrowLeft, Trash2, Loader2, Calculator, Calendar, Package, DollarSign, 
 import { Cotizacion } from "@/lib/types";
 import { fmtUSD, fmtARS, fmtPct } from "@/lib/utils";
 
-const COTIZACIONES_KEY = "cssbuy-cotizaciones";
-
-function loadCotizaciones(): Cotizacion[] {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(COTIZACIONES_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveCotizaciones(items: Cotizacion[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(COTIZACIONES_KEY, JSON.stringify(items));
-}
-
 function formatDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString("es-AR", {
@@ -37,27 +21,47 @@ function formatDate(iso: string): string {
 export default function CotizacionesPage() {
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Cotizacion | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    setCotizaciones(loadCotizaciones());
-    setLoading(false);
-  }, []);
-
-  function deleteCotizacion(id: string) {
-    if (!confirm("¿Eliminar esta cotización?")) return;
-    const updated = cotizaciones.filter((c) => c.id !== id);
-    setCotizaciones(updated);
-    saveCotizaciones(updated);
-    if (selected?.id === id) setSelected(null);
+  async function fetchCotizaciones() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/cotizaciones", { credentials: "same-origin" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al cargar");
+      setCotizaciones(data.cotizaciones || []);
+    } catch (err: any) {
+      setError(err.message || "Error al cargar las cotizaciones");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function clearAll() {
-    if (!confirm("¿Eliminar TODAS las cotizaciones guardadas?")) return;
-    setCotizaciones([]);
-    saveCotizaciones([]);
-    setSelected(null);
+  useEffect(() => {
+    fetchCotizaciones();
+  }, []);
+
+  async function deleteCotizacion(id: string) {
+    if (!confirm("¿Eliminar esta cotización?")) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/cotizaciones/${id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al eliminar");
+      setCotizaciones((prev) => prev.filter((c) => c.id !== id));
+      if (selected?.id === id) setSelected(null);
+    } catch (err: any) {
+      alert(err.message || "Error al eliminar la cotización");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   function loadIntoCalculator(cot: Cotizacion) {
@@ -84,20 +88,11 @@ export default function CotizacionesPage() {
               Cotizaciones guardadas
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {cotizaciones.length} guardada{cotizaciones.length !== 1 ? "s" : ""} en este navegador
+              {cotizaciones.length} guardada{cotizaciones.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {cotizaciones.length > 0 && (
-            <button
-              onClick={clearAll}
-              className="flex items-center gap-2 bg-destructive/10 hover:bg-destructive/20 text-destructive px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-              Limpiar
-            </button>
-          )}
           <Link
             href="/admin/modulos/calculadora"
             className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium transition-colors"
@@ -107,6 +102,12 @@ export default function CotizacionesPage() {
           </Link>
         </div>
       </div>
+
+      {error && (
+        <div className="bg-destructive/10 text-destructive rounded-xl p-4 text-sm">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center py-16">
@@ -171,10 +172,15 @@ export default function CotizacionesPage() {
                         e.stopPropagation();
                         deleteCotizacion(cot.id);
                       }}
-                      className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      disabled={deletingId === cot.id}
+                      className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors disabled:opacity-50"
                       title="Eliminar"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      {deletingId === cot.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
                     </button>
                   </div>
                 </div>

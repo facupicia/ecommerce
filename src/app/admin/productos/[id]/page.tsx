@@ -16,16 +16,11 @@ import { ShopProduct, CssbuyOrder, Cotizacion } from "@/lib/types";
 import { uid } from "@/lib/utils";
 import { ImageUploader } from "@/components/ui/ImageUploader";
 import {
-  loadCalcConfig,
-  estimateFromOrder,
   estimateFromOrderAndCotizacionProduct,
   formatARS,
-  CalcConfig,
   PricingEstimate,
   PricingEstimateBreakdown,
-  calculateProductEstimateBreakdown,
   calculateProductEstimateBreakdownFromCotizacion,
-  buildProductFromOrder,
 } from "@/lib/pricing";
 
 export default function AdminProductEditPage() {
@@ -58,9 +53,8 @@ export default function AdminProductEditPage() {
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
   const [existingMarcas, setExistingMarcas] = useState<string[]>([]);
   const [existingIndumentarias, setExistingIndumentarias] = useState<string[]>([]);
-  const [calcConfig, setCalcConfig] = useState<CalcConfig>(loadCalcConfig());
   const [cotizaciones, setCotizaciones] = useState<Cotizacion[]>([]);
-  const [cotizacionId, setCotizacionId] = useState<string | "current">("current");
+  const [cotizacionId, setCotizacionId] = useState<string>("");
   const [estimate, setEstimate] = useState<PricingEstimate | null>(null);
   const [estimateBreakdown, setEstimateBreakdown] = useState<PricingEstimateBreakdown | null>(null);
   const [estimateLoading, setEstimateLoading] = useState(false);
@@ -98,36 +92,34 @@ export default function AdminProductEditPage() {
     loadExistingOptions();
   }, [loadProduct, loadExistingOptions]);
 
-  // Recargar configuración de calculadora cuando se vuelve a la pestaña
-  useEffect(() => {
-    const onVisibility = () => {
-      if (document.visibilityState === "visible") {
-        setCalcConfig(loadCalcConfig());
-        loadCotizaciones();
-      }
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, []);
-
   function loadCotizaciones() {
     try {
       const raw = localStorage.getItem("cssbuy-cotizaciones");
       const items = raw ? (JSON.parse(raw) as Cotizacion[]) : [];
       setCotizaciones(items);
+      setCotizacionId((prev) => {
+        if (prev && items.some((c) => c.id === prev)) return prev;
+        return items[0]?.id || "";
+      });
     } catch {
       setCotizaciones([]);
+      setCotizacionId("");
     }
   }
 
   useEffect(() => {
     loadCotizaciones();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") loadCotizaciones();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  // Calcular estimado cuando cambia el producto, la config o la cotización seleccionada
+  // Calcular estimado cuando cambia el producto o la cotización seleccionada
   useEffect(() => {
     async function computeEstimate() {
-      if (!product.cssbuy_oid) {
+      if (!product.cssbuy_oid || !cotizacionId) {
         setEstimate(null);
         setEstimateBreakdown(null);
         return;
@@ -147,16 +139,15 @@ export default function AdminProductEditPage() {
         const overrides = { pesoG: product.peso_g || order.peso_g || 0 };
 
         const selectedCot = cotizaciones.find((c) => c.id === cotizacionId);
-        const est = selectedCot
-          ? estimateFromOrderAndCotizacionProduct(order, selectedCot, overrides)
-          : estimateFromOrder(order, calcConfig, overrides);
+        if (!selectedCot) {
+          setEstimate(null);
+          setEstimateBreakdown(null);
+          return;
+        }
+        const est = estimateFromOrderAndCotizacionProduct(order, selectedCot, overrides);
         setEstimate(est);
         if (est) {
-          const productForBreakdown = buildProductFromOrderForBreakdown(order, product.peso_g);
-          const breakdown = selectedCot
-            ? calculateProductEstimateBreakdownFromCotizacion(order, selectedCot, overrides)
-            : calculateProductEstimateBreakdown(productForBreakdown, calcConfig);
-          setEstimateBreakdown(breakdown);
+          setEstimateBreakdown(calculateProductEstimateBreakdownFromCotizacion(order, selectedCot, overrides));
         } else {
           setEstimateBreakdown(null);
         }
@@ -168,7 +159,7 @@ export default function AdminProductEditPage() {
       }
     }
     computeEstimate();
-  }, [product.cssbuy_oid, product.peso_g, calcConfig, cotizacionId, cotizaciones]);
+  }, [product.cssbuy_oid, product.peso_g, cotizacionId, cotizaciones]);
 
   function updateField(field: keyof ShopProduct, value: any) {
     setProduct((prev) => ({ ...prev, [field]: value }));
@@ -180,10 +171,6 @@ export default function AdminProductEditPage() {
     }
   }
 
-  function buildProductFromOrderForBreakdown(order: CssbuyOrder, pesoG?: number) {
-    return buildProductFromOrder(order, { pesoG: pesoG || order.peso_g || 0 });
-  }
-
   function generateSlug() {
     const slug =
       (product.nombre || "producto")
@@ -193,23 +180,6 @@ export default function AdminProductEditPage() {
       "-" +
       Date.now().toString(36);
     updateField("slug", slug);
-  }
-
-  function addPhoto() {
-    const url = newPhotoUrl.trim();
-    if (!url) return;
-    setProduct((prev) => ({
-      ...prev,
-      fotos: [...(prev.fotos || []), url],
-    }));
-    setNewPhotoUrl("");
-  }
-
-  function removePhoto(index: number) {
-    setProduct((prev) => ({
-      ...prev,
-      fotos: (prev.fotos || []).filter((_, i) => i !== index),
-    }));
   }
 
   async function handleSave() {
@@ -287,6 +257,23 @@ export default function AdminProductEditPage() {
     } catch (e: any) {
       setError(e.message);
     }
+  }
+
+  function addPhoto() {
+    const url = newPhotoUrl.trim();
+    if (!url) return;
+    setProduct((prev) => ({
+      ...prev,
+      fotos: [...(prev.fotos || []), url],
+    }));
+    setNewPhotoUrl("");
+  }
+
+  function removePhoto(index: number) {
+    setProduct((prev) => ({
+      ...prev,
+      fotos: (prev.fotos || []).filter((_, i) => i !== index),
+    }));
   }
 
   if (loading) {
@@ -424,19 +411,20 @@ export default function AdminProductEditPage() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                {cotizaciones.length > 0 && (
+                {cotizaciones.length > 0 ? (
                   <select
                     value={cotizacionId}
                     onChange={(e) => setCotizacionId(e.target.value)}
                     className="text-xs bg-secondary/50 border border-border rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
-                    <option value="current">Cálculo individual</option>
                     {cotizaciones.map((c) => (
                       <option key={c.id} value={c.id}>
                         {c.nombre} ({new Date(c.fecha).toLocaleDateString("es-AR")})
                       </option>
                     ))}
                   </select>
+                ) : (
+                  <span className="text-xs text-warning">Guardá una cotización en la calculadora</span>
                 )}
                 {estimate?.precioSugeridoARS ? (
                   <button
@@ -453,12 +441,6 @@ export default function AdminProductEditPage() {
                 )}
               </div>
             </div>
-            {cotizacionId === "current" && (
-              <p className="text-[10px] text-warning">
-                Modo individual: el envío e impuestos se asignan enteros a este producto. Para el cálculo real,
-                seleccioná la cotización donde está este producto.
-              </p>
-            )}
 
             {estimate && (
               <div className="space-y-3">
@@ -507,9 +489,8 @@ export default function AdminProductEditPage() {
                     <p className="text-[10px] text-muted-foreground pt-1 border-t border-border/50">
                       {(() => {
                         const cot = cotizaciones.find((c) => c.id === cotizacionId);
-                        const cfg = cot ? { fx: cot.fx, envio: cot.envio } : { fx: calcConfig.fx, envio: calcConfig.envio };
-                        const label = cot ? `Cotización: ${cot.nombre} · ` : "Config actual · ";
-                        return `${label}CNY/USD ${cfg.fx.cny} · Blue $${cfg.fx.blue.toLocaleString("es-AR")} · Freight ¥${cfg.envio.freightCNY} · Markup ${cfg.envio.markup}x`;
+                        if (!cot) return "";
+                        return `Cotización: ${cot.nombre} · CNY/USD ${cot.fx.cny} · Blue $${cot.fx.blue.toLocaleString("es-AR")} · Freight ¥${cot.envio.freightCNY} · Markup ${cot.envio.markup}x`;
                       })()}
                     </p>
                   </div>

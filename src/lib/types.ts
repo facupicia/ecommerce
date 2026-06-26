@@ -202,6 +202,18 @@ export interface Cotizacion {
   resultados: CalculationResult;
 }
 
+export interface ShopCotizacion {
+  id: string;
+  nombre: string;
+  fx: FxRates;
+  envio: ShipmentCosts;
+  aduana: AduanaConfig;
+  productos: Product[];
+  resultados: CalculationResult;
+  created_at: string;
+  updated_at: string;
+}
+
 // ── Admin / Payments / Logs ──────────────────────────────
 
 export interface ShopOrderLog {

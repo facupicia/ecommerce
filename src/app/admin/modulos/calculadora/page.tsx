@@ -22,6 +22,7 @@ import {
   Check,
   Receipt,
   Wallet,
+  Loader2,
 } from "lucide-react";
 import { Product, FxRates, ShipmentCosts, AduanaConfig, CalculationResult, Cotizacion, CssbuyTransaction, CssbuyRecordGroup } from "@/lib/types";
 import { calcularTodo, fmtUSD, fmtARS, fmtPct, uid } from "@/lib/utils";
@@ -294,13 +295,7 @@ console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String
   };
 
   const [nombreEnvio, setNombreEnvio] = useState("");
-  const [cotizaciones, setCotizaciones] = useState<any[]>(() => {
-    try {
-      return JSON.parse(localStorage.getItem("cssbuy-cotizaciones") || "[]");
-    } catch {
-      return [];
-    }
-  });
+  const [savingCotizacion, setSavingCotizacion] = useState(false);
 
   const resultados = useMemo(() => calcularTodo(productos, fx, envio, aduana), [productos, fx, envio, aduana]);
 
@@ -414,26 +409,35 @@ console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String
     [productos]
   );
 
-  const guardarCotizacion = useCallback(() => {
+  const guardarCotizacion = useCallback(async () => {
     if (resultados.productosUSDTotal === 0) {
       alert("Agregá al menos un producto");
       return;
     }
-    const cot = {
-      id: uid(),
-      fecha: new Date().toISOString(),
-      nombre: nombreEnvio.trim() || `Cotización ${new Date().toLocaleDateString("es-AR")}`,
-      fx,
-      envio,
-      aduana,
-      productos,
-      resultados,
-    };
-    const updated = [cot, ...cotizaciones].slice(0, 50);
-    setCotizaciones(updated);
-    localStorage.setItem("cssbuy-cotizaciones", JSON.stringify(updated));
-    alert(`"${cot.nombre}" guardada.`);
-  }, [fx, envio, aduana, productos, resultados, nombreEnvio, cotizaciones]);
+    setSavingCotizacion(true);
+    try {
+      const res = await fetch("/api/cotizaciones", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          nombre: nombreEnvio.trim() || `Cotización ${new Date().toLocaleDateString("es-AR")}`,
+          fx,
+          envio,
+          aduana,
+          productos,
+          resultados,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al guardar");
+      alert(`"${data.cotizacion.nombre}" guardada.`);
+    } catch (err: any) {
+      alert(err.message || "Error al guardar la cotización");
+    } finally {
+      setSavingCotizacion(false);
+    }
+  }, [fx, envio, aduana, productos, resultados, nombreEnvio]);
 
   const exportarCSV = useCallback(() => {
     if (resultados.productosCalc.length === 0) {
@@ -1139,9 +1143,15 @@ console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={guardarCotizacion}
-            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+            disabled={savingCotizacion}
+            className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <Save className="w-4 h-4" /> Guardar cotización
+            {savingCotizacion ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            Guardar cotización
           </button>
           <Link
             href="/admin/modulos/calculadora/cotizaciones"
