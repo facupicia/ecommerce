@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { getShopSettings, updateShopSettings } from "@/lib/settings";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 async function isAdmin() {
   const cookieStore = await cookies();

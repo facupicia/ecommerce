@@ -16,6 +16,8 @@ import {
   DollarSign,
   Upload,
   RefreshCw,
+  Copy,
+  Check,
 } from "lucide-react";
 import { Product, FxRates, ShipmentCosts, AduanaConfig, CalculationResult } from "@/lib/types";
 import { calcularTodo, fmtUSD, fmtARS, fmtPct, uid } from "@/lib/utils";
@@ -48,6 +50,85 @@ export default function CalculatorPage() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [uploadMsg, setUploadMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const CSSBUY_SCRAPER_SCRIPT = `// CSSBuy Warehouse Scraper — solo productos en almacén
+// 1. Andá a https://www.cssbuy.com/web/order y logueate
+// 2. F12 → Console → Pegá esto → Enter
+// 3. Se descarga orders.json, subilo en esta página
+
+(async()=>{
+const P=50,M=500,A=[];
+
+function peso(w){
+  if(!w)return 0;
+  if(typeof w==='number')return w;
+  try{const p=JSON.parse(String(w));return Array.isArray(p)?(Number(p[0])||0):(Number(w)||0)}
+  catch{return Number(String(w).match(/\\d+/)?.[0])||0}
+}
+
+function map(it){
+  return{
+    oid:String(it.oid??''),
+    producto:String(it.goodsname??''),
+    imagen:String(it.goodsimg??it.skuimg??''),
+    url:String(it.goodsurl??''),
+    vendedor:String(it.goodsseller??''),
+    variante:String(it.goodssize??''),
+    precio_unitario_cny:Number(it.goodsprice)||0,
+    envio_local_cny:Number(it.sendprice)||0,
+    envio_china_cny:Number(it.chinashipping)||0,
+    cantidad:Math.max(1,Math.round(Number(it.goodsnum)||1)),
+    estado:String(it.statename??it.state??''),
+    peso_g:peso(it.orderweight),
+    tracking:String(it.expressno??''),
+    fecha_pedido:Number(it.addtime)||Math.floor(Date.now()/1000)
+  }
+}
+
+let csrf='';
+try{csrf=document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')||''}catch{}
+if(!csrf){const m=document.documentElement.innerHTML.match(/csrf[_-]?token['"\\s:=]+['"]?([a-zA-Z0-9]+)/i);if(m)csrf=m[1]}
+
+let pn=1,hm=true;
+while(hm){
+  const params=new URLSearchParams();
+  params.set('orderState','all');params.set('starttime','');params.set('endtime','');
+  params.set('pageSize',String(P));params.set('pageNum',String(pn));
+  params.set('query','');params.set('inchina','');
+  if(csrf)params.set('_token',csrf);
+  const res=await fetch('https://www.cssbuy.com/web/order',{
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8','X-Requested-With':'XMLHttpRequest','X-CSRF-Token':csrf,'X-XSRF-TOKEN':csrf,Accept:'application/json, text/javascript, */*; q=0.01'},
+    body:params.toString()
+  });
+  const text=await res.text();
+  let data;try{data=JSON.parse(text)}catch{console.error('No JSON:',text.substring(0,500));break}
+  let list=data?.list??data?.orders??data?.data?.list??data?.data?.orders??data?.data?.data??data;
+  if(!Array.isArray(list)){console.error('Formato:',JSON.stringify(data).substring(0,500));break}
+  for(const it of list){if(it.state===4||it.statename==='In Warehouse')A.push(map(it))}
+  console.log('Pág '+pn+': '+list.length+' raw, '+A.length+' warehouse');
+  hm=list.length>=P&&A.length<M;
+  if(hm)pn++
+}
+console.log('\\n✅ '+A.length+' pedidos en almacén');
+const blob=new Blob([JSON.stringify({orders:A,lastSync:new Date().toISOString()},null,2)],{type:'application/json'});
+const url=URL.createObjectURL(blob);
+const a=document.createElement('a');a.href=url;a.download='orders.json';a.click();
+URL.revokeObjectURL(url);
+console.log('💾 orders.json descargado!');
+console.table(A.slice(0,10).map(o=>({oid:o.oid,producto:o.producto?.substring(0,50),estado:o.estado,peso:o.peso_g,precio:o.precio_unitario_cny})))
+})();`;
+
+  const [copied, setCopied] = useState(false);
+  const copyScript = async () => {
+    try {
+      await navigator.clipboard.writeText(CSSBUY_SCRAPER_SCRIPT);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert("No se pudo copiar al portapapeles");
+    }
+  };
 
   // Cargar warehouse orders
   const loadOrders = useCallback(async () => {
@@ -334,6 +415,27 @@ export default function CalculatorPage() {
             {uploadMsg.text}
           </div>
         )}
+
+        <div className="mt-4 p-3 bg-zinc-950 border border-zinc-800 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-xs font-medium text-zinc-200">Script para extraer órdenes de CSSBuy</p>
+              <p className="text-[11px] text-zinc-500">Pegalo en la consola de cssbuy.com/web/order</p>
+            </div>
+            <button
+              onClick={copyScript}
+              className="flex items-center gap-1 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2 py-1.5 rounded-lg transition-colors"
+            >
+              {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+              {copied ? "Copiado" : "Copiar"}
+            </button>
+          </div>
+          <textarea
+            readOnly
+            value={CSSBUY_SCRAPER_SCRIPT}
+            className="w-full h-32 bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-[11px] font-mono text-zinc-400 focus:outline-none resize-none"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

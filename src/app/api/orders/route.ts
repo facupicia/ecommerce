@@ -4,7 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { getMercadoPagoPreference, getSiteUrl } from "@/lib/mercadopago";
 import { createOrderLog } from "@/lib/order-helpers";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 
 async function isAdmin() {

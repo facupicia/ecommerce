@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getMercadoPagoPreference, getSiteUrl } from "@/lib/mercadopago";
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 
 async function isAdmin() {
