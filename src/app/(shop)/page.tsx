@@ -18,7 +18,7 @@ const heroSlides = [
     cta: "Ver ahora",
     href: "/categorias",
   },
-  
+
 ];
 
 export default async function ShopHomePage() {
@@ -44,7 +44,7 @@ export default async function ShopHomePage() {
   const featured = items.slice(0, 8);
   const looks = items.slice(8);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz/";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Store",

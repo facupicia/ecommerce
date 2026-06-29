@@ -93,9 +93,9 @@ export function Header() {
           {/* Center — logo */}
           <Link
             href="/"
-            className="inline-block px-2.5 py-1 text-white text-[13px] sm:text-[14px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-sm"
+            className="inline-block px-2.5 py-1 text-white text-[13px] sm:text-[14px] font-black uppercase tracking-[0.2em] "
           >
-            THEPLUG
+            THEPLUG🔌
           </Link>
 
           {/* Right — icons */}

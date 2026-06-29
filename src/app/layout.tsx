@@ -8,13 +8,13 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "THEPLUG — Rosario, Argentina",
-    template: "%s | THEPLUG",
+    default: "THEPLUG🔌 — Tienda de ropa",
+    template: "%s | THEPLUG🔌",
   },
   description: "Ropa importada premium. El mejor style streetwear desde Rosario a todo el país.",
   keywords: ["ropa importada", "streetwear rosario", "ropa streetwear", "tienda ropa argentina", "THEPLUG", "theplug rosario"],
