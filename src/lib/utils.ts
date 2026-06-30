@@ -60,12 +60,11 @@ export function calcularTodo(
   const productosUSDTotal = productosBase.reduce((s, p) => s + p.costoUSD, 0);
   const pesoTotalG = productosBase.reduce((s, p) => s + p.pesoGTotal, 0);
 
-  // Paso 2: envío
-  const freightUSD = (envio.freightCNY || 0) * cnyToUsd;
-  const serviceUSD = (envio.serviceCNY || 0) * cnyToUsd;
-  const baseEnvio = freightUSD + serviceUSD;
-  const recargaFee = baseEnvio * (envio.recargaPct || 0) + (envio.recargaFijo || 0);
-  const costoEnvioTotalUSD = baseEnvio + recargaFee;
+  // Paso 2: envío (precio final ingresado en USD)
+  const freightUSD = envio.freightUSD || 0;
+  const serviceUSD = 0;
+  const recargaFee = 0;
+  const costoEnvioTotalUSD = freightUSD;
 
   // Paso 3: prorratear envío por peso
   const pcWithShipping = productosBase.map((p) => {
@@ -75,7 +74,7 @@ export function calcularTodo(
   });
 
   // Paso 4: FOB / Aduana
-  const fobRealUSD = productosUSDTotal + envio.freightCNY * cnyToUsd;
+  const fobRealUSD = productosUSDTotal + envio.freightUSD;
   const fobDeclaradoUSD = aduana.valorDeclaradoUSD != null ? aduana.valorDeclaradoUSD : fobRealUSD;
   const ahorroSubdeclaracionUSD = fobRealUSD - fobDeclaradoUSD;
   const fobUSD = aduana.dentroFranquicia ? 0 : fobDeclaradoUSD;
@@ -119,7 +118,9 @@ export function calcularTodo(
     };
   });
 
-  const costoPaqueteUSD = productosUSDTotal + costoEnvioTotalUSD;
+  const basePaqueteUSD = productosUSDTotal + costoEnvioTotalUSD;
+  const depositFeeUSD = basePaqueteUSD * (envio.depositFeePct || 0);
+  const costoPaqueteUSD = basePaqueteUSD + depositFeeUSD;
   const costoPaqueteARS = costoPaqueteUSD * blue;
   const costoTotalUSD = costoPaqueteUSD + impuestosUSD;
   const costoTotalARS = costoTotalUSD * blue;
@@ -164,6 +165,7 @@ export function calcularTodo(
     costoEnvioTotalUSD,
     costoPaqueteUSD,
     costoPaqueteARS,
+    depositFeeUSD,
     fobRealUSD,
     fobDeclaradoUSD,
     ahorroSubdeclaracionUSD,
@@ -193,6 +195,7 @@ function emptyResult(): CalculationResult {
     costoEnvioTotalUSD: 0,
     costoPaqueteUSD: 0,
     costoPaqueteARS: 0,
+    depositFeeUSD: 0,
     fobRealUSD: 0,
     fobDeclaradoUSD: 0,
     ahorroSubdeclaracionUSD: 0,

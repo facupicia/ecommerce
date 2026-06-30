@@ -119,11 +119,8 @@ export interface FxRates {
 }
 
 export interface ShipmentCosts {
-  freightCNY: number;
-  serviceCNY: number;
-  recargaPct: number;
-  recargaFijo: number;
-  platformFee: number;
+  freightUSD: number;
+  depositFeePct: number;
   markup: number;
 }
 
@@ -167,6 +164,7 @@ export interface CalculationResult {
   costoEnvioTotalUSD: number;
   costoPaqueteUSD: number;
   costoPaqueteARS: number;
+  depositFeeUSD: number;
   fobRealUSD: number;
   fobDeclaradoUSD: number;
   ahorroSubdeclaracionUSD: number;

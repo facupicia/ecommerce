@@ -12,11 +12,8 @@ export interface CalcConfig {
 export const DEFAULT_CALC_CONFIG: CalcConfig = {
   fx: { blue: 1300, oficial: 1100, mep: 1200, cny: 7.2 },
   envio: {
-    freightCNY: 0,
-    serviceCNY: 0,
-    recargaPct: 0.03,
-    recargaFijo: 0.3,
-    platformFee: 0.35,
+    freightUSD: 0,
+    depositFeePct: 0.04,
     markup: 2.0,
   },
   aduana: {
@@ -35,9 +32,13 @@ export function loadCalcConfig(): CalcConfig {
     const raw = localStorage.getItem(CALC_CONFIG_KEY);
     if (!raw) return DEFAULT_CALC_CONFIG;
     const parsed = JSON.parse(raw);
+    const migratedEnvio = { ...DEFAULT_CALC_CONFIG.envio, ...parsed.envio };
+    if ("freightCNY" in parsed.envio && !("freightUSD" in parsed.envio)) {
+      migratedEnvio.freightUSD = parsed.envio.freightCNY;
+    }
     return {
       fx: { ...DEFAULT_CALC_CONFIG.fx, ...parsed.fx },
-      envio: { ...DEFAULT_CALC_CONFIG.envio, ...parsed.envio },
+      envio: migratedEnvio,
       aduana: { ...DEFAULT_CALC_CONFIG.aduana, ...parsed.aduana },
     };
   } catch {

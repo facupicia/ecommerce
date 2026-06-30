@@ -492,7 +492,7 @@ export default function AdminProductEditPage() {
                       {(() => {
                         const cot = cotizaciones.find((c) => c.id === cotizacionId);
                         if (!cot) return "";
-                        return `Cotización: ${cot.nombre} · CNY/USD ${cot.fx.cny} · Blue $${cot.fx.blue.toLocaleString("es-AR")} · Freight ¥${cot.envio.freightCNY} · Markup ${cot.envio.markup}x`;
+                        return `Cotización: ${cot.nombre} · CNY/USD ${cot.fx.cny} · Blue $${cot.fx.blue.toLocaleString("es-AR")} · Freight USD ${cot.envio.freightUSD} · Fee carga ${(cot.envio.depositFeePct * 100).toFixed(1)}% · Markup ${cot.envio.markup}x`;
                       })()}
                     </p>
                   </div>

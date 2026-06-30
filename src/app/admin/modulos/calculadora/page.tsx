@@ -35,10 +35,6 @@ export default function CalculatorPage() {
   const initialConfig = loadCalcConfig();
   const [fx, setFx] = useState<FxRates>(initialConfig.fx);
   const [envio, setEnvio] = useState<ShipmentCosts>(initialConfig.envio);
-  const [lineaEnvio, setLineaEnvio] = useState<string>("chinapost-sal");
-  const [tarifaPorGramo, setTarifaPorGramo] = useState<number>(0);
-  const [empaque, setEmpaque] = useState<"bag" | "box">("bag");
-  const [cupon100, setCupon100] = useState(false);
   const [aduana, setAduana] = useState<AduanaConfig>(initialConfig.aduana);
   const [productos, setProductos] = useState<Product[]>([]);
 
@@ -49,13 +45,15 @@ export default function CalculatorPage() {
     if (!raw) return;
     try {
       const cot: Cotizacion = JSON.parse(raw);
+      // Migrar cotizaciones viejas que usaban freightCNY
+      const migratedEnvio = { ...cot.envio };
+      if ("freightCNY" in migratedEnvio && !("freightUSD" in migratedEnvio)) {
+        (migratedEnvio as any).freightUSD = (migratedEnvio as any).freightCNY;
+      }
       setFx(cot.fx);
-      setEnvio(cot.envio);
+      setEnvio(migratedEnvio as ShipmentCosts);
       setAduana(cot.aduana);
       setProductos(cot.productos);
-      // Actualizar inputs de envío derivados
-      setLineaEnvio("custom");
-      setTarifaPorGramo(0);
     } catch {
       // ignore
     } finally {
@@ -323,42 +321,6 @@ console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String
 
   const pesoTotalG = productos.reduce((s, p) => s + (p.pesoG || 0) * (p.cantidad || 1), 0);
 
-  // Empaque: bolsa no suma peso (hasta 5999g). Caja suma ~400g de cartón/protección.
-  const pesoFacturadoG = useMemo(() => {
-    if (empaque === "box" && pesoTotalG > 5999) {
-      return pesoTotalG + 400;
-    }
-    return pesoTotalG;
-  }, [pesoTotalG, empaque]);
-
-  const freightCalculado = useMemo(() => {
-    if (lineaEnvio === "chinapost-sal") {
-      // China Post SAL 15 días - Pure Weight
-      // First weight: USD 25.85 / 1000g, Added weight: USD 10.78 / 1000g
-      // CSSBuy cobra por kg completo (redondeo hacia arriba)
-      const firstUSD = 25.85;
-      const addedUSD = 10.78;
-      const totalKg = Math.ceil(pesoFacturadoG / 1000);
-      const freightUSD = firstUSD + Math.max(0, totalKg - 1) * addedUSD;
-      return Math.round(freightUSD * fx.cny);
-    }
-    return Math.round(pesoFacturadoG * tarifaPorGramo);
-  }, [pesoFacturadoG, lineaEnvio, tarifaPorGramo, fx.cny]);
-
-  // Cupón 500/100 yuanes: descuento de 100 yuanes si el freight supera 500 yuanes.
-  const descuentoCuponCNY = cupon100 && freightCalculado >= 500 ? 100 : 0;
-  const freightConDescuentoCNY = Math.max(0, freightCalculado - descuentoCuponCNY);
-
-  // Sincronizar freight calculado con el estado de envío (solo líneas auto)
-  useEffect(() => {
-    if (lineaEnvio === "custom" || pesoTotalG === 0) return;
-    setEnvio((prev) =>
-      prev.freightCNY === freightConDescuentoCNY
-        ? prev
-        : { ...prev, freightCNY: freightConDescuentoCNY }
-    );
-  }, [lineaEnvio, pesoTotalG, freightConDescuentoCNY]);
-
   const addProducto = useCallback(() => {
     setProductos((prev) => [
       ...prev,
@@ -502,7 +464,7 @@ console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String
     if (!confirm("¿Limpiar todo?")) return;
     setNombreEnvio("");
     setProductos([]);
-    setEnvio({ freightCNY: 0, serviceCNY: 0, recargaPct: 0.03, recargaFijo: 0.3, platformFee: 0.35, markup: 2.0 });
+    setEnvio({ freightUSD: 0, depositFeePct: 0.04, markup: 2.0 });
     setAduana({ dentroFranquicia: false, enviosAnio: 0, ivaPct: 0.21, iibbPct: 0.03, valorDeclaradoUSD: null, pagoNetoImpuestosUSD: null });
   }, []);
 
@@ -888,168 +850,53 @@ console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String
             {pesoTotalG > 0 && (
               <span className="ml-auto text-xs text-muted-foreground">
                 Peso neto: <span className="text-foreground font-medium">{pesoTotalG}g</span>
-                {pesoFacturadoG !== pesoTotalG && (
-                  <span className="text-warning"> / facturado {pesoFacturadoG}g</span>
-                )}
               </span>
             )}
           </div>
 
-          {/* Calculador de Freight */}
-          <div className="mb-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
-            <p className="text-xs font-medium text-primary mb-2">Calculador de Freight (auto)</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">Línea de envío</label>
-                <select
-                  value={lineaEnvio}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setLineaEnvio(val);
-                    const tarifas: Record<string, number> = {
-                      custom: 0,
-                      "chinapost-sal": 0,
-                      ems: 0.09,
-                      dhl: 0.16,
-                      fedex: 0.15,
-                      ups: 0.14,
-                      chinapost: 0.06,
-                      eub: 0.08,
-                    };
-                    setTarifaPorGramo(tarifas[val] || 0);
-                  }}
-                  className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                >
-                  <option value="chinapost-sal">China Post SAL 15 días (Pure Weight)</option>
-                  <option value="custom">Manual (sin auto)</option>
-                  <option value="ems">EMS (~0.09 ¥/g)</option>
-                  <option value="dhl">DHL (~0.16 ¥/g)</option>
-                  <option value="fedex">FedEx (~0.15 ¥/g)</option>
-                  <option value="ups">UPS (~0.14 ¥/g)</option>
-                  <option value="chinapost">China Post (~0.06 ¥/g)</option>
-                  <option value="eub">EUB / ePacket (~0.08 ¥/g)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">Empaque</label>
-                <select
-                  value={empaque}
-                  onChange={(e) => setEmpaque(e.target.value as "bag" | "box")}
-                  className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                >
-                  <option value="bag">Bolsa / Simple Packaging</option>
-                  <option value="box">Caja (+400g si pasa 5999g)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">Tarifa (¥/g)</label>
-                <input
-                  type="number"
-                  step="0.001"
-                  min="0"
-                  value={tarifaPorGramo || ""}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value) || 0;
-                    setTarifaPorGramo(val);
-                    setLineaEnvio("custom");
-                  }}
-                  className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 tabular-nums"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">Freight calculado (¥)</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={envio.freightCNY || ""}
-                    onChange={(e) => {
-                      const val = parseFloat(e.target.value) || 0;
-                      setEnvio((prev) => ({ ...prev, freightCNY: val }));
-                      setLineaEnvio("custom");
-                    }}
-                    className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 tabular-nums"
-                  />
-                  {lineaEnvio !== "custom" && pesoTotalG > 0 && (
-                    <span className="text-xs text-emerald-400 whitespace-nowrap">auto</span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Precio final del envío (USD)</label>
               <input
-                id="cupon100"
-                type="checkbox"
-                checked={cupon100}
-                onChange={(e) => setCupon100(e.target.checked)}
-                className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                type="number"
+                step="0.01"
+                min="0"
+                value={envio.freightUSD || ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value) || 0;
+                  setEnvio((prev) => ({ ...prev, freightUSD: val }));
+                }}
+                className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 tabular-nums"
               />
-              <label htmlFor="cupon100" className="text-xs text-muted-foreground cursor-pointer">
-                Aplicar cupón 500/100 yuanes (-¥100 si freight ≥ ¥500)
-              </label>
             </div>
-            {lineaEnvio === "chinapost-sal" && pesoTotalG > 0 && (
-              <p className="text-xs text-muted-foreground mt-2">
-                {pesoFacturadoG <= 1000 ? (
-                  <>
-                    Primeros 1000g = <span className="text-emerald-400 font-medium">USD 25.85</span>
-                  </>
-                ) : (
-                  <>
-                    {pesoTotalG}g{pesoFacturadoG !== pesoTotalG && <> facturado como {pesoFacturadoG}g</>} redondeado a{" "}
-                    {Math.ceil(pesoFacturadoG / 1000)}kg: USD 25.85 +{" "}
-                    {Math.max(0, Math.ceil(pesoFacturadoG / 1000) - 1)} × USD 10.78 ={" "}
-                    <span className="text-emerald-400 font-medium">¥{freightCalculado}</span>
-                    {descuentoCuponCNY > 0 && (
-                      <>
-                        {" "}- ¥{descuentoCuponCNY} cupón ={" "}
-                        <span className="text-emerald-400 font-medium">¥{freightConDescuentoCNY}</span>
-                      </>
-                    )}
-                  </>
-                )}
-              </p>
-            )}
-            {lineaEnvio !== "custom" && lineaEnvio !== "chinapost-sal" && pesoTotalG > 0 && (
-              <p className="text-xs text-muted-foreground mt-2">
-                {pesoTotalG}g × {tarifaPorGramo.toFixed(3)} ¥/g ={" "}
-                <span className="text-emerald-400 font-medium">¥{freightCalculado}</span>
-              </p>
-            )}
-            {pesoTotalG === 0 && lineaEnvio !== "custom" && (
-              <p className="text-xs text-warning mt-2">Cargá el peso de los productos para calcular el freight.</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {[
-              { label: "Service (¥)", value: envio.serviceCNY, key: "serviceCNY" as const, step: 0.01 },
-              {
-                label: "Recarga fee (%)",
-                value: envio.recargaPct * 100,
-                key: "recargaPct" as const,
-                step: 0.01,
-                transform: (v: number) => v / 100,
-              },
-              { label: "Recarga fijo (USD)", value: envio.recargaFijo, key: "recargaFijo" as const, step: 0.01 },
-              { label: "Platform fee (USD)", value: envio.platformFee, key: "platformFee" as const, step: 0.01 },
-              { label: "Markup sugerido (x)", value: envio.markup, key: "markup" as const, step: 0.1 },
-            ].map((field) => (
-              <div key={field.key}>
-                <label className="block text-xs text-muted-foreground mb-1">{field.label}</label>
-                <input
-                  type="number"
-                  step={field.step}
-                  value={field.value || ""}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value) || 0;
-                    setEnvio((prev) => ({ ...prev, [field.key]: field.transform ? field.transform(val) : val }));
-                  }}
-                  className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 tabular-nums"
-                />
-              </div>
-            ))}
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Fee carga saldo (%)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                value={(envio.depositFeePct * 100) || ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value) || 0;
+                  setEnvio((prev) => ({ ...prev, depositFeePct: val / 100 }));
+                }}
+                className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 tabular-nums"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">Markup sugerido (x)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                value={envio.markup || ""}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value) || 0;
+                  setEnvio((prev) => ({ ...prev, markup: val }));
+                }}
+                className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 tabular-nums"
+              />
+            </div>
           </div>
         </div>
 
@@ -1177,7 +1024,7 @@ console.table(A.slice(0,10).map(r=>({action:r.action,money:r.money,remark:String
       {/* Right column - Results */}
       <div className="xl:col-span-1">
         <div className="sticky top-20 space-y-5">
-          <ResultsPanel resultados={resultados} platformFee={envio.platformFee} />
+          <ResultsPanel resultados={resultados} depositFeePct={envio.depositFeePct} />
         </div>
       </div>
       </div>
@@ -1336,11 +1183,11 @@ function RecordReconciliationPanel({
   );
 }
 
-function ResultsPanel({ resultados, platformFee }: { resultados: CalculationResult; platformFee: number }) {
+function ResultsPanel({ resultados, depositFeePct }: { resultados: CalculationResult; depositFeePct: number }) {
   const r = resultados;
   const dolarVenta = r.costoPaqueteARS / (r.costoPaqueteUSD || 1);
   const kgNeto = r.pesoTotalG / 1000;
-  const freightPorKg = kgNeto > 0 ? (r.freightUSD + r.serviceUSD) / kgNeto : 0;
+  const freightPorKg = kgNeto > 0 ? r.freightUSD / kgNeto : 0;
 
   if (r.productosCalc.length === 0 || r.productosUSDTotal === 0) {
     return (
@@ -1379,15 +1226,12 @@ function ResultsPanel({ resultados, platformFee }: { resultados: CalculationResu
         <h3 className="text-sm font-semibold mb-4">Resumen del envío</h3>
         <div className="space-y-2 text-sm">
           <Row label="Productos (FOB)" value={fmtUSD(r.productosUSDTotal)} />
-          <Row label="Freight + service" value={fmtUSD(r.freightUSD + r.serviceUSD)} />
-          {r.pesoTotalG > 0 && <Row label={`Freight por kg neto (${kgNeto.toFixed(2)} kg)`} value={fmtUSD(freightPorKg)} />}
+          <Row label="Envío" value={fmtUSD(r.freightUSD)} />
+          {r.pesoTotalG > 0 && <Row label={`Envío por kg neto (${kgNeto.toFixed(2)} kg)`} value={fmtUSD(freightPorKg)} />}
           <Row
-            label={`Recarga fee (${((r.recargaFee / (r.productosUSDTotal + r.freightUSD + r.serviceUSD)) * 100).toFixed(
-              0
-            )}%)`}
-            value={fmtUSD(r.recargaFee)}
+            label={`Fee carga saldo (${(depositFeePct * 100).toFixed(1)}%)`}
+            value={fmtUSD(r.depositFeeUSD)}
           />
-          <Row label="Platform fee" value={fmtUSD(platformFee)} />
           <div className="pt-2 border-t border-border">
             <Row label="Costo del paquete" value={fmtUSD(r.costoPaqueteUSD)} bold />
           </div>
