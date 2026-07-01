@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
+import { sendOrderEmail, type OrderEmailType } from "@/lib/email";
 import { getMercadoPagoPreference, getSiteUrl } from "@/lib/mercadopago";
 import { createOrderLog } from "@/lib/order-helpers";
 
@@ -94,10 +95,10 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Obtener estado anterior para el log.
+    // Obtener estado anterior y datos del cliente para el log y el email.
     const { data: previousOrder, error: previousError } = await supabaseAdmin
       .from("shop_orders")
-      .select("estado")
+      .select("estado, cliente_nombre, cliente_email, total_ars, items")
       .eq("id", id)
       .single();
 
@@ -128,6 +129,42 @@ export async function PATCH(request: Request) {
         source: "admin_panel",
       },
     });
+
+    // Mapear estado -> tipo de email (solo cuando es un cambio real).
+    const stateEmailMap: Record<string, OrderEmailType> = {
+      shipped: "order_shipped",
+      delivered: "order_delivered",
+      cancelled: "order_cancelled",
+    };
+    const emailType = stateEmailMap[estado];
+    if (
+      emailType &&
+      previousOrder.estado !== estado &&
+      previousOrder.cliente_email
+    ) {
+      const orderForEmail = {
+        ...(data as any),
+        cliente_nombre: previousOrder.cliente_nombre,
+        cliente_email: previousOrder.cliente_email,
+        total_ars: previousOrder.total_ars,
+        items: previousOrder.items,
+      };
+      sendOrderEmail({
+        order: orderForEmail,
+        type: emailType,
+        metadata: {
+          estado_anterior: previousOrder.estado,
+          estado_nuevo: estado,
+          nota: nota || null,
+          source: "admin_panel",
+        },
+      }).catch((emailErr) => {
+        console.error(
+          `[Orders PATCH] Error enviando email ${emailType} a orden ${id}:`,
+          emailErr
+        );
+      });
+    }
 
     return NextResponse.json({ order: data });
   } catch (err) {

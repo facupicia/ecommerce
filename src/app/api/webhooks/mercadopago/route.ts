@@ -9,6 +9,7 @@ import {
   deductStockForOrder,
   upsertPayment,
 } from "@/lib/order-helpers";
+import { sendOrderEmail } from "@/lib/email";
 
 /**
  * Convierte la respuesta del SDK de Mercado Pago en un objeto plano
@@ -108,7 +109,7 @@ export async function POST(request: Request) {
     // Buscar la orden actual.
     const { data: order, error: orderError } = await supabaseAdmin
       .from("shop_orders")
-      .select("id, estado, items, mp_payment_id")
+      .select("id, estado, items, mp_payment_id, total_ars, cliente_nombre, cliente_email")
       .eq("id", orderId)
       .single();
 
@@ -187,6 +188,23 @@ export async function POST(request: Request) {
           },
         });
         console.log(`[MP Webhook] Orden ${orderId} marcada como paid`);
+
+        // Notificar al cliente por email (no bloqueante: el resultado ya está
+        // persistido, un fallo de email no debe revertir el pago).
+        sendOrderEmail({
+          order: order as any,
+          type: "payment_approved",
+          metadata: {
+            mp_payment_id: String(paymentId),
+            mp_status: status,
+            source: "mercadopago_webhook",
+          },
+        }).catch((emailErr) => {
+          console.error(
+            `[MP Webhook] Error enviando email de pago aprobado a orden ${orderId}:`,
+            emailErr
+          );
+        });
       }
     } else {
       // Guardar el payment_id para trazabilidad aunque no esté aprobado.
@@ -197,6 +215,31 @@ export async function POST(request: Request) {
         .from("shop_orders")
         .update({ mp_payment_id: String(paymentId) })
         .eq("id", orderId);
+
+      // Si el pago fue rechazado y la orden sigue pendiente, avisar al cliente
+      // para que pueda reintentar desde /checkout/retry.
+      const isRejected =
+        status === "rejected" ||
+        status === "cancelled" ||
+        status === "refused" ||
+        status === "chargeback";
+      if (isRejected && order.estado === "pending") {
+        sendOrderEmail({
+          order: order as any,
+          type: "payment_rejected",
+          metadata: {
+            mp_payment_id: String(paymentId),
+            mp_status: status,
+            mp_status_detail: payment.status_detail ?? null,
+            source: "mercadopago_webhook",
+          },
+        }).catch((emailErr) => {
+          console.error(
+            `[MP Webhook] Error enviando email de pago rechazado a orden ${orderId}:`,
+            emailErr
+          );
+        });
+      }
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
