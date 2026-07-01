@@ -170,10 +170,13 @@ export function Header() {
                 </button>
                 
                 <div
-                  className={`overflow-hidden transition-all duration-300 ease-in-out pl-4 border-l border-black/5 space-y-3 ${
-                    mobileAccordionOpen ? "max-h-48 opacity-100 mt-2 py-1" : "max-h-0 opacity-0 pointer-events-none"
+                  className={`grid transition-all duration-300 ease-in-out pl-4 border-l border-black/5 ${
+                    mobileAccordionOpen
+                      ? "grid-rows-[1fr] opacity-100 mt-2 py-1"
+                      : "grid-rows-[0fr] opacity-0"
                   }`}
                 >
+                  <div className="overflow-hidden space-y-3 min-h-0">
                   {indumentariaLinks.map((subLink) => (
                     <Link
                       key={subLink.href}
@@ -184,6 +187,7 @@ export function Header() {
                       {subLink.label}
                     </Link>
                   ))}
+                  </div>
                 </div>
               </div>
             </nav>

@@ -294,10 +294,6 @@ export default async function ProductDetailPage({ params }: Props) {
 
             {/* Notes */}
             <div className="mb-10 space-y-3 text-[12px] leading-[1.6] text-[var(--plug-gray)]">
-              <p className="uppercase tracking-[0.1em]">
-                Venta final. No se aceptan cambios ni devoluciones.
-              </p>
-              <p>Limitado a 2 unidades por cliente.</p>
               <p>
                 Disponible en nuestros canales de venta. El inventario puede
                 variar.
