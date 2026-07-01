@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? p.descripcion.replace(/\n/g, " ").slice(0, 155) + (p.descripcion.length > 155 ? "..." : "")
     : `Compra ${p.nombre} en THEPLUG. Ropa importada premium en Rosario, Argentina.`;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz";
   const ogImages =
     p.fotos && p.fotos.length > 0
       ? p.fotos.map((foto) => {
@@ -185,7 +185,7 @@ export default async function ProductDetailPage({ params }: Props) {
     },
   ];
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz";
   const productUrl = `${siteUrl}/producto/${p.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",

@@ -70,7 +70,7 @@ function getShopName(): string {
 }
 
 function getSiteUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const url = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz";
   return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 

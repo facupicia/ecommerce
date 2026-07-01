@@ -200,7 +200,7 @@ export default function OrderConfirmedClient({
       </div>
 
       <p className="text-[12px] text-[var(--plug-gray)] mb-8">
-        Si tenés alguna duda, escribinos a hola@theplug.com.ar
+        Si tenés alguna duda, escribinos a hola@plugrosario.xyz
       </p>
 
       <Link href="/" className="plug-btn">

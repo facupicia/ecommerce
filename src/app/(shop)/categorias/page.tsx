@@ -73,7 +73,7 @@ export default async function CategoriesPage({ searchParams }: CategoryProps) {
   if (params.indumentaria) parts.push(params.indumentaria);
   if (params.marca) parts.push(params.marca);
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://theplug.com.ar";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
