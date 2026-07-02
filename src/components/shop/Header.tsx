@@ -59,7 +59,11 @@ export function Header() {
 
               {/* Dropdown de Indumentaria */}
               <div className="relative group">
-                <button className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors pb-1 cursor-pointer focus:outline-none">
+                <button
+                  className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.25em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors pb-1 cursor-pointer"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
                   <span>Indumentaria</span>
                   <svg
                     className="w-3 h-3 transition-transform duration-300 group-hover:rotate-180 text-[#1a1a1a]"
@@ -73,12 +77,16 @@ export function Header() {
                 </button>
 
                 {/* Dropdown Menu */}
-                <div className="absolute left-0 mt-1 w-44 rounded-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-1 group-hover:translate-y-0 z-50 backdrop-blur-md bg-white/90 border border-black/5 shadow-lg">
+                <div
+                  role="menu"
+                  className="absolute left-0 mt-1 w-44 rounded-md overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-300 transform translate-y-1 group-hover:translate-y-0 z-50 backdrop-blur-md bg-white/90 border border-black/5 shadow-lg"
+                >
                   <div className="py-1">
                     {indumentariaLinks.map((subLink) => (
                       <Link
                         key={subLink.href}
                         href={subLink.href}
+                        role="menuitem"
                         className="block px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1a1a1a] hover:bg-black/5 hover:text-black transition-colors"
                       >
                         {subLink.label}
@@ -93,7 +101,8 @@ export function Header() {
           {/* Center — logo */}
           <Link
             href="/"
-            className="inline-block px-2.5 py-1 text-white text-[13px] sm:text-[14px] font-black uppercase tracking-[0.2em] "
+            className="inline-block px-2.5 py-1 bg-black text-white text-[13px] sm:text-[14px] font-black uppercase tracking-[0.2em] shadow-sm"
+            aria-label="THEPLUG — Inicio"
           >
             THEPLUG🔌
           </Link>

@@ -26,8 +26,13 @@ export default async function ShopLayout({
   return (
     <CartProvider>
       <div className="shop-layout flex flex-col min-h-screen bg-white">
+        <a href="#main-content" className="plug-skip-link">
+          Saltar al contenido
+        </a>
         <Header />
-        <main className="flex-1">{children}</main>
+        <main id="main-content" className="flex-1" tabIndex={-1}>
+          {children}
+        </main>
         <Footer />
         <WhatsAppFloat />
       </div>

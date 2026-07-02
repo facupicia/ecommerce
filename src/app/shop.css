@@ -13,7 +13,8 @@
   --accent-foreground: #1a1a1a;
   --primary: #1a1a1a;
   --primary-foreground: #ffffff;
-  --destructive: #e53e3e;
+  --destructive: #c53030;
+  --destructive-foreground: #ffffff;
 
   /* THEPLUG tokens */
   --plug-black: #1a1a1a;
@@ -23,6 +24,11 @@
   --plug-border: #d9d9d9;
   --plug-footer: #f5f5f5;
   --plug-bg: #ffffff;
+
+  /* Focus ring (WCAG-friendly) */
+  --plug-focus: #1a1a1a;
+  --plug-focus-offset: #ffffff;
+
   --font-serif: var(--font-sans-custom), system-ui, -apple-system, sans-serif;
 
   background: var(--plug-bg);
@@ -35,6 +41,51 @@
 .shop-layout a {
   color: inherit;
   text-decoration: none;
+}
+
+/* ─────────────────────────────────────────────
+   Skip link & global focus
+   ───────────────────────────────────────────── */
+.plug-skip-link {
+  position: absolute;
+  left: 12px;
+  top: -100px;
+  z-index: 100;
+  background: var(--plug-black);
+  color: var(--plug-white);
+  padding: 12px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 2px solid var(--plug-white);
+  outline: 2px solid var(--plug-black);
+  transition: top 0.2s ease;
+}
+.plug-skip-link:focus,
+.plug-skip-link:focus-visible {
+  top: 12px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--plug-white), 0 0 0 4px var(--plug-black);
+}
+
+/* Default focus-visible for all interactive elements in the shop */
+.shop-layout a:focus-visible,
+.shop-layout button:focus-visible,
+.shop-layout input:focus-visible,
+.shop-layout textarea:focus-visible,
+.shop-layout select:focus-visible,
+.shop-layout [tabindex]:focus-visible {
+  outline: 2px solid var(--plug-focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Subtle focus on white-bg elements (e.g. size buttons) to keep aesthetic */
+.shop-layout .plug-size-btn:focus-visible,
+.shop-layout .plug-quick-add:focus-visible {
+  outline: 2px solid var(--plug-focus);
+  outline-offset: 2px;
 }
 
 /* Typography */
@@ -63,6 +114,7 @@
   justify-content: center;
   gap: 0.5rem;
   min-width: 8rem;
+  min-height: 44px;
   padding: 0.75rem 1.5rem;
   font-size: 0.6875rem;
   font-weight: 500;
@@ -71,13 +123,24 @@
   border: 1.5px solid var(--plug-black);
   background: var(--plug-white);
   color: var(--plug-black);
-  transition: all 0.25s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
   cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .plug-btn:hover {
   background: var(--plug-black);
   color: var(--plug-white);
+}
+
+.plug-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.plug-btn:focus-visible {
+  outline: 2px solid var(--plug-focus);
+  outline-offset: 3px;
 }
 
 .plug-btn-dark,
@@ -89,15 +152,47 @@
 
 .plug-btn-dark:hover,
 .plug-btn.plug-btn-dark:hover {
-  background: var(--plug-white) !important;
-  color: var(--plug-black) !important;
-  border-color: var(--plug-black) !important;
+  background: #2a2a2a !important;
+  color: var(--plug-white) !important;
+  border-color: #2a2a2a !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.plug-btn-dark:active:not(:disabled),
+.plug-btn.plug-btn-dark:active:not(:disabled) {
+  background: #000000 !important;
+  transform: translateY(1px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .plug-btn:disabled,
 .plug-btn-dark:disabled {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Success state (added to cart, etc.) */
+.plug-btn-success,
+.plug-btn.plug-btn-success {
+  background: #1a1a1a !important;
+  color: var(--plug-white) !important;
+  border-color: #1a1a1a !important;
+}
+
+/* Destructive variant (Vaciar carrito, etc.) */
+.plug-btn-destructive,
+.plug-btn.plug-btn-destructive {
+  background: var(--plug-white) !important;
+  color: var(--destructive) !important;
+  border-color: var(--destructive) !important;
+}
+.plug-btn-destructive:hover,
+.plug-btn.plug-btn-destructive:hover {
+  background: var(--destructive) !important;
+  color: var(--destructive-foreground) !important;
+  border-color: var(--destructive) !important;
 }
 
 /* Hover effects */
@@ -127,6 +222,150 @@
 
 .plug-link-underline:hover::after {
   width: 100%;
+}
+
+/* Small ghost button — para acciones secundarias en línea (Limpiar, Vaciar, etc.) */
+.plug-btn-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 36px;
+  padding: 0.5rem 0.875rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--plug-gray);
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plug-btn-sm:hover {
+  color: var(--plug-black);
+}
+.plug-btn-sm:focus-visible {
+  outline: 2px solid var(--plug-focus);
+  outline-offset: 2px;
+}
+.plug-btn-sm.plug-btn-sm-danger:hover {
+  color: var(--destructive);
+}
+
+/* Qty stepper — para carrito y product detail */
+.plug-qty-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--plug-border);
+  background: var(--plug-white);
+  color: var(--plug-black);
+  transition: background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plug-qty-btn:hover:not(:disabled) {
+  border-color: var(--plug-black);
+  background: var(--plug-light-gray);
+}
+.plug-qty-btn:active:not(:disabled) {
+  background: var(--plug-light-gray);
+}
+.plug-qty-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.plug-qty-btn:focus-visible {
+  outline: 2px solid var(--plug-focus);
+  outline-offset: 2px;
+}
+
+/* Remove item button (cart) */
+.plug-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 8px;
+  color: var(--plug-gray);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plug-icon-btn:hover {
+  color: var(--destructive);
+  background-color: rgba(197, 48, 48, 0.08);
+}
+.plug-icon-btn:focus-visible {
+  outline: 2px solid var(--plug-focus);
+  outline-offset: 2px;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .shop-layout *,
+  .shop-layout *::before,
+  .shop-layout *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mercado Pago trust badge */
+.plug-mp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
+  background-color: #f5f7fb;
+  border: 1px solid #e1e6f0;
+  border-radius: 4px;
+  color: #1a1a1a;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.plug-mp-badge:hover {
+  border-color: #00b1ea;
+}
+.plug-mp-badge-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: #00b1ea;
+}
+.plug-mp-badge-text {
+  font-size: 12px;
+  line-height: 1.3;
+  color: #1a1a1a;
+}
+.plug-mp-badge-name {
+  color: #00b1ea;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.plug-mp-badge-dark {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+.plug-mp-badge-dark .plug-mp-badge-text,
+.plug-mp-badge-dark .plug-mp-badge-name {
+  color: #ffffff;
+}
+.plug-mp-badge-dark .plug-mp-badge-icon {
+  color: #4dc9ff;
+}
+.plug-mp-badge-dark:hover {
+  border-color: #4dc9ff;
 }
 
 /* Stagger animation for grids */
@@ -167,7 +406,7 @@
 }
 
 .plug-badge-sale {
-  background: #e53e3e;
+  background: var(--destructive);
   color: #ffffff;
 }
 
@@ -224,18 +463,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.75rem;
   font-size: 0.75rem;
   font-weight: 500;
   border: 1px solid var(--plug-border);
   background: var(--plug-white);
   color: var(--plug-black);
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 .plug-size-btn:hover:not(:disabled) {
   border-color: var(--plug-black);
+}
+.plug-size-btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .plug-size-btn-active {
   border-color: var(--plug-black);
@@ -257,7 +501,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 12px 18px;
+  min-height: 48px;
   background-color: #1a1a1a;
   color: #ffffff;
   border-radius: 9999px;
@@ -265,16 +510,24 @@
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  -webkit-tap-highlight-color: transparent;
 }
 .plug-whatsapp-float:hover {
   transform: translateY(-4px);
   background-color: #ffffff;
   color: #1a1a1a;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
   border-color: var(--plug-black);
+}
+.plug-whatsapp-float:focus-visible {
+  outline: 2px solid #25d366;
+  outline-offset: 3px;
+}
+.plug-whatsapp-float:active {
+  transform: translateY(-1px);
 }
 .plug-whatsapp-pulse {
   position: relative;
@@ -318,12 +571,20 @@
   text-transform: uppercase;
   text-align: center;
   padding: 12px;
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1), opacity 0.3s ease;
   backdrop-filter: blur(4px);
+  min-height: 44px;
+  pointer-events: none;
 }
-.group:hover .plug-quick-add {
+.group:hover .plug-quick-add,
+.group:focus-within .plug-quick-add {
   transform: translateY(0);
   opacity: 1;
+  pointer-events: auto;
+}
+.plug-quick-add button {
+  -webkit-tap-highlight-color: transparent;
+  min-height: 28px;
 }
 
 /* LED stock status indicator */
@@ -334,18 +595,16 @@
   border-radius: 50%;
 }
 .plug-stock-led-available {
-  background-color: #10b981;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-  animation: led-glow 2s infinite;
+  background-color: #047857;
+  box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.15);
 }
 .plug-stock-led-warning {
-  background-color: #f59e0b;
-  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
-  animation: led-glow 2s infinite;
+  background-color: #b45309;
+  box-shadow: 0 0 0 2px rgba(180, 83, 9, 0.15);
 }
 .plug-stock-led-empty {
-  background-color: #ef4444;
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+  background-color: var(--destructive);
+  box-shadow: 0 0 0 2px rgba(197, 48, 48, 0.15);
 }
 
 @keyframes led-glow {
@@ -353,24 +612,61 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.4;
+    opacity: 0.55;
   }
 }
 
 /* Inputs styling for checkout */
-.plug-input {
+.plug-input,
+.shop-layout input[type="text"],
+.shop-layout input[type="email"],
+.shop-layout input[type="tel"],
+.shop-layout input[type="search"],
+.shop-layout input[type="number"],
+.shop-layout textarea,
+.shop-layout select {
   width: 100%;
   padding: 12px 16px;
+  min-height: 44px;
   border: 1px solid var(--plug-border);
   background-color: var(--plug-white);
   color: var(--plug-black);
-  font-size: 13px;
-  transition: all 0.2s ease;
+  font-size: 14px;
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.plug-input:focus {
+.shop-layout textarea {
+  min-height: auto;
+}
+.shop-layout input::placeholder,
+.shop-layout textarea::placeholder {
+  color: var(--plug-gray);
+  opacity: 0.7;
+}
+.shop-layout input:hover:not(:disabled):not(:focus),
+.shop-layout textarea:hover:not(:disabled):not(:focus) {
+  border-color: #999999;
+}
+.shop-layout input:focus,
+.shop-layout input:focus-visible,
+.shop-layout textarea:focus,
+.shop-layout textarea:focus-visible,
+.shop-layout select:focus,
+.shop-layout select:focus-visible {
   outline: none;
   border-color: var(--plug-black);
-  box-shadow: 0 0 0 1px var(--plug-black);
+  box-shadow: 0 0 0 2px var(--plug-black);
+}
+.shop-layout input[aria-invalid="true"],
+.shop-layout textarea[aria-invalid="true"] {
+  border-color: var(--destructive);
+  box-shadow: 0 0 0 1px var(--destructive);
+}
+.shop-layout input:disabled,
+.shop-layout textarea:disabled {
+  background-color: var(--plug-light-gray);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Newsletter dark section */
@@ -385,9 +681,16 @@
   border: 1px solid #333333;
   color: #ffffff;
   padding: 12px 16px;
+  min-height: 44px;
   font-size: 13px;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
+}
+.plug-newsletter-input::placeholder {
+  color: #999999;
+}
+.plug-newsletter-input:hover:not(:focus) {
+  border-color: #555555;
 }
 .plug-newsletter-input:focus {
   outline: none;
@@ -404,11 +707,20 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 12px 24px;
-  transition: all 0.25s ease;
+  min-height: 44px;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 .plug-newsletter-btn:hover {
-  background-color: #111111;
+  background-color: transparent;
   color: #ffffff;
+}
+.plug-newsletter-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 3px;
+}
+.plug-newsletter-btn:active {
+  transform: translateY(1px);
 }
 

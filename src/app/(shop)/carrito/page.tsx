@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { MercadoPagoBadge } from "@/components/shop/MercadoPagoBadge";
 
 function formatPrice(ars: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -38,12 +39,14 @@ export default function CartPage() {
         <h1 className="plug-font-serif text-3xl sm:text-4xl text-[#1a1a1a]">
           Carrito
         </h1>
-        <button
-          onClick={clearCart}
-          className="text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
-        >
-          Vaciar carrito
-        </button>
+        {items.length > 0 && (
+          <button
+            onClick={clearCart}
+            className="plug-btn-sm plug-btn-sm-danger"
+          >
+            Vaciar carrito
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16">
@@ -103,13 +106,13 @@ export default function CartPage() {
                 </div>
 
                 <div className="flex items-center justify-between mt-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() =>
                         updateQuantity(item.product_id, item.cantidad - 1, item.talle)
                       }
-                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors cursor-pointer"
-                      aria-label="Reducir cantidad"
+                      className="plug-qty-btn"
+                      aria-label={`Reducir cantidad de ${item.nombre}`}
                     >
                       <svg
                         className="w-3 h-3"
@@ -125,15 +128,19 @@ export default function CartPage() {
                         />
                       </svg>
                     </button>
-                    <span className="w-8 text-center text-[13px] font-medium text-[#1a1a1a]">
+                    <span
+                      className="w-10 text-center text-[14px] font-medium text-[#1a1a1a] select-none"
+                      aria-live="polite"
+                      aria-label={`Cantidad: ${item.cantidad}`}
+                    >
                       {item.cantidad}
                     </span>
                     <button
                       onClick={() =>
                         updateQuantity(item.product_id, item.cantidad + 1, item.talle)
                       }
-                      className="w-8 h-8 flex items-center justify-center border border-[#d9d9d9] text-[#1a1a1a] hover:border-[#1a1a1a] transition-colors cursor-pointer"
-                      aria-label="Aumentar cantidad"
+                      className="plug-qty-btn"
+                      aria-label={`Aumentar cantidad de ${item.nombre}`}
                     >
                       <svg
                         className="w-3 h-3"
@@ -151,14 +158,14 @@ export default function CartPage() {
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     <span className="text-[13px] font-medium text-[#1a1a1a]">
                       {formatPrice(item.precio_ars * item.cantidad)}
                     </span>
                     <button
                       onClick={() => removeFromCart(item.product_id, item.talle)}
-                      className="text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors cursor-pointer"
-                      aria-label="Eliminar producto"
+                      className="plug-icon-btn"
+                      aria-label={`Eliminar ${item.nombre} del carrito`}
                     >
                       <svg
                         className="w-5 h-5"
@@ -212,9 +219,13 @@ export default function CartPage() {
               Ir a pagar
             </Link>
 
+            <div className="mt-4">
+              <MercadoPagoBadge className="w-full justify-center" />
+            </div>
+
             <Link
               href="/"
-              className="block text-center mt-4 text-[12px] uppercase tracking-[0.1em] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
+              className="plug-btn-sm mt-4 mx-auto"
             >
               Seguir comprando
             </Link>

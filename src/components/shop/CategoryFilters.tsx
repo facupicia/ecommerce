@@ -155,7 +155,7 @@ export function CategoryFilters({ products }: CategoryFiltersProps) {
       {activeFilterCount > 0 && (
         <button
           onClick={clearAll}
-          className="w-full mt-4 text-[11px] font-medium uppercase tracking-[0.15em] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors py-2 border-t border-[#d9d9d9]"
+          className="plug-btn-sm plug-btn-sm-danger w-full mt-4 py-2 border-t border-[#d9d9d9] justify-center"
         >
           Limpiar filtros ({activeFilterCount})
         </button>
@@ -247,7 +247,7 @@ export function CategoryFilters({ products }: CategoryFiltersProps) {
             {activeFilterCount > 0 && (
               <button
                 onClick={clearAll}
-                className="hidden lg:block text-[11px] uppercase tracking-[0.15em] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors plug-link-underline"
+                className="hidden lg:inline-flex plug-btn-sm"
               >
                 Limpiar filtros
               </button>
@@ -354,14 +354,14 @@ function FilterCheckbox({
   count: number;
 }) {
   return (
-    <label className="flex items-center gap-2.5 cursor-pointer group">
+    <label className="flex items-center gap-2.5 cursor-pointer group min-h-[32px] py-1 select-none">
       <div
-        className={`w-4 h-4 border rounded-[3px] flex items-center justify-center transition-all ${
+        className={`w-4 h-4 border rounded-[3px] flex items-center justify-center transition-colors flex-shrink-0 ${
           checked
             ? "bg-[#1a1a1a] border-[#1a1a1a]"
-            : "border-[#d9d9d9] group-hover:border-[#999]"
+            : "border-[#d9d9d9] group-hover:border-[#999] group-focus-within:border-[#1a1a1a]"
         }`}
-        onClick={onChange}
+        aria-hidden="true"
       >
         {checked && (
           <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
@@ -369,10 +369,16 @@ function FilterCheckbox({
           </svg>
         )}
       </div>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="sr-only peer"
+        aria-label={`Filtrar por ${label}`}
+      />
       <span
-        onClick={onChange}
         className={`text-[12px] capitalize transition-colors ${
-          checked ? "text-[#1a1a1a] font-medium" : "text-[var(--plug-gray)]"
+          checked ? "text-[#1a1a1a] font-medium" : "text-[var(--plug-gray)] group-hover:text-[#1a1a1a]"
         }`}
       >
         {label}
@@ -386,11 +392,11 @@ function FilterCheckbox({
 
 function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-[#1a1a1a] text-[10px] font-medium uppercase tracking-[0.1em] text-[#1a1a1a]">
+    <span className="inline-flex items-center gap-1.5 pl-3 pr-1 py-1 border border-[#1a1a1a] bg-[#1a1a1a] text-white text-[10px] font-medium uppercase tracking-[0.1em]">
       {label}
       <button
         onClick={onRemove}
-        className="hover:text-[#e53e3e] transition-colors"
+        className="inline-flex items-center justify-center min-w-[24px] min-h-[24px] p-1 rounded-full hover:bg-white/15 transition-colors focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
         aria-label={`Quitar filtro ${label}`}
       >
         <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>

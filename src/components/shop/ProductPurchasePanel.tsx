@@ -66,25 +66,29 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
           <label className="block text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a1a1a]">
             Cantidad
           </label>
-          <div className="flex items-center gap-1 w-fit border border-[#d9d9d9] bg-white rounded-xs overflow-hidden">
+          <div className="flex items-center gap-1 w-fit border border-[#d9d9d9] bg-white overflow-hidden">
             <button
               onClick={() => handleQtyChange(cantidad - 1)}
               disabled={cantidad <= 1}
-              className="w-10 h-10 flex items-center justify-center text-[#1a1a1a] hover:bg-neutral-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors font-medium text-lg cursor-pointer"
+              className="plug-qty-btn rounded-none border-0"
               aria-label="Disminuir cantidad"
             >
-              -
+              <span aria-hidden="true">−</span>
             </button>
-            <span className="w-12 text-center text-sm font-medium text-[#1a1a1a] select-none">
+            <span
+              className="w-12 text-center text-sm font-medium text-[#1a1a1a] select-none"
+              aria-live="polite"
+              aria-label={`Cantidad: ${cantidad}`}
+            >
               {cantidad}
             </span>
             <button
               onClick={() => handleQtyChange(cantidad + 1)}
               disabled={cantidad >= product.stock}
-              className="w-10 h-10 flex items-center justify-center text-[#1a1a1a] hover:bg-neutral-100 disabled:opacity-30 disabled:hover:bg-transparent transition-colors font-medium text-lg cursor-pointer"
+              className="plug-qty-btn rounded-none border-0"
               aria-label="Aumentar cantidad"
             >
-              +
+              <span aria-hidden="true">+</span>
             </button>
           </div>
         </div>

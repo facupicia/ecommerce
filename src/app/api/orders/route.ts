@@ -29,7 +29,8 @@ export async function GET(request: Request) {
   let query = supabaseAdmin
     .from("shop_orders")
     .select("*", { count: "exact" })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false });
 
   if (estado) {
     query = query.eq("estado", estado);
@@ -45,32 +46,29 @@ export async function GET(request: Request) {
     query = query.lte("created_at", toEnd);
   }
 
-  const { data: allOrders, error, count } = await query;
+  if (q) {
+    // Sanitizar comillas para el filtro OR de PostgREST.
+    const safe = q.replace(/"/g, '\\"');
+    const orFilter = `id.ilike."%${safe}%",cliente_nombre.ilike."%${safe}%",cliente_email.ilike."%${safe}%",mp_payment_id.ilike."%${safe}%"`;
+    query = query.or(orFilter);
+  }
+
+  const fromRange = (page - 1) * limit;
+  const toRange = fromRange + limit - 1;
+  query = query.range(fromRange, toRange);
+
+  const { data: orders, error, count } = await query;
 
   if (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  let orders = allOrders || [];
-
-  if (q) {
-    orders = orders.filter((order) => {
-      const matchesId = order.id.toLowerCase().includes(q);
-      const matchesName = (order.cliente_nombre || "").toLowerCase().includes(q);
-      const matchesEmail = (order.cliente_email || "").toLowerCase().includes(q);
-      const matchesPayment = (order.mp_payment_id || "").toLowerCase().includes(q);
-      return matchesId || matchesName || matchesEmail || matchesPayment;
-    });
-  }
-
-  const total = count || orders.length;
-  const totalPages = Math.ceil(total / limit);
-  const start = (page - 1) * limit;
-  const paginatedOrders = orders.slice(start, start + limit);
+  const total = count || 0;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
 
   return NextResponse.json({
-    orders: paginatedOrders,
+    orders: orders || [],
     pagination: {
       page,
       limit,

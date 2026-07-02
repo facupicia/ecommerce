@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import Link from "next/link";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { MercadoPagoBadge } from "@/components/shop/MercadoPagoBadge";
 
 function formatPrice(ars: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -132,9 +133,10 @@ export default function CheckoutPage() {
                     id="nombre"
                     name="nombre"
                     required
+                    autoComplete="name"
                     value={form.nombre}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    aria-required="true"
                     placeholder="Tu nombre"
                   />
                 </div>
@@ -150,9 +152,11 @@ export default function CheckoutPage() {
                     id="email"
                     name="email"
                     required
+                    autoComplete="email"
+                    inputMode="email"
                     value={form.email}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    aria-required="true"
                     placeholder="tu@email.com"
                   />
                 </div>
@@ -171,9 +175,11 @@ export default function CheckoutPage() {
                     id="telefono"
                     name="telefono"
                     required
+                    autoComplete="tel"
+                    inputMode="tel"
                     value={form.telefono}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    aria-required="true"
                     placeholder="+54 9 261 123-4567"
                   />
                 </div>
@@ -189,9 +195,10 @@ export default function CheckoutPage() {
                     id="direccion"
                     name="direccion"
                     required
+                    autoComplete="street-address"
                     value={form.direccion}
                     onChange={handleChange}
-                    className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                    aria-required="true"
                     placeholder="Calle, número, ciudad"
                   />
                 </div>
@@ -210,23 +217,29 @@ export default function CheckoutPage() {
                   rows={3}
                   value={form.notas}
                   onChange={handleChange}
-                  className="w-full px-3 py-3 border border-[#d9d9d9] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors resize-none"
+                  className="resize-none"
                   placeholder="Indicaciones de entrega, horarios, etc."
                 />
               </div>
             </div>
 
             {error && (
-              <div className="p-4 border border-red-200 bg-red-50 text-[13px] text-red-700">
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="p-4 border border-[var(--destructive)] bg-red-50 text-[13px] text-[var(--destructive)] rounded-sm"
+              >
                 {error}
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="plug-btn-dark plug-btn w-full"
-            >
+            <div className="space-y-3">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="plug-btn-dark plug-btn w-full"
+                aria-busy={submitting}
+              >
               {submitting ? (
                 <span className="inline-flex items-center gap-2">
                   <svg
@@ -254,6 +267,13 @@ export default function CheckoutPage() {
                 "Confirmar pedido"
               )}
             </button>
+
+              <MercadoPagoBadge className="w-full justify-center" />
+              <p className="text-[11px] text-center text-[var(--plug-gray)] leading-relaxed">
+                Al confirmar serás redirigido a Mercado Pago para completar el
+                pago de forma segura.
+              </p>
+            </div>
           </form>
         </div>
 

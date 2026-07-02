@@ -26,7 +26,8 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <Link
               href="/"
-              className="inline-block px-2.5 py-1  text-white text-sm font-black uppercase tracking-[0.2em] shadow-sm"
+              className="inline-block px-2.5 py-1 bg-black text-white text-sm font-black uppercase tracking-[0.2em] shadow-sm"
+              aria-label="THEPLUG — Inicio"
             >
               THEPLUG
             </Link>
@@ -42,17 +43,22 @@ export function Footer() {
                 }}
                 className="flex gap-2"
               >
+                <label htmlFor="newsletter-email" className="sr-only">
+                  Email para newsletter
+                </label>
                 <input
+                  id="newsletter-email"
                   type="email"
                   placeholder="Tu email"
                   required
-                  className="flex-1 px-3 py-2 border border-[#d9d9d9] bg-white text-[12px] text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:outline-none focus:border-[#1a1a1a] transition-colors"
+                  autoComplete="email"
+                  className="flex-1"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-black text-white text-[10px] font-bold uppercase tracking-[0.1em] hover:bg-neutral-800 transition-colors"
+                  className="plug-btn-dark"
                 >
-                  Ok
+                  Suscribirme
                 </button>
               </form>
             </div>

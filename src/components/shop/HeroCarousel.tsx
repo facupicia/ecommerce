@@ -128,8 +128,8 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
         <>
           <button
             onClick={handlePrev}
-            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/30 text-white/80 hover:bg-black/60 hover:text-white backdrop-blur-sm transition-all duration-200 border border-white/5"
-            aria-label="Anterior"
+            className="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/30 text-white/80 hover:bg-black/60 hover:text-white backdrop-blur-sm transition-all duration-200 border border-white/5 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+            aria-label="Slide anterior"
           >
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6"
@@ -147,8 +147,8 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/30 text-white/80 hover:bg-black/60 hover:text-white backdrop-blur-sm transition-all duration-200 border border-white/5"
-            aria-label="Siguiente"
+            className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/30 text-white/80 hover:bg-black/60 hover:text-white backdrop-blur-sm transition-all duration-200 border border-white/5 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+            aria-label="Siguiente slide"
           >
             <svg
               className="w-5 h-5 sm:w-6 sm:h-6"
@@ -166,17 +166,23 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
           </button>
 
           {/* Dots Indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
+          <div
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5"
+            role="tablist"
+            aria-label="Selector de slides"
+          >
             {slides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => handleGoTo(i)}
-                className={`transition-all duration-300 ${
+                role="tab"
+                aria-selected={i === current}
+                aria-label={`Ir a slide ${i + 1}`}
+                className={`transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 ${
                   i === current
                     ? "bg-white w-6 h-1.5 rounded-full"
                     : "bg-white/40 w-1.5 h-1.5 rounded-full hover:bg-white/80"
                 }`}
-                aria-label={`Ir a slide ${i + 1}`}
               />
             ))}
           </div>

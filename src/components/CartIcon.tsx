@@ -22,7 +22,10 @@ export function CartIcon() {
         />
       </svg>
       {itemCount > 0 && (
-        <span className="absolute top-0.5 right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 bg-[#333333] text-white text-[10px] font-medium leading-none">
+        <span
+          aria-label={`${itemCount} ${itemCount === 1 ? "producto" : "productos"} en el carrito`}
+          className="absolute top-0.5 right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-[#1a1a1a] text-white text-[10px] font-semibold leading-none rounded-full ring-2 ring-white"
+        >
           {itemCount > 99 ? "99+" : itemCount}
         </span>
       )}

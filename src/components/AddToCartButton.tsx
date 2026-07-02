@@ -48,35 +48,41 @@ export function AddToCartButton({
   }
 
   return (
-    <button
-      onClick={handleAdd}
-      disabled={added || isMissingTalle}
-      className={`plug-btn ${fullWidth ? "w-full" : "w-full sm:w-auto"} ${
-        added ? "plug-btn-dark !border-emerald-600 !bg-emerald-600 !text-white" : ""
-      } ${isMissingTalle ? "opacity-60 cursor-not-allowed hover:bg-white hover:text-[#1a1a1a]" : ""}`}
-    >
-      {added ? (
-        <>
-          <svg
-            className="w-4 h-4 animate-bounce"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
-          ¡Agregado al carrito!
-        </>
-      ) : isMissingTalle ? (
-        "Seleccioná un talle"
-      ) : (
-        "Agregar al carrito"
-      )}
-    </button>
+    <>
+      <button
+        onClick={handleAdd}
+        disabled={added || isMissingTalle}
+        aria-live="polite"
+        className={`plug-btn ${fullWidth ? "w-full" : "w-full sm:w-auto"} ${
+          added ? "plug-btn-success" : ""
+        } ${isMissingTalle ? "opacity-60" : ""}`}
+      >
+        {added ? (
+          <>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            ¡Agregado al carrito!
+          </>
+        ) : isMissingTalle ? (
+          "Seleccioná un talle"
+        ) : (
+          "Agregar al carrito"
+        )}
+      </button>
+      <span className="sr-only" aria-live="polite">
+        {added ? `${product.nombre} agregado al carrito` : ""}
+      </span>
+    </>
   );
 }
