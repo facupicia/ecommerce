@@ -2,6 +2,7 @@ import { CartProvider } from "@/lib/cart";
 import { Header } from "@/components/shop/Header";
 import { Footer } from "@/components/shop/Footer";
 import { WhatsAppFloat } from "@/components/shop/WhatsAppFloat";
+import { VisitTracker } from "@/components/shop/VisitTracker";
 import { getShopSettings } from "@/lib/settings";
 import { ComingSoon } from "@/components/shop/ComingSoon";
 import "@/app/shop.css";
@@ -35,6 +36,7 @@ export default async function ShopLayout({
         </main>
         <Footer />
         <WhatsAppFloat />
+        <VisitTracker />
       </div>
     </CartProvider>
   );

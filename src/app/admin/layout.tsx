@@ -14,6 +14,7 @@ import {
   X,
   ChevronDown,
   Settings,
+  Eye,
 } from "lucide-react";
 
 const navItems = [
@@ -38,6 +39,11 @@ const navItems = [
     href: "/admin/ordenes",
     label: "Órdenes",
     icon: ShoppingCart,
+  },
+  {
+    href: "/admin/visitas",
+    label: "Visitas",
+    icon: Eye,
   },
   {
     href: "/admin/configuracion",
