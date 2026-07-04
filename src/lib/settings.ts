@@ -5,6 +5,9 @@ export interface ShopSettings {
   title: string;
   comingSoonMessage: string;
   openingDate?: string | null;
+  announcement: string;
+  announcementEnabled: boolean;
+  announcementLink?: string | null;
 }
 
 const DEFAULT_SETTINGS: ShopSettings = {
@@ -12,6 +15,9 @@ const DEFAULT_SETTINGS: ShopSettings = {
   title: "Falta poco para abrir",
   comingSoonMessage: "Estamos preparando la mejor experiencia para ti. Suscríbete para recibir novedades o vuelve pronto.",
   openingDate: null,
+  announcement: "",
+  announcementEnabled: false,
+  announcementLink: null,
 };
 
 export async function getShopSettings(): Promise<ShopSettings> {

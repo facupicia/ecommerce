@@ -102,10 +102,10 @@ export function Header() {
             {/* Center — logo */}
             <Link
               href="/"
-              className="inline-block px-2.5 py-1 bg-black text-white text-[13px] sm:text-[14px] font-black uppercase tracking-[0.2em] shadow-sm"
+              className="inline-block text-[15px] sm:text-[16px] font-black uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors"
               aria-label="plug — Inicio"
             >
-              plug🔌
+              plug
             </Link>
 
             {/* Right — search + icons */}
@@ -169,7 +169,7 @@ export function Header() {
             <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden="true" />
             <div className="fixed inset-y-0 left-0 z-[70] w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col">
               <div className="flex items-center justify-between h-[60px] px-5 border-b border-[#ebebeb] flex-shrink-0">
-                <span className="inline-block px-2.5 py-1 bg-black text-white text-xs font-black uppercase tracking-[0.2em] shadow-sm">plug</span>
+                <span className="text-[15px] font-black uppercase tracking-[0.15em] text-[#1a1a1a]">plug</span>
                 <button onClick={() => setMenuOpen(false)} className="p-2 -mr-2 text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors" aria-label="Cerrar menú">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />

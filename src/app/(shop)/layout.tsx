@@ -5,6 +5,7 @@ import { Header } from "@/components/shop/Header";
 import { Footer } from "@/components/shop/Footer";
 import { WhatsAppFloat } from "@/components/shop/WhatsAppFloat";
 import { VisitTracker } from "@/components/shop/VisitTracker";
+import { AnnouncementBar, announcementStyles } from "@/components/shop/AnnouncementBar";
 import { getShopSettings } from "@/lib/settings";
 import { ComingSoon } from "@/components/shop/ComingSoon";
 import "@/app/shop.css";
@@ -29,10 +30,12 @@ export default async function ShopLayout({
     <ToastProvider>
       <CartProvider>
         <WishlistProvider>
+          <style dangerouslySetInnerHTML={{ __html: announcementStyles }} />
           <div className="shop-layout flex flex-col min-h-screen bg-white">
             <a href="#main-content" className="plug-skip-link">
               Saltar al contenido
             </a>
+            <AnnouncementBar />
             <Header />
             <main id="main-content" className="flex-1" tabIndex={-1}>
               {children}

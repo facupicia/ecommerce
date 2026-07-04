@@ -31,7 +31,7 @@ export function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <Link
               href="/"
-              className="inline-block px-2.5 py-1 bg-black text-white text-sm font-black uppercase tracking-[0.2em] shadow-sm"
+              className="inline-block text-[15px] font-black uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors"
               aria-label="plug — Inicio"
             >
               plug

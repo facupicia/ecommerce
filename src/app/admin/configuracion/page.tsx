@@ -10,6 +10,9 @@ export default function AdminSettingsPage() {
     title: "Falta poco para abrir",
     comingSoonMessage: "Estamos preparando la mejor experiencia para ti. Suscríbete para recibir novedades o vuelve pronto.",
     openingDate: null,
+    announcement: "",
+    announcementEnabled: false,
+    announcementLink: null,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -155,6 +158,66 @@ export default function AdminSettingsPage() {
                 rows={4}
                 className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors resize-none"
                 required
+              />
+            </div>
+          </div>
+
+          {/* Announcement Bar */}
+          <div className="pt-4 border-t border-border space-y-4">
+            <h3 className="text-sm font-medium text-foreground">
+              Barra de Anuncio Superior
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Un banner animado con texto deslizante que aparece en la parte superior de la tienda.
+            </p>
+
+            {/* Toggle */}
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-muted-foreground">
+                Activar banner
+              </label>
+              <button
+                type="button"
+                onClick={() => setSettings({ ...settings, announcementEnabled: !settings.announcementEnabled })}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                  settings.announcementEnabled ? "bg-emerald-500" : "bg-neutral-800"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${
+                    settings.announcementEnabled ? "translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Announcement text */}
+            <div className="space-y-1.5">
+              <label htmlFor="announcement" className="text-xs font-medium text-muted-foreground">
+                Texto del banner
+              </label>
+              <input
+                id="announcement"
+                type="text"
+                value={settings.announcement || ""}
+                onChange={(e) => setSettings({ ...settings, announcement: e.target.value })}
+                placeholder='Ej: "Envío gratis en compras +$50.000" o "Nueva colección ya disponible"'
+                className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+              />
+            </div>
+
+            {/* Announcement link */}
+            <div className="space-y-1.5">
+              <label htmlFor="announcementLink" className="text-xs font-medium text-muted-foreground">
+                Link del banner (opcional)
+              </label>
+              <input
+                id="announcementLink"
+                type="text"
+                value={settings.announcementLink || ""}
+                onChange={(e) => setSettings({ ...settings, announcementLink: e.target.value || null })}
+                placeholder='Ej: "/categorias" o "/producto/oferta-especial"'
+                className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
               />
             </div>
           </div>
