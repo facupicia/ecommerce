@@ -1,4 +1,4 @@
-/* THEPLUG — Kith-inspired minimal editorial aesthetic */
+/* plug — Kith-inspired minimal editorial aesthetic */
 .shop-layout {
   --background: #ffffff;
   --foreground: #1a1a1a;
@@ -16,7 +16,7 @@
   --destructive: #c53030;
   --destructive-foreground: #ffffff;
 
-  /* THEPLUG tokens */
+  /* plug tokens */
   --plug-black: #1a1a1a;
   --plug-white: #ffffff;
   --plug-gray: #454545;

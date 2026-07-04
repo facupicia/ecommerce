@@ -102,9 +102,9 @@ export function Header() {
           <Link
             href="/"
             className="inline-block px-2.5 py-1 bg-black text-white text-[13px] sm:text-[14px] font-black uppercase tracking-[0.2em] shadow-sm"
-            aria-label="THEPLUG — Inicio"
+            aria-label="plug — Inicio"
           >
-            THEPLUG🔌
+            plug🔌
           </Link>
 
           {/* Right — icons */}
@@ -124,7 +124,7 @@ export function Header() {
           <div className="fixed inset-y-0 left-0 z-50 w-[300px] max-w-[80vw] bg-white shadow-xl flex flex-col">
             <div className="flex items-center justify-between h-[60px] px-4 border-b border-[#d9d9d9]">
               <span className="inline-block px-2.5 py-1 bg-black text-white text-xs font-black uppercase tracking-[0.2em] shadow-sm">
-                THEPLUG
+                plug
               </span>
               <button
                 onClick={() => setMenuOpen(false)}
@@ -179,13 +179,13 @@ export function Header() {
                 </button>
                 
                 <div
-                  className={`grid transition-all duration-300 ease-in-out pl-4 border-l border-black/5 ${
+                  className={`overflow-hidden transition-all duration-300 ease-in-out pl-4 border-l border-black/5 ${
                     mobileAccordionOpen
-                      ? "grid-rows-[1fr] opacity-100 mt-2 py-1"
-                      : "grid-rows-[0fr] opacity-0"
+                      ? "max-h-48 opacity-100 mt-2 py-1"
+                      : "max-h-0 opacity-0"
                   }`}
                 >
-                  <div className="overflow-hidden space-y-3 min-h-0">
+                  <div className="space-y-3">
                   {indumentariaLinks.map((subLink) => (
                     <Link
                       key={subLink.href}

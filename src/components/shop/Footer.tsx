@@ -27,9 +27,9 @@ export function Footer() {
             <Link
               href="/"
               className="inline-block px-2.5 py-1 bg-black text-white text-sm font-black uppercase tracking-[0.2em] shadow-sm"
-              aria-label="THEPLUG — Inicio"
+              aria-label="plug — Inicio"
             >
-              THEPLUG
+              plug
             </Link>
             <p className="mt-4 text-[13px] leading-relaxed text-[var(--plug-gray)] max-w-xs">
               Ropa importada. Style desde Rosario al país.
@@ -126,7 +126,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-[#d9d9d9]">
           <p className="text-[11px] text-[var(--plug-gray)] text-center tracking-wide">
-            © {new Date().getFullYear()} THEPLUG. Todos los derechos reservados.
+            © {new Date().getFullYear()} plug. Todos los derechos reservados.
           </p>
         </div>
       </div>

@@ -26,15 +26,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!product) {
     return {
-      title: "Producto no encontrado | THEPLUG",
+      title: "Producto no encontrado | plug",
     };
   }
 
   const p = product as ShopProduct;
-  const title = `${p.nombre} | THEPLUG`;
+  const title = `${p.nombre} | plug`;
   const cleanDescription = p.descripcion
     ? p.descripcion.replace(/\n/g, " ").slice(0, 155) + (p.descripcion.length > 155 ? "..." : "")
-    : `Compra ${p.nombre} en THEPLUG. Ropa importada premium en Rosario, Argentina.`;
+    : `Compra ${p.nombre} en plug. Ropa importada premium en Rosario, Argentina.`;
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz";
   const ogImages =
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description: cleanDescription,
       url: `/producto/${slug}`,
-      siteName: "THEPLUG",
+      siteName: "plug",
       type: "website",
       images: ogImages,
     },
@@ -202,11 +202,11 @@ export default async function ProductDetailPage({ params }: Props) {
             return url.startsWith("http") ? url : `${siteUrl}${url}`;
           })
         : [`${siteUrl}/favicon.ico`],
-    "description": p.descripcion || `Compra ${p.nombre} en THEPLUG.`,
+    "description": p.descripcion || `Compra ${p.nombre} en plug.`,
     "sku": p.id.slice(0, 8).toUpperCase(),
     "brand": {
       "@type": "Brand",
-      "name": p.marca || "THEPLUG"
+      "name": p.marca || "plug"
     },
     "offers": {
       "@type": "Offer",

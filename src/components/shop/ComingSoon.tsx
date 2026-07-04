@@ -51,7 +51,7 @@ export function ComingSoon({
 
         {/* Brand Name with gradient text */}
         <h1 className="text-4xl sm:text-5xl font-black tracking-[0.25em] text-white uppercase mb-4 selection:bg-neutral-800">
-          THEPLUG
+          plug
         </h1>
         <div className="w-12 h-[2px] bg-neutral-800 mx-auto mb-8" />
 
@@ -150,7 +150,7 @@ export function ComingSoon({
       {/* Footer copyright */}
       <div className="absolute bottom-6 inset-x-0 text-center">
         <p className="text-[10px] text-neutral-600 tracking-wider">
-          © {new Date().getFullYear()} THEPLUG. Todos los derechos reservados.
+          © {new Date().getFullYear()} plug. Todos los derechos reservados.
         </p>
       </div>
     </div>

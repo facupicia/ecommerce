@@ -21,13 +21,13 @@ export async function generateMetadata({ searchParams }: CategoryProps): Promise
   if (params.indumentaria) parts.push(params.indumentaria);
   if (params.marca) parts.push(params.marca);
 
-  let title = "Catálogo de Ropa Importada | THEPLUG";
+  let title = "Catálogo de Ropa Importada | plug";
   let description = "Explorá nuestro catálogo de indumentaria importada streetwear en Rosario, Argentina. Remeras, buzos, camperas y más.";
 
   if (parts.length > 0) {
     const filterText = parts.join(" - ");
-    title = `${filterText} | Catálogo | THEPLUG`;
-    description = `Comprá ropa importada de ${parts.join(" ")} en THEPLUG. El mejor streetwear premium de Rosario, Argentina.`;
+    title = `${filterText} | Catálogo | plug`;
+    description = `Comprá ropa importada de ${parts.join(" ")} en plug. El mejor streetwear premium de Rosario, Argentina.`;
   }
 
   return {
@@ -40,7 +40,7 @@ export async function generateMetadata({ searchParams }: CategoryProps): Promise
       title,
       description,
       url: "/categorias",
-      siteName: "THEPLUG",
+      siteName: "plug",
       type: "website",
     },
   };
@@ -77,7 +77,7 @@ export default async function CategoriesPage({ searchParams }: CategoryProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": parts.length > 0 ? `${parts.join(" - ")} - Catálogo THEPLUG` : "Catálogo de Ropa Importada - THEPLUG",
+    "name": parts.length > 0 ? `${parts.join(" - ")} - Catálogo plug` : "Catálogo de Ropa Importada - plug",
     "description": "Catálogo completo de ropa importada streetwear en Rosario, Argentina.",
     "url": `${siteUrl}/categorias`,
   };

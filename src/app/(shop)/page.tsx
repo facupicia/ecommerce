@@ -48,7 +48,7 @@ export default async function ShopHomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Store",
-    "name": "THEPLUG",
+    "name": "plug",
     "url": siteUrl,
     "logo": `${siteUrl}/favicon.ico`,
     "image": getCloudinaryUrl("ecommerce/banners/final-1", { width: 1200 }),
