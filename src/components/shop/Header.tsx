@@ -162,95 +162,81 @@ export function Header() {
         <div className="md:hidden px-4 pb-3">
           <SearchBar />
         </div>
+      </header>
 
-        {/* Mobile drawer */}
-        {menuOpen && (
-          <>
-            <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden="true" />
-            <div className="fixed inset-y-0 left-0 z-[70] w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col">
-              <div className="flex items-center justify-between h-[60px] px-5 border-b border-[#ebebeb] flex-shrink-0">
-                <span className="text-[15px] font-black uppercase tracking-[0.15em] text-[#1a1a1a]">plug</span>
-                <button onClick={() => setMenuOpen(false)} className="p-2 -mr-2 text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors" aria-label="Cerrar menú">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+      {/* Mobile drawer — OUTSIDE <header> so it renders above the sticky header */}
+      {menuOpen && (
+        <>
+          <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden="true" />
+          <div className="fixed inset-y-0 left-0 z-[70] w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between h-[60px] px-5 border-b border-[#ebebeb] flex-shrink-0">
+              <span className="text-[15px] font-black uppercase tracking-[0.15em] text-[#1a1a1a]">plug</span>
+              <button onClick={() => setMenuOpen(false)} className="p-2 -mr-2 text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors" aria-label="Cerrar menú">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto p-5 space-y-1">
+              {mainLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="block py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="py-1">
+                <button
+                  onClick={() => setMobileAccordionOpen(!mobileAccordionOpen)}
+                  className="flex items-center justify-between w-full py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors cursor-pointer"
+                >
+                  <span>Indumentaria</span>
+                  <svg className={`w-4 h-4 transition-transform duration-300 ${mobileAccordionOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                   </svg>
                 </button>
-              </div>
-              <nav className="flex-1 overflow-y-auto p-5 space-y-1">
-                {mainLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="block py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-
-                <div className="py-1">
-                  <button
-                    onClick={() => setMobileAccordionOpen(!mobileAccordionOpen)}
-                    className="flex items-center justify-between w-full py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors cursor-pointer"
-                  >
-                    <span>Indumentaria</span>
-                    <svg className={`w-4 h-4 transition-transform duration-300 ${mobileAccordionOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-                  <div className={`overflow-hidden transition-all duration-300 pl-4 border-l-2 border-[#ebebeb] ${mobileAccordionOpen ? "max-h-64 opacity-100 mt-1" : "max-h-0 opacity-0"}`}>
-                    <div className="space-y-1 py-1">
-                      {indumentariaLinks.map((subLink) => (
-                        <Link
-                          key={subLink.href}
-                          href={subLink.href}
-                          onClick={() => setMenuOpen(false)}
-                          className="block py-2.5 text-[12px] font-medium text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors uppercase tracking-[0.1em]"
-                        >
-                          {subLink.label}
-                        </Link>
-                      ))}
-                    </div>
+                <div className={`overflow-hidden transition-all duration-300 pl-4 border-l-2 border-[#ebebeb] ${mobileAccordionOpen ? "max-h-64 opacity-100 mt-1" : "max-h-0 opacity-0"}`}>
+                  <div className="space-y-1 py-1">
+                    {indumentariaLinks.map((subLink) => (
+                      <Link
+                        key={subLink.href}
+                        href={subLink.href}
+                        onClick={() => setMenuOpen(false)}
+                        className="block py-2.5 text-[12px] font-medium text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors uppercase tracking-[0.1em]"
+                      >
+                        {subLink.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
-
-                <div className="pt-3 border-t border-[#ebebeb]">
-                  <Link
-                    href="/favoritos"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                    </svg>
-                    Favoritos
-                  </Link>
-                  <Link
-                    href="/envios"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-                    </svg>
-                    Envíos
-                  </Link>
-                  <Link
-                    href="/faq"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-                    </svg>
-                    FAQ
-                  </Link>
-                </div>
-              </nav>
-            </div>
-          </>
-        )}
-      </header>
+              </div>
+              <div className="pt-3 border-t border-[#ebebeb]">
+                <Link href="/favoritos" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                  Favoritos
+                </Link>
+                <Link href="/envios" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                  </svg>
+                  Envíos
+                </Link>
+                <Link href="/faq" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 text-[13px] font-semibold uppercase tracking-[0.15em] text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                  </svg>
+                  FAQ
+                </Link>
+              </div>
+            </nav>
+          </div>
+        </>
+      )}
 
       {/* Mini Cart Slide-over */}
       <MiniCart open={cartOpen} onClose={() => setCartOpen(false)} />
