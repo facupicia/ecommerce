@@ -4,6 +4,7 @@ import { useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { getMercadoPagoPrice } from "@/lib/pricing";
 
 interface MiniCartProps {
   open: boolean;
@@ -162,9 +163,12 @@ export function MiniCart({ open, onClose }: MiniCartProps) {
         {items.length > 0 && (
           <div className="flex-shrink-0 px-5 py-4 border-t border-[#d9d9d9] space-y-3 bg-[#fafafa]">
             <div className="flex items-center justify-between text-[14px]">
-              <span className="font-medium text-[#1a1a1a]">Total</span>
+              <span className="font-medium text-[#1a1a1a]">Total (transferencia)</span>
               <span className="font-semibold text-[#1a1a1a]">{formatPrice(total)}</span>
             </div>
+            <p className="text-[10px] text-[var(--plug-gray)]">
+              Mercado Pago: {formatPrice(getMercadoPagoPrice(total))} (+6% recargo)
+            </p>
             <p className="text-[10px] text-[var(--plug-gray)] text-center">
               Envío calculado en el checkout
             </p>

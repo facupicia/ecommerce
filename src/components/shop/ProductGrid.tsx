@@ -132,6 +132,9 @@ export function ProductGrid({ title, products }: ProductGridProps) {
                     <span className="text-[15px] font-semibold text-[#1d1d1f]">
                       {formatPrice(product.precio_ars)}
                     </span>
+                    <span className="text-[10px] text-[var(--plug-gray)] bg-[#f5f5f5] px-1.5 py-0.5 rounded">
+                      MP +6%
+                    </span>
                     {hasDiscount && (
                       <span className="text-[13px] text-[#86868b] line-through font-normal">
                         {formatPrice(product.precio_original_ars!)}

@@ -586,6 +586,9 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
           <span className="text-[12px] sm:text-[13px] font-medium text-[#1a1a1a]">
             {formatPrice(product.precio_ars)}
           </span>
+          <span className="text-[10px] text-[var(--plug-gray)] bg-[#f5f5f5] px-1.5 py-0.5 rounded">
+            MP +6%
+          </span>
           {hasDiscount && (
             <span className="text-[11px] text-[#737373] line-through">
               {formatPrice(product.precio_original_ars!)}

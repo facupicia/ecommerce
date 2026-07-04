@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
 import { getCloudinaryUrl } from "@/lib/cloudinary";
+import { getMercadoPagoPrice } from "@/lib/pricing";
 import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
 import { ProductImageGallery } from "@/components/shop/ProductImageGallery";
 import { ProductDetailTabs } from "@/components/shop/ProductDetailTabs";
@@ -284,21 +285,37 @@ export default async function ProductDetailPage({ params }: Props) {
             </h1>
 
             {/* Price */}
-            <div className="flex items-center gap-3 mb-8 pb-8 border-b border-[#d9d9d9]">
-              <span className="text-xl sm:text-2xl font-medium text-[#1a1a1a]">
-                {formatPrice(p.precio_ars)}
-              </span>
-              {p.precio_original_ars &&
-                p.precio_original_ars > p.precio_ars && (
-                  <>
-                    <span className="text-base text-[var(--plug-gray)] line-through">
-                      {formatPrice(p.precio_original_ars)}
-                    </span>
-                    <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">
-                      -{Math.round(((p.precio_original_ars - p.precio_ars) / p.precio_original_ars) * 100)}%
-                    </span>
-                  </>
-                )}
+            <div className="mb-8 pb-8 border-b border-[#d9d9d9]">
+              {/* Transferencia */}
+              <div className="flex items-center gap-2">
+                <span className="text-xl sm:text-2xl font-medium text-[#1a1a1a]">
+                  {formatPrice(p.precio_ars)}
+                </span>
+                {p.precio_original_ars &&
+                  p.precio_original_ars > p.precio_ars && (
+                    <>
+                      <span className="text-base text-[var(--plug-gray)] line-through">
+                        {formatPrice(p.precio_original_ars)}
+                      </span>
+                      <span className="text-xs font-semibold text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                        -{Math.round(((p.precio_original_ars - p.precio_ars) / p.precio_original_ars) * 100)}%
+                      </span>
+                    </>
+                  )}
+              </div>
+
+              {/* Mercado Pago */}
+              <div className="mt-1.5 flex items-center gap-2">
+                <span className="text-[12px] text-[var(--plug-gray)]">
+                  o con Mercado Pago:{" "}
+                  <span className="font-medium text-[#1a1a1a]">
+                    {formatPrice(getMercadoPagoPrice(p.precio_ars))}
+                  </span>
+                </span>
+                <span className="text-[10px] text-[var(--plug-gray)] bg-[#f5f5f5] px-1.5 py-0.5 rounded">
+                  +6% recargo
+                </span>
+              </div>
             </div>
 
             {/* Interactive Purchase controls */}

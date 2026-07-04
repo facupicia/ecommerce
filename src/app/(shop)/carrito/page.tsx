@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useCart } from "@/lib/cart";
-import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 import { MercadoPagoBadge } from "@/components/shop/MercadoPagoBadge";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { getMercadoPagoPrice } from "@/lib/pricing";
 
 function formatPrice(ars: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -204,11 +205,17 @@ export default function CartPage() {
                 <span>Envío</span>
                 <span className="text-[#1a1a1a] font-medium">A calcular</span>
               </div>
-              <div className="pt-3 border-t border-[#d9d9d9] flex justify-between text-[15px]">
-                <span className="font-medium text-[#1a1a1a]">Total</span>
-                <span className="font-medium text-[#1a1a1a]">
-                  {formatPrice(total)}
-                </span>
+              <div className="pt-3 border-t border-[#d9d9d9]">
+                <div className="flex justify-between text-[14px] mb-1">
+                  <span className="font-medium text-[#1a1a1a]">Transferencia</span>
+                  <span className="font-semibold text-[#1a1a1a]">{formatPrice(total)}</span>
+                </div>
+                <div className="flex justify-between text-[12px]">
+                  <span className="text-[var(--plug-gray)]">
+                    Mercado Pago <span className="text-[10px] bg-[#f5f5f5] px-1 py-0.5 rounded">+6%</span>
+                  </span>
+                  <span className="text-[var(--plug-gray)]">{formatPrice(getMercadoPagoPrice(total))}</span>
+                </div>
               </div>
             </div>
 
