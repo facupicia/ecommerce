@@ -13,6 +13,9 @@ export default function AdminSettingsPage() {
     announcement: "",
     announcementEnabled: false,
     announcementLink: null,
+    transferenciaAlias: "",
+    transferenciaCBU: "",
+    transferenciaTitular: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -217,6 +220,58 @@ export default function AdminSettingsPage() {
                 value={settings.announcementLink || ""}
                 onChange={(e) => setSettings({ ...settings, announcementLink: e.target.value || null })}
                 placeholder='Ej: "/categorias" o "/producto/oferta-especial"'
+                className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Datos de Transferencia */}
+          <div className="pt-4 border-t border-border space-y-4">
+            <h3 className="text-sm font-medium text-foreground">
+              Datos para Transferencia Bancaria
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Estos datos se muestran en el checkout cuando el cliente elige pagar por transferencia.
+            </p>
+
+            <div className="space-y-1.5">
+              <label htmlFor="transferenciaAlias" className="text-xs font-medium text-muted-foreground">
+                Alias
+              </label>
+              <input
+                id="transferenciaAlias"
+                type="text"
+                value={settings.transferenciaAlias || ""}
+                onChange={(e) => setSettings({ ...settings, transferenciaAlias: e.target.value })}
+                placeholder='Ej: "plug.rosario"'
+                className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="transferenciaCBU" className="text-xs font-medium text-muted-foreground">
+                CBU / CVU
+              </label>
+              <input
+                id="transferenciaCBU"
+                type="text"
+                value={settings.transferenciaCBU || ""}
+                onChange={(e) => setSettings({ ...settings, transferenciaCBU: e.target.value })}
+                placeholder='Ej: "0000003100000000000000"'
+                className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="transferenciaTitular" className="text-xs font-medium text-muted-foreground">
+                Titular de la cuenta
+              </label>
+              <input
+                id="transferenciaTitular"
+                type="text"
+                value={settings.transferenciaTitular || ""}
+                onChange={(e) => setSettings({ ...settings, transferenciaTitular: e.target.value })}
+                placeholder='Ej: "Facundo Picia"'
                 className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
               />
             </div>

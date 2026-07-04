@@ -8,6 +8,9 @@ export interface ShopSettings {
   announcement: string;
   announcementEnabled: boolean;
   announcementLink?: string | null;
+  transferenciaAlias: string;
+  transferenciaCBU: string;
+  transferenciaTitular: string;
 }
 
 const DEFAULT_SETTINGS: ShopSettings = {
@@ -18,6 +21,9 @@ const DEFAULT_SETTINGS: ShopSettings = {
   announcement: "",
   announcementEnabled: false,
   announcementLink: null,
+  transferenciaAlias: "",
+  transferenciaCBU: "",
+  transferenciaTitular: "",
 };
 
 export async function getShopSettings(): Promise<ShopSettings> {

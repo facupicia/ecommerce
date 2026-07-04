@@ -181,6 +181,7 @@ export async function POST(request: Request) {
     const {
       items,
       total_ars,
+      payment_method,
       cliente_nombre,
       cliente_email,
       cliente_telefono,
@@ -237,6 +238,7 @@ export async function POST(request: Request) {
         items,
         total_ars,
         estado: "pending",
+        payment_method: payment_method || "mercadopago",
         cliente_nombre,
         cliente_email,
         cliente_telefono,
@@ -265,65 +267,68 @@ export async function POST(request: Request) {
         total_ars: total_ars,
         items_count: items.length,
         cliente_email,
+        payment_method: payment_method || "mercadopago",
         source: "checkout",
       },
     });
 
-    // Mercado Pago Preference Creation
+    // Mercado Pago — solo si el método elegido es Mercado Pago
     let mp_init_point: string | null = null;
     let mp_preference_id: string | null = null;
 
-    try {
-      const preference = getMercadoPagoPreference();
-      const siteUrl = getSiteUrl();
+    if (payment_method !== "transferencia") {
+      try {
+        const preference = getMercadoPagoPreference();
+        const siteUrl = getSiteUrl();
 
-      const mpItems = items.map((item: any) => ({
-        id: item.product_id,
-        title: item.nombre,
-        quantity: Number(item.cantidad || 1),
-        unit_price: Number(item.precio_ars),
-        currency_id: "ARS",
-      }));
+        const mpItems = items.map((item: any) => ({
+          id: item.product_id,
+          title: item.nombre,
+          quantity: Number(item.cantidad || 1),
+          unit_price: Number(item.precio_ars),
+          currency_id: "ARS",
+        }));
 
-      const prefResponse = await preference.create({
-        body: {
-          items: mpItems,
-          payer: {
-            name: cliente_nombre,
-            email: cliente_email,
-            phone: {
-              number: cliente_telefono,
+        const prefResponse = await preference.create({
+          body: {
+            items: mpItems,
+            payer: {
+              name: cliente_nombre,
+              email: cliente_email,
+              phone: {
+                number: cliente_telefono,
+              },
+              address: {
+                street_name: cliente_direccion,
+              },
             },
-            address: {
-              street_name: cliente_direccion,
+            back_urls: {
+              success: `${siteUrl}/checkout/confirmado`,
+              failure: `${siteUrl}/checkout/confirmado`,
+              pending: `${siteUrl}/checkout/confirmado`,
+            },
+            auto_return: "approved",
+            notification_url: `${siteUrl}/api/webhooks/mercadopago`,
+            external_reference: data.id,
+            metadata: {
+              order_id: data.id,
             },
           },
-          back_urls: {
-            success: `${siteUrl}/checkout/confirmado`,
-            failure: `${siteUrl}/checkout/confirmado`,
-            pending: `${siteUrl}/checkout/confirmado`,
-          },
-          auto_return: "approved",
-          notification_url: `${siteUrl}/api/webhooks/mercadopago`,
-          external_reference: data.id,
-          metadata: {
-            order_id: data.id,
-          },
-        },
-      });
+        });
 
-      mp_preference_id = prefResponse.id || null;
-      mp_init_point = prefResponse.init_point || null;
+        mp_preference_id = prefResponse.id || null;
+        mp_init_point = prefResponse.init_point || null;
 
-      if (mp_preference_id) {
-        await supabaseAdmin
-          .from("shop_orders")
-          .update({ mp_preference_id })
-          .eq("id", data.id);
+        if (mp_preference_id) {
+          await supabaseAdmin
+            .from("shop_orders")
+            .update({ mp_preference_id })
+            .eq("id", data.id);
+        }
+      } catch (mpError) {
+        console.error("Error creating Mercado Pago preference:", mpError);
+        // Fall back to a manual-order flow so the order is not lost.
       }
-    } catch (mpError) {
-      console.error("Error creating Mercado Pago preference:", mpError);
-      // Fall back to a manual-order flow so the order is not lost.
     }
 
     return NextResponse.json({
