@@ -6,6 +6,7 @@ import Link from "next/link";
 import type { ShopProduct } from "@/lib/types";
 import { useCart } from "@/lib/cart";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { WishlistButton } from "@/components/shop/WishlistButton";
 
 interface CategoryFiltersProps {
   products: ShopProduct[];
@@ -33,6 +34,7 @@ export function CategoryFilters({ products }: CategoryFiltersProps) {
   const [selectedIndumentaria, setSelectedIndumentaria] = useState<Set<string>>(new Set());
   const [selectedCategorias, setSelectedCategorias] = useState<Set<string>>(new Set());
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("recientes");
 
   // Initialize filters from URL query params
   useEffect(() => {
@@ -72,15 +74,34 @@ export function CategoryFilters({ products }: CategoryFiltersProps) {
     return Array.from(set).sort();
   }, [products]);
 
-  // Filter products
+  // Filter + sort products
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    let result = products.filter((p) => {
       if (selectedMarcas.size > 0 && (!p.marca || !selectedMarcas.has(p.marca))) return false;
       if (selectedIndumentaria.size > 0 && (!p.indumentaria || !selectedIndumentaria.has(p.indumentaria))) return false;
       if (selectedCategorias.size > 0 && (!p.categoria || !selectedCategorias.has(p.categoria))) return false;
       return true;
     });
-  }, [products, selectedMarcas, selectedIndumentaria, selectedCategorias]);
+
+    // Sort
+    switch (sortBy) {
+      case "precio-asc":
+        result = result.sort((a, b) => a.precio_ars - b.precio_ars);
+        break;
+      case "precio-desc":
+        result = result.sort((a, b) => b.precio_ars - a.precio_ars);
+        break;
+      case "nombre":
+        result = result.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        break;
+      case "recientes":
+      default:
+        result = result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+    }
+
+    return result;
+  }, [products, selectedMarcas, selectedIndumentaria, selectedCategorias, sortBy]);
 
   const activeFilterCount = selectedMarcas.size + selectedIndumentaria.size + selectedCategorias.size;
 
@@ -239,11 +260,35 @@ export function CategoryFilters({ products }: CategoryFiltersProps) {
 
         {/* Products grid */}
         <div className="flex-1 min-w-0">
-          {/* Results count */}
+          {/* Results count + Sort */}
           <div className="flex items-center justify-between mb-6 pb-3 border-b border-[#d9d9d9]">
             <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--plug-gray)]">
               {filtered.length} producto{filtered.length !== 1 ? "s" : ""}
             </p>
+
+            {/* Sort dropdown */}
+            <div className="flex items-center gap-2">
+              <label htmlFor="sort-select" className="text-[10px] uppercase tracking-[0.15em] text-[var(--plug-gray)] hidden sm:inline">
+                Ordenar:
+              </label>
+              <select
+                id="sort-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="text-[11px] font-medium text-[#1a1a1a] bg-transparent border border-[#d9d9d9] px-2.5 py-1.5 pr-7 appearance-none cursor-pointer focus:outline-none focus:border-[#1a1a1a] uppercase tracking-[0.08em] min-h-[36px]"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231a1a1a' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`,
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right 0.5rem center",
+                  backgroundSize: "0.75rem",
+                }}
+              >
+                <option value="recientes">Más recientes</option>
+                <option value="precio-asc">Precio: menor a mayor</option>
+                <option value="precio-desc">Precio: mayor a menor</option>
+                <option value="nombre">Nombre A-Z</option>
+              </select>
+            </div>
             {activeFilterCount > 0 && (
               <button
                 onClick={clearAll}
@@ -471,6 +516,18 @@ function ProductCard({ product, index }: { product: ShopProduct; index: number }
               Agotado
             </span>
           )}
+        </div>
+
+        {/* Wishlist */}
+        <div className="absolute top-2 right-2 z-10">
+          <WishlistButton
+            product_id={product.id}
+            slug={product.slug}
+            nombre={product.nombre}
+            precio_ars={product.precio_ars}
+            imagen={product.fotos?.[0] ?? ""}
+            className="shadow-sm"
+          />
         </div>
 
         {/* Quick Add Overlay */}

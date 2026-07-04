@@ -7,6 +7,7 @@ import { ProductPurchasePanel } from "@/components/shop/ProductPurchasePanel";
 import { ProductImageGallery } from "@/components/shop/ProductImageGallery";
 import { ProductDetailTabs } from "@/components/shop/ProductDetailTabs";
 import { ProductGrid } from "@/components/shop/ProductGrid";
+import { WishlistButton } from "@/components/shop/WishlistButton";
 
 export const dynamic = "force-dynamic";
 
@@ -253,11 +254,24 @@ export default async function ProductDetailPage({ params }: Props) {
 
           {/* Info */}
           <div className="flex flex-col lg:pt-2">
-            {p.marca && (
-              <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#1a1a1a] mb-1">
-                {p.marca}
-              </p>
-            )}
+            {/* Marca + Wishlist */}
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                {p.marca && (
+                  <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-[#1a1a1a] mb-1">
+                    {p.marca}
+                  </p>
+                )}
+              </div>
+              <WishlistButton
+                product_id={p.id}
+                slug={p.slug}
+                nombre={p.nombre}
+                precio_ars={p.precio_ars}
+                imagen={p.fotos?.[0] ?? ""}
+                className="mt-1"
+              />
+            </div>
             {p.categoria && (
               <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-[var(--plug-gray)] mb-3">
                 {p.categoria}

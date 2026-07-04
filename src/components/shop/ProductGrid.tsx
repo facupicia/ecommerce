@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import type { ShopProduct } from "@/lib/types";
 import { useCart } from "@/lib/cart";
+import { useToast } from "@/lib/toast";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { WishlistButton } from "@/components/shop/WishlistButton";
 
 interface ProductGridProps {
   title: string;
@@ -82,7 +84,7 @@ export function ProductGrid({ title, products }: ProductGridProps) {
                     )}
                   </Link>
 
-                  {/* Badges tipo píldora translúcida */}
+                  {/* Badges + Wishlist */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2 pointer-events-none z-10">
                     {hasDiscount && (
                       <span className="bg-white/80 backdrop-blur-md text-[#1d1d1f] text-[11px] font-semibold tracking-wide px-3 py-1 rounded-full shadow-sm">
@@ -94,6 +96,16 @@ export function ProductGrid({ title, products }: ProductGridProps) {
                         Agotado
                       </span>
                     )}
+                  </div>
+                  {/* Wishlist button */}
+                  <div className="absolute top-4 right-4 z-10 pointer-events-auto">
+                    <WishlistButton
+                      product_id={product.id}
+                      slug={product.slug}
+                      nombre={product.nombre}
+                      precio_ars={product.precio_ars}
+                      imagen={product.fotos?.[0] ?? ""}
+                    />
                   </div>
 
                   {/* Quick Add Overlay Sincronizado y Acelerado por Hardware (Oculto en móviles por defecto, visible en hover en desktop) */}

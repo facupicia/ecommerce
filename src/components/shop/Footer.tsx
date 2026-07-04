@@ -5,8 +5,13 @@ import Link from "next/link";
 const footerLinks = {
   navegacion: [
     { href: "/", label: "Inicio" },
-    { href: "/categorias", label: "Categorías" },
+    { href: "/categorias", label: "Catálogo" },
+    { href: "/favoritos", label: "Favoritos" },
     { href: "/carrito", label: "Carrito" },
+  ],
+  ayuda: [
+    { href: "/faq", label: "Preguntas Frecuentes" },
+    { href: "/envios", label: "Envíos y Devoluciones" },
   ],
   atencion: [
     { label: "WhatsApp: +54 9 3464 698460", href: "https://wa.me/543464698460" },
@@ -21,7 +26,7 @@ export function Footer() {
   return (
     <footer className="plug-bg-footer border-t border-[#d9d9d9]">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link
@@ -71,6 +76,25 @@ export function Footer() {
             </h3>
             <ul className="space-y-2.5">
               {footerLinks.navegacion.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-[13px] text-[var(--plug-gray)] hover:text-[#1a1a1a] transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Ayuda */}
+          <div>
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a] mb-4">
+              Ayuda
+            </h3>
+            <ul className="space-y-2.5">
+              {footerLinks.ayuda.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
