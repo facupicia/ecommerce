@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ShopOrder, ShopOrderLog, ShopPayment, ShopStockMovement } from "@/lib/types";
 import { useDebounce } from "@/lib/hooks";
+import { getCloudinaryUrl } from "@/lib/cloudinary";
 
 const ESTADOS = ["pending", "paid", "shipped", "delivered", "cancelled"] as const;
 
@@ -540,9 +541,10 @@ function DetailModal({
                       <div className="flex items-center gap-2 min-w-0">
                         {item.imagen && (
                           <img
-                            src={item.imagen}
-                            alt=""
+                            src={getCloudinaryUrl(item.imagen, { width: 64, height: 64, crop: "fill" })}
+                            alt={item.nombre}
                             className="w-8 h-8 rounded object-cover bg-muted flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                           />
                         )}
                         <div className="truncate flex items-center gap-1.5">
