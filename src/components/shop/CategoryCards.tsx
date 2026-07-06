@@ -10,7 +10,7 @@ export function CategoryCards({ cards }: CategoryCardsProps) {
   if (!cards || cards.length === 0) return null;
 
   return (
-    <section className="py-12 lg:py-20 bg-white font-sans">
+    <section className="py-12 lg:py-20 bg-white">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
         <div
           className="grid gap-3 sm:gap-4 lg:gap-5"
@@ -36,32 +36,29 @@ export function CategoryCards({ cards }: CategoryCardsProps) {
                 <div className="absolute inset-0 bg-neutral-200" />
               )}
 
-              <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/0 to-black/45 transition-opacity duration-500 group-hover:opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/10 to-black/45 transition-opacity duration-500 group-hover:opacity-90" />
 
-              <div className="absolute inset-0 flex items-center justify-center p-3">
-                <div className="relative">
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="relative z-10 inline-block">
                   <h3
-                    className="relative text-white text-[16px] sm:text-xl lg:text-2xl font-semibold uppercase tracking-[0.22em] text-center leading-none"
+                    className="text-[18px] sm:text-2xl lg:text-3xl font-black uppercase tracking-[0.2em] text-center leading-none"
                     style={{
+                      color: "#ffffff",
                       textShadow:
-                        "0 1px 2px rgba(0,0,0,0.6), 0 0 18px rgba(255,255,255,0.18)",
+                        "0 2px 4px rgba(0,0,0,0.7), 0 4px 14px rgba(0,0,0,0.5), 0 0 18px rgba(255,255,255,0.22)",
                     }}
                   >
-                    <span
-                      className="block bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white bg-[length:200%_100%] animate-shine"
-                      style={{
-                        WebkitBackgroundClip: "text",
-                        backgroundImage:
-                          "linear-gradient(110deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.55) 100%)",
-                        WebkitTextFillColor: "transparent",
-                      }}
-                    >
-                      {card.nombre}
-                    </span>
+                    {card.nombre}
                   </h3>
+
                   <span
                     aria-hidden
-                    className="absolute left-1/2 -translate-x-1/2 -bottom-2 h-px w-0 bg-white/80 transition-all duration-500 ease-out group-hover:w-3/4"
+                    className="pointer-events-none absolute inset-0 -mx-1 bg-[linear-gradient(110deg,transparent_30%,rgba(255,255,255,0.65)_50%,transparent_70%)] bg-[length:200%_100%] bg-no-repeat animate-shine mix-blend-screen"
+                  />
+
+                  <span
+                    aria-hidden
+                    className="absolute left-1/2 -translate-x-1/2 -bottom-3 h-[3px] w-0 bg-white transition-all duration-500 ease-out group-hover:w-1/2"
                   />
                 </div>
               </div>
