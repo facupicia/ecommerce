@@ -86,7 +86,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                 alt={slide.title || "Slide"}
                 fill
                 priority
-                className={`absolute inset-0 transition-transform duration-[8000ms] ease-out object-top ${
+                className={`absolute inset-0 transition-transform duration-[8000ms] ease-out object-cover object-top ${
                   isActive ? "scale-105" : "scale-100"
                 }`}
               />
