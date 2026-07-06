@@ -85,6 +85,19 @@ export default async function ShopHomePage() {
         <ProductCarousel title="" products={featured} />
       )}
 
+      {/* Sección de transición */}
+      <section className="py-8 lg:py-12 bg-white">
+        <div className="mx-auto max-w-[1440px] px-6 lg:px-12 text-center">
+          <p className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#86868b] mb-3">
+            Navegá por categoría
+          </p>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#1d1d1f]">
+            Encontrá tu estilo
+          </h2>
+          <div className="mt-4 w-10 h-[2px] bg-[#d9d9d9] mx-auto" />
+        </div>
+      </section>
+
       {/* 3. Category cards */}
       <CategoryCards cards={categoryCards} />
 

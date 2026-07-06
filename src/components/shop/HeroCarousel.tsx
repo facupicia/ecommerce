@@ -86,9 +86,10 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                 alt={slide.title || "Slide"}
                 fill
                 priority
-                className={`absolute inset-0 object-cover transition-transform duration-[8000ms] ease-out ${
+                className={`absolute inset-0 transition-transform duration-[8000ms] ease-out ${
                   isActive ? "scale-105" : "scale-100"
                 }`}
+                style={{ objectFit: "cover", objectPosition: "top center" }}
               />
               {/* Premium dark gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/20" />
