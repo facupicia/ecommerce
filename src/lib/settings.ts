@@ -19,6 +19,9 @@ export interface ShopSettings {
   transferenciaCBU: string;
   transferenciaTitular: string;
   categoryCards: CategoryCard[];
+  heroBannerImage: string;
+  editorialBannerImage: string;
+  finalBannerImage: string;
 }
 
 const DEFAULT_SETTINGS: ShopSettings = {
@@ -33,6 +36,9 @@ const DEFAULT_SETTINGS: ShopSettings = {
   transferenciaCBU: "",
   transferenciaTitular: "",
   categoryCards: [],
+  heroBannerImage: "ecommerce/banners/hero-1",
+  editorialBannerImage: "ecommerce/banners/editorial-1",
+  finalBannerImage: "ecommerce/banners/final-1",
 };
 
 export async function getShopSettings(): Promise<ShopSettings> {

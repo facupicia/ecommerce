@@ -31,6 +31,9 @@ export default function AdminSettingsPage() {
     transferenciaCBU: "",
     transferenciaTitular: "",
     categoryCards: [],
+    heroBannerImage: "ecommerce/banners/hero-1",
+    editorialBannerImage: "ecommerce/banners/editorial-1",
+    finalBannerImage: "ecommerce/banners/final-1",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -55,6 +58,9 @@ export default function AdminSettingsPage() {
                 transferenciaCBU: "",
                 transferenciaTitular: "",
                 categoryCards: [],
+                heroBannerImage: "ecommerce/banners/hero-1",
+                editorialBannerImage: "ecommerce/banners/editorial-1",
+                finalBannerImage: "ecommerce/banners/final-1",
               },
               ...data.settings,
             });
@@ -370,6 +376,58 @@ export default function AdminSettingsPage() {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Banners de la Home */}
+          <div className="pt-4 border-t border-border space-y-4">
+            <h3 className="text-sm font-medium text-foreground">
+              Banners de la Home
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Imágenes que aparecen en la página principal. Usá imágenes de Cloudinary (formato: carpeta/nombre).
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+                  <ImageIcon className="w-3 h-3" />
+                  Hero (principal)
+                </label>
+                <input
+                  type="text"
+                  value={settings.heroBannerImage || ""}
+                  onChange={(e) => setSettings({ ...settings, heroBannerImage: e.target.value })}
+                  placeholder='ecommerce/banners/hero-1'
+                  className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+                  <ImageIcon className="w-3 h-3" />
+                  Banner editorial
+                </label>
+                <input
+                  type="text"
+                  value={settings.editorialBannerImage || ""}
+                  onChange={(e) => setSettings({ ...settings, editorialBannerImage: e.target.value })}
+                  placeholder='ecommerce/banners/editorial-1'
+                  className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+                  <ImageIcon className="w-3 h-3" />
+                  Banner final
+                </label>
+                <input
+                  type="text"
+                  value={settings.finalBannerImage || ""}
+                  onChange={(e) => setSettings({ ...settings, finalBannerImage: e.target.value })}
+                  placeholder='ecommerce/banners/final-1'
+                  className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

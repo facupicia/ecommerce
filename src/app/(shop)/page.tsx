@@ -10,19 +10,6 @@ import { getShopSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
-const heroSlides = [
-  {
-    id: "1",
-    image: "ecommerce/banners/hero-1",
-    title: "",
-    subtitle:
-      "No solo seguimos las tendencias, las creamos. Tenemos las prendas más exclusivas del momento para quienes no se conforman con lo común.",
-    cta: "Ver ahora",
-    href: "/categorias",
-  },
-
-];
-
 export default async function ShopHomePage() {
   const { data: products, error } = await supabasePublic
     .from("shop_products")
@@ -49,6 +36,18 @@ export default async function ShopHomePage() {
   const shopSettings = await getShopSettings();
   const categoryCards = shopSettings.categoryCards ?? [];
 
+  const heroSlides = [
+    {
+      id: "1",
+      image: shopSettings.heroBannerImage || "ecommerce/banners/hero-1",
+      title: "",
+      subtitle:
+        "No solo seguimos las tendencias, las creamos. Tenemos las prendas más exclusivas del momento para quienes no se conforman con lo común.",
+      cta: "Ver ahora",
+      href: "/categorias",
+    },
+  ];
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz/";
   const jsonLd = {
     "@context": "https://schema.org",
@@ -56,7 +55,7 @@ export default async function ShopHomePage() {
     "name": "plug",
     "url": siteUrl,
     "logo": `${siteUrl}/favicon.ico`,
-    "image": getCloudinaryUrl("ecommerce/banners/final-1", { width: 1200 }),
+    "image": getCloudinaryUrl(shopSettings.finalBannerImage || "ecommerce/banners/final-1", { width: 1200 }),
     "description": "Ropa importada premium. El mejor style streetwear desde Rosario a todo el país.",
     "address": {
       "@type": "PostalAddress",
@@ -103,7 +102,7 @@ export default async function ShopHomePage() {
 
       {/* 4. Fullwidth editorial banner */}
       <FullwidthBanner
-        image="ecommerce/banners/editorial-1"
+        image={shopSettings.editorialBannerImage || "ecommerce/banners/editorial-1"}
         title=""
         description=""
       />
@@ -117,7 +116,7 @@ export default async function ShopHomePage() {
 
       {/* 6. Final fullwidth banner */}
       <FullwidthBanner
-        image="ecommerce/banners/final-1"
+        image={shopSettings.finalBannerImage || "ecommerce/banners/final-1"}
         title=""
         description="Una mirada diferente sobre el ready-to-wear, con fabricaciones únicas y un enfoque sin marcas."
         primaryCta={{ label: "Shop now", href: "/categorias" }}
