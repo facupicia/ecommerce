@@ -8,6 +8,7 @@ interface Props {
   paymentId: string;
   orderId: string;
   initialStatus: string;
+  paymentMethod: string;
 }
 
 type OrderState = {
@@ -20,7 +21,9 @@ export default function OrderConfirmedClient({
   paymentId,
   orderId,
   initialStatus,
+  paymentMethod,
 }: Props) {
+  const isTransferencia = paymentMethod === "transferencia";
   const initialEstado: OrderState["estado"] =
     initialStatus === "approved" || !initialStatus
       ? "pending"
@@ -29,12 +32,17 @@ export default function OrderConfirmedClient({
   const [state, setState] = useState<OrderState>({
     estado: initialEstado,
   });
-  const [reconciling, setReconciling] = useState(true);
+  const [reconciling, setReconciling] = useState(!isTransferencia);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    // Transferencia: no hace polling, ya está confirmada
+    if (isTransferencia) {
+      setReconciling(false);
+      return;
+    }
+
     if (!orderId) {
-      // Marcar como fallido en un microtask para evitar setState síncrono en effect.
       const t = setTimeout(() => {
         setReconciling(false);
         setFailed(true);
@@ -86,7 +94,6 @@ export default function OrderConfirmedClient({
         const ok = await reconcile();
         if (ok) clearInterval(interval);
       }, 2500);
-      // Auto-stop después de 30s para no pegarle a la API indefinidamente.
       setTimeout(() => {
         clearInterval(interval);
         if (!cancelled) {
@@ -102,7 +109,46 @@ export default function OrderConfirmedClient({
     return () => {
       cancelled = true;
     };
-  }, [orderId, paymentId]);
+  }, [orderId, paymentId, isTransferencia]);
+
+  // ── Transferencia: UI fija ──
+  if (isTransferencia) {
+    return (
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-24 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 border border-amber-500 mb-6">
+          <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+          </svg>
+        </div>
+
+        <h1 className="plug-font-serif text-3xl sm:text-4xl text-[#1a1a1a] mb-3">
+          ¡Pedido registrado!
+        </h1>
+        <p className="text-[14px] text-[var(--plug-gray)] mb-2 max-w-md mx-auto">
+          Recibimos tu pedido. Para confirmarlo, necesitamos que completes la transferencia.
+        </p>
+        <p className="text-[13px] text-[#1a1a1a] font-medium mb-6 max-w-md mx-auto">
+          Te enviamos los datos de pago por email y WhatsApp.
+        </p>
+
+        {orderId && (
+          <p className="text-[12px] text-neutral-400 font-mono mb-8">
+            ID de Pedido: {orderId}
+          </p>
+        )}
+
+        <p className="text-[12px] text-[var(--plug-gray)] mb-8">
+          Una vez que recibamos tu transferencia, procesaremos el pedido y te avisaremos.
+        </p>
+
+        <Link href="/" className="plug-btn">
+          Volver a la tienda
+        </Link>
+      </div>
+    );
+  }
+
+  // ── Mercado Pago: UI original con polling ──
 
   const isApproved = state.estado === "paid";
   const isPending =

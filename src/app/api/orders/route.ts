@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendOrderEmail, type OrderEmailType } from "@/lib/email";
 import { getMercadoPagoPreference, getSiteUrl } from "@/lib/mercadopago";
-import { createOrderLog } from "@/lib/order-helpers";
+import { createOrderLog, deductStockForOrder } from "@/lib/order-helpers";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
@@ -258,6 +258,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const isTransferencia = payment_method === "transferencia";
+
     await createOrderLog({
       order_id: data.id,
       estado_anterior: null,
@@ -272,11 +274,39 @@ export async function POST(request: Request) {
       },
     });
 
+    // Para transferencia: descontar stock inmediatamente y enviar email de confirmación
+    if (isTransferencia) {
+      const stockResult = await deductStockForOrder(data.id, items);
+      if (!stockResult.ok) {
+        console.error(`Error descontando stock para orden ${data.id}:`, stockResult.error);
+      }
+
+      // Obtener la orden completa para el email
+      const { data: fullOrder } = await supabaseAdmin
+        .from("shop_orders")
+        .select("*")
+        .eq("id", data.id)
+        .single();
+
+      if (fullOrder) {
+        sendOrderEmail({
+          order: fullOrder as any,
+          type: "order_created_transferencia",
+          metadata: {
+            payment_method: "transferencia",
+            source: "checkout",
+          },
+        }).catch((emailErr) => {
+          console.error(`Error enviando email de confirmación a orden ${data.id}:`, emailErr);
+        });
+      }
+    }
+
     // Mercado Pago — solo si el método elegido es Mercado Pago
     let mp_init_point: string | null = null;
     let mp_preference_id: string | null = null;
 
-    if (payment_method !== "transferencia") {
+    if (!isTransferencia) {
       try {
         const preference = getMercadoPagoPreference();
         const siteUrl = getSiteUrl();

@@ -7,7 +7,8 @@ export type OrderEmailType =
   | "payment_rejected"
   | "order_shipped"
   | "order_delivered"
-  | "order_cancelled";
+  | "order_cancelled"
+  | "order_created_transferencia";
 
 interface SendOrderEmailParams {
   order: ShopOrder;
@@ -49,6 +50,12 @@ const TYPE_CONFIG: Record<
     emoji: "❌",
     intro: "Tu pedido fue cancelado. Si tenés dudas, respondé este email.",
     tone: "bad",
+  },
+  order_created_transferencia: {
+    subject: "Pedido recibido — Transferencia pendiente",
+    emoji: "🏦",
+    intro: "Recibimos tu pedido. Por favor realizá la transferencia para que podamos procesarlo.",
+    tone: "info",
   },
 };
 
