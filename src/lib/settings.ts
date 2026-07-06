@@ -1,5 +1,12 @@
 import { supabaseAdmin } from "./supabase";
 
+export interface CategoryCard {
+  id: string;
+  nombre: string;
+  imagen: string;
+  href: string;
+}
+
 export interface ShopSettings {
   isBlocked: boolean;
   title: string;
@@ -11,6 +18,7 @@ export interface ShopSettings {
   transferenciaAlias: string;
   transferenciaCBU: string;
   transferenciaTitular: string;
+  categoryCards: CategoryCard[];
 }
 
 const DEFAULT_SETTINGS: ShopSettings = {
@@ -24,6 +32,7 @@ const DEFAULT_SETTINGS: ShopSettings = {
   transferenciaAlias: "",
   transferenciaCBU: "",
   transferenciaTitular: "",
+  categoryCards: [],
 };
 
 export async function getShopSettings(): Promise<ShopSettings> {

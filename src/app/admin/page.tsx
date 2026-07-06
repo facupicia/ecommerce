@@ -253,8 +253,8 @@ export default async function AdminDashboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-border">
-              {paidOrdersList.map((order) => (
-                <div key={order.id} className="p-4 hover:bg-secondary/30 transition-colors">
+              {paidOrdersList.map((order, idx) => (
+                <div key={order.id ?? `paid-order-${idx}-${order.created_at ?? ""}`} className="p-4 hover:bg-secondary/30 transition-colors">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-foreground truncate">
                       {order.cliente_nombre || "—"}

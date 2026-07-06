@@ -5,6 +5,8 @@ import { HeroCarousel } from "@/components/shop/HeroCarousel";
 import { ProductCarousel } from "@/components/shop/ProductCarousel";
 import { FullwidthBanner } from "@/components/shop/FullwidthBanner";
 import { ProductGrid } from "@/components/shop/ProductGrid";
+import { CategoryCards } from "@/components/shop/CategoryCards";
+import { getShopSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +46,9 @@ export default async function ShopHomePage() {
   const featured = items.slice(0, 8);
   const looks = items.slice(8);
 
+  const shopSettings = await getShopSettings();
+  const categoryCards = shopSettings.categoryCards ?? [];
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://plugrosario.xyz/";
   const jsonLd = {
     "@context": "https://schema.org",
@@ -80,21 +85,24 @@ export default async function ShopHomePage() {
         <ProductCarousel title="" products={featured} />
       )}
 
-      {/* 3. Fullwidth editorial banner */}
+      {/* 3. Category cards */}
+      <CategoryCards cards={categoryCards} />
+
+      {/* 4. Fullwidth editorial banner */}
       <FullwidthBanner
         image="ecommerce/banners/editorial-1"
         title=""
         description=""
       />
 
-      {/* 4. Looks grid */}
+      {/* 5. Looks grid */}
       {looks.length > 0 ? (
         <ProductGrid title="Elige tu look" products={looks} />
       ) : featured.length > 0 ? (
         <ProductGrid title="Elige tu look" products={featured} />
       ) : null}
 
-      {/* 5. Final fullwidth banner */}
+      {/* 6. Final fullwidth banner */}
       <FullwidthBanner
         image="ecommerce/banners/final-1"
         title=""

@@ -1,8 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Save, AlertTriangle, Loader2, CheckCircle2 } from "lucide-react";
-import { ShopSettings } from "@/lib/settings";
+import { Settings, Save, AlertTriangle, Loader2, CheckCircle2, Plus, Trash2, GripVertical, Image as ImageIcon } from "lucide-react";
+import { ShopSettings, CategoryCard } from "@/lib/settings";
+import { ImageUploader } from "@/components/ui/ImageUploader";
+
+function genId() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<ShopSettings>({
@@ -16,6 +30,7 @@ export default function AdminSettingsPage() {
     transferenciaAlias: "",
     transferenciaCBU: "",
     transferenciaTitular: "",
+    categoryCards: [],
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -276,6 +291,71 @@ export default function AdminSettingsPage() {
               />
             </div>
           </div>
+
+          {/* Cards de Categorías Destacadas */}
+          <div className="pt-4 border-t border-border space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-medium text-foreground">
+                  Cards de Categorías Destacadas
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sección que se muestra en la home arriba de "Elige tu look". Agregá, quitá o reordená cards según necesites.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const newCard: CategoryCard = {
+                    id: genId(),
+                    nombre: "",
+                    imagen: "",
+                    href: "",
+                  };
+                  setSettings({ ...settings, categoryCards: [...settings.categoryCards, newCard] });
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/95 transition-colors flex-shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Agregar card
+              </button>
+            </div>
+
+            {settings.categoryCards.length === 0 ? (
+              <div className="border border-dashed border-border rounded-lg p-6 text-center text-xs text-muted-foreground">
+                Todavía no agregaste ninguna card. Hacé clic en "Agregar card" para empezar.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {settings.categoryCards.map((card, index) => (
+                  <CategoryCardEditor
+                    key={card.id}
+                    card={card}
+                    index={index}
+                    total={settings.categoryCards.length}
+                    onChange={(updated) => {
+                      const next = [...settings.categoryCards];
+                      next[index] = updated;
+                      setSettings({ ...settings, categoryCards: next });
+                    }}
+                    onRemove={() => {
+                      setSettings({
+                        ...settings,
+                        categoryCards: settings.categoryCards.filter((_, i) => i !== index),
+                      });
+                    }}
+                    onMove={(direction) => {
+                      const next = [...settings.categoryCards];
+                      const target = index + direction;
+                      if (target < 0 || target >= next.length) return;
+                      [next[index], next[target]] = [next[target], next[index]];
+                      setSettings({ ...settings, categoryCards: next });
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Footer Actions */}
@@ -310,6 +390,103 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+interface CategoryCardEditorProps {
+  card: CategoryCard;
+  index: number;
+  total: number;
+  onChange: (card: CategoryCard) => void;
+  onRemove: () => void;
+  onMove: (direction: -1 | 1) => void;
+}
+
+function CategoryCardEditor({ card, index, total, onChange, onRemove, onMove }: CategoryCardEditorProps) {
+  return (
+    <div className="border border-border rounded-lg p-4 bg-secondary/20 space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <GripVertical className="w-3.5 h-3.5" />
+          <span className="font-medium text-foreground">Card #{index + 1}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onMove(-1)}
+            disabled={index === 0}
+            className="px-2 py-1 text-[10px] font-medium bg-secondary border border-border rounded hover:bg-secondary/70 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            aria-label="Mover arriba"
+          >
+            ↑
+          </button>
+          <button
+            type="button"
+            onClick={() => onMove(1)}
+            disabled={index === total - 1}
+            className="px-2 py-1 text-[10px] font-medium bg-secondary border border-border rounded hover:bg-secondary/70 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            aria-label="Mover abajo"
+          >
+            ↓
+          </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="p-1 text-destructive hover:bg-destructive/10 rounded transition-colors"
+            aria-label="Eliminar card"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-medium text-muted-foreground">
+            Nombre (mayúsculas en la card)
+          </label>
+          <input
+            type="text"
+            value={card.nombre}
+            onChange={(e) => {
+              const nombre = e.target.value;
+              const autoHref = card.href && card.href.startsWith("/categorias?cat=")
+                ? `/categorias?cat=${slugify(nombre)}`
+                : card.href;
+              onChange({ ...card, nombre, href: autoHref });
+            }}
+            placeholder='Ej: "Tejidos"'
+            className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-medium text-muted-foreground">
+            Link de destino
+          </label>
+          <input
+            type="text"
+            value={card.href}
+            onChange={(e) => onChange({ ...card, href: e.target.value })}
+            placeholder='Ej: "/categorias?cat=tejidos"'
+            className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+          <ImageIcon className="w-3 h-3" />
+          Imagen de fondo (vertical, recomendado 3:4)
+        </label>
+        <ImageUploader
+          images={card.imagen ? [card.imagen] : []}
+          onChange={(imgs) => onChange({ ...card, imagen: imgs[0] ?? "" })}
+          folder="ecommerce/category-cards"
+          maxFiles={1}
+        />
+      </div>
     </div>
   );
 }
