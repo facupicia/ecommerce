@@ -42,7 +42,7 @@ export default function AdminSettingsPage() {
         const res = await fetch("/api/settings", { credentials: "same-origin" });
         const data = await res.json();
         if (res.ok && data.settings) {
-          setSettings(data.settings);
+          setSettings({ ...data.settings, categoryCards: data.settings.categoryCards ?? [] });
         }
       } catch (error) {
         console.error("Error loading settings:", error);
@@ -321,13 +321,13 @@ export default function AdminSettingsPage() {
               </button>
             </div>
 
-            {settings.categoryCards.length === 0 ? (
+            {((settings.categoryCards ?? []).length) === 0 ? (
               <div className="border border-dashed border-border rounded-lg p-6 text-center text-xs text-muted-foreground">
                 Todavía no agregaste ninguna card. Hacé clic en "Agregar card" para empezar.
               </div>
             ) : (
               <div className="space-y-3">
-                {settings.categoryCards.map((card, index) => (
+                {(settings.categoryCards ?? []).map((card, index) => (
                   <CategoryCardEditor
                     key={card.id}
                     card={card}
