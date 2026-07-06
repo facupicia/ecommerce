@@ -384,47 +384,70 @@ export default function AdminSettingsPage() {
               Banners de la Home
             </h3>
             <p className="text-xs text-muted-foreground">
-              Imágenes que aparecen en la página principal. Usá imágenes de Cloudinary (formato: carpeta/nombre).
+              Imágenes que aparecen en la página principal. Subilas o copiá la ruta de Cloudinary.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-1.5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Hero Banner */}
+              <div className="space-y-2">
                 <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
                   <ImageIcon className="w-3 h-3" />
                   Hero (principal)
                 </label>
+                <ImageUploader
+                  images={settings.heroBannerImage ? [settings.heroBannerImage] : []}
+                  onChange={(imgs) => setSettings({ ...settings, heroBannerImage: imgs[0] ?? "" })}
+                  folder="ecommerce/banners"
+                  maxFiles={1}
+                />
                 <input
                   type="text"
                   value={settings.heroBannerImage || ""}
                   onChange={(e) => setSettings({ ...settings, heroBannerImage: e.target.value })}
                   placeholder='ecommerce/banners/hero-1'
-                  className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+                  className="w-full px-3 py-2 text-xs bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors font-mono"
                 />
               </div>
-              <div className="space-y-1.5">
+
+              {/* Editorial Banner */}
+              <div className="space-y-2">
                 <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
                   <ImageIcon className="w-3 h-3" />
                   Banner editorial
                 </label>
+                <ImageUploader
+                  images={settings.editorialBannerImage ? [settings.editorialBannerImage] : []}
+                  onChange={(imgs) => setSettings({ ...settings, editorialBannerImage: imgs[0] ?? "" })}
+                  folder="ecommerce/banners"
+                  maxFiles={1}
+                />
                 <input
                   type="text"
                   value={settings.editorialBannerImage || ""}
                   onChange={(e) => setSettings({ ...settings, editorialBannerImage: e.target.value })}
                   placeholder='ecommerce/banners/editorial-1'
-                  className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+                  className="w-full px-3 py-2 text-xs bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors font-mono"
                 />
               </div>
-              <div className="space-y-1.5">
+
+              {/* Final Banner */}
+              <div className="space-y-2">
                 <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
                   <ImageIcon className="w-3 h-3" />
                   Banner final
                 </label>
+                <ImageUploader
+                  images={settings.finalBannerImage ? [settings.finalBannerImage] : []}
+                  onChange={(imgs) => setSettings({ ...settings, finalBannerImage: imgs[0] ?? "" })}
+                  folder="ecommerce/banners"
+                  maxFiles={1}
+                />
                 <input
                   type="text"
                   value={settings.finalBannerImage || ""}
                   onChange={(e) => setSettings({ ...settings, finalBannerImage: e.target.value })}
                   placeholder='ecommerce/banners/final-1'
-                  className="w-full px-3 py-2 text-sm bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors"
+                  className="w-full px-3 py-2 text-xs bg-secondary/50 border border-border rounded-lg text-foreground focus:outline-none focus:border-primary focus:bg-background transition-colors font-mono"
                 />
               </div>
             </div>
