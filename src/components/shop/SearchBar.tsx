@@ -77,7 +77,7 @@ export function SearchBar() {
       {/* Search icon + input */}
       <div className="relative flex items-center">
         <svg
-          className="absolute left-3 w-4 h-4 text-[var(--plug-gray)] pointer-events-none"
+          className="absolute w-4 h-4 text-[var(--plug-gray)] pointer-events-none "
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ export function SearchBar() {
           }}
           onKeyDown={handleKeyDown}
           placeholder="Buscar productos..."
-          className="w-full pl-9 pr-10 py-2 text-[13px] border-b border-transparent bg-transparent text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:border-[#1a1a1a] outline-none transition-colors"
+          className=" w-full pl-9 pr-10 py-2 text-[13px] border-b border-transparent bg-transparent text-[#1a1a1a] placeholder:text-[var(--plug-gray)] focus:border-[#1a1a1a] outline-none transition-colors"
           aria-label="Buscar productos"
           autoComplete="off"
         />
