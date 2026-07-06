@@ -59,3 +59,22 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
 }
+
+@keyframes plug-shine {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-shine {
+  animation: plug-shine 4.5s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shine {
+    animation: none;
+  }
+}

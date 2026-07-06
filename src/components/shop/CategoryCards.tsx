@@ -36,12 +36,34 @@ export function CategoryCards({ cards }: CategoryCardsProps) {
                 <div className="absolute inset-0 bg-neutral-200" />
               )}
 
-              <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/30 transition-opacity duration-300 group-hover:opacity-90" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/15 via-black/0 to-black/45 transition-opacity duration-500 group-hover:opacity-80" />
 
               <div className="absolute inset-0 flex items-center justify-center p-3">
-                <h3 className="text-white text-[15px] sm:text-lg lg:text-xl font-semibold tracking-[0.18em] uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)] text-center">
-                  {card.nombre}
-                </h3>
+                <div className="relative">
+                  <h3
+                    className="relative text-white text-[16px] sm:text-xl lg:text-2xl font-semibold uppercase tracking-[0.22em] text-center leading-none"
+                    style={{
+                      textShadow:
+                        "0 1px 2px rgba(0,0,0,0.6), 0 0 18px rgba(255,255,255,0.18)",
+                    }}
+                  >
+                    <span
+                      className="block bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white bg-[length:200%_100%] animate-shine"
+                      style={{
+                        WebkitBackgroundClip: "text",
+                        backgroundImage:
+                          "linear-gradient(110deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.55) 100%)",
+                        WebkitTextFillColor: "transparent",
+                      }}
+                    >
+                      {card.nombre}
+                    </span>
+                  </h3>
+                  <span
+                    aria-hidden
+                    className="absolute left-1/2 -translate-x-1/2 -bottom-2 h-px w-0 bg-white/80 transition-all duration-500 ease-out group-hover:w-3/4"
+                  />
+                </div>
               </div>
             </Link>
           ))}
