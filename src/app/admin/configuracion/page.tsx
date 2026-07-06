@@ -39,11 +39,26 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch("/api/settings", { credentials: "same-origin" });
-        const data = await res.json();
-        if (res.ok && data.settings) {
-          setSettings({ ...data.settings, categoryCards: data.settings.categoryCards ?? [] });
-        }
+          const res = await fetch("/api/settings", { credentials: "same-origin" });
+          const data = await res.json();
+          if (res.ok && data.settings) {
+            setSettings({
+              ...{
+                isBlocked: false,
+                title: "Falta poco para abrir",
+                comingSoonMessage: "Estamos preparando la mejor experiencia para ti. Suscríbete para recibir novedades o vuelve pronto.",
+                openingDate: null,
+                announcement: "",
+                announcementEnabled: false,
+                announcementLink: null,
+                transferenciaAlias: "",
+                transferenciaCBU: "",
+                transferenciaTitular: "",
+                categoryCards: [],
+              },
+              ...data.settings,
+            });
+          }
       } catch (error) {
         console.error("Error loading settings:", error);
       } finally {
@@ -321,7 +336,7 @@ export default function AdminSettingsPage() {
               </button>
             </div>
 
-            {((settings.categoryCards ?? []).length) === 0 ? (
+            {!settings.categoryCards || settings.categoryCards.length === 0 ? (
               <div className="border border-dashed border-border rounded-lg p-6 text-center text-xs text-muted-foreground">
                 Todavía no agregaste ninguna card. Hacé clic en "Agregar card" para empezar.
               </div>
