@@ -1,22 +1,16 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendOrderEmail, type OrderEmailType } from "@/lib/email";
 import { getMercadoPagoPreference, getSiteUrl } from "@/lib/mercadopago";
 import { createOrderLog, deductStockForOrder } from "@/lib/order-helpers";
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
+import { isAdminFromCookies, unauthorized } from "@/lib/admin-auth";
 
 async function isAdmin() {
-  const cookieStore = await cookies();
-  return cookieStore.get("admin_token")?.value === ADMIN_PASSWORD;
+  return isAdminFromCookies();
 }
 
 export async function GET(request: Request) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  if (!(await isAdmin())) return unauthorized();
 
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim().toLowerCase() || "";
@@ -79,9 +73,7 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  if (!(await isAdmin())) return unauthorized();
 
   try {
     const { id, estado, nota } = await request.json();

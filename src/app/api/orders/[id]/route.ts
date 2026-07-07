@@ -1,22 +1,16 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase";
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
+import { isAdminFromCookies, unauthorized } from "@/lib/admin-auth";
 
 async function isAdmin() {
-  const cookieStore = await cookies();
-  return cookieStore.get("admin_token")?.value === ADMIN_PASSWORD;
+  return isAdminFromCookies();
 }
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
+  if (!(await isAdmin())) return unauthorized();
 
   const { id } = await params;
 

@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { cloudinary } from "@/lib/cloudinary-server";
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+import { ADMIN_PASSWORD, unauthorized } from "@/lib/admin-auth";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -12,9 +11,7 @@ function isAdmin(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!isAdmin(req)) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    if (!isAdmin(req)) return unauthorized();
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;

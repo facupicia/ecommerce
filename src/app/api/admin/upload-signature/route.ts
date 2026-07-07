@@ -1,7 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+import { ADMIN_PASSWORD, unauthorized } from "@/lib/admin-auth";
 
 const ALLOWED_FOLDERS = [
   "ecommerce/banners",
@@ -16,9 +15,7 @@ function isAdmin(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    if (!isAdmin(req)) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+    if (!isAdmin(req)) return unauthorized();
 
     const { folder } = (await req.json()) as { folder?: string };
     const targetFolder =

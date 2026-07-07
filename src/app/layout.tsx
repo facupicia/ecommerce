@@ -60,7 +60,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${montserrat.variable} h-full antialiased dark`}
+      className={`${montserrat.variable} h-full antialiased`}
+      data-theme="dark"
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground" suppressHydrationWarning>{children}</body>
     </html>
