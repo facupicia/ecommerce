@@ -3,10 +3,77 @@ import type { ShopProduct } from "@/lib/types";
 import { getCloudinaryUrl } from "@/lib/cloudinary";
 import { HeroCarousel } from "@/components/shop/HeroCarousel";
 import { ProductCarousel } from "@/components/shop/ProductCarousel";
-import { FullwidthBanner } from "@/components/shop/FullwidthBanner";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { CategoryCards } from "@/components/shop/CategoryCards";
 import { getShopSettings } from "@/lib/settings";
+import Link from "next/link";
+
+interface FullwidthBannerProps {
+  image: string;
+  title?: string;
+  description?: string;
+  primaryCta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
+  align?: "left" | "center";
+}
+
+function FullwidthBanner({
+  image,
+  title,
+  description,
+  primaryCta,
+  secondaryCta,
+  align = "left",
+}: FullwidthBannerProps) {
+  return (
+    <section className="relative w-full overflow-hidden bg-black">
+      <img
+        src={getCloudinaryUrl(image, { width: 1920, crop: "fill" })}
+        alt={title || "Banner"}
+        className="w-full h-[50vh] min-h-[400px] object-cover opacity-80"
+        loading="lazy"
+      />
+      <div
+        className={`absolute inset-0 flex items-center ${
+          align === "center" ? "justify-center text-center" : "justify-start text-left"
+        }`}
+      >
+        <div className="px-6 lg:px-16 max-w-2xl">
+          {title && (
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-white tracking-tight">
+              {title}
+            </h2>
+          )}
+          {description && (
+            <p className="mt-4 text-sm sm:text-base text-white/80 max-w-md">
+              {description}
+            </p>
+          )}
+          {(primaryCta || secondaryCta) && (
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              {primaryCta && (
+                <Link
+                  href={primaryCta.href}
+                  className="inline-flex items-center justify-center bg-white text-black px-5 py-2.5 rounded-md text-sm font-medium hover:bg-white/90 transition-colors"
+                >
+                  {primaryCta.label}
+                </Link>
+              )}
+              {secondaryCta && (
+                <Link
+                  href={secondaryCta.href}
+                  className="inline-flex items-center justify-center text-white px-5 py-2.5 text-sm font-medium border border-white/40 rounded-md hover:bg-white/10 transition-colors"
+                >
+                  {secondaryCta.label}
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export const dynamic = "force-dynamic";
 
