@@ -11,6 +11,9 @@ interface ImageUploaderProps {
   maxFiles?: number;
 }
 
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+const MAX_SIZE = 5 * 1024 * 1024;
+
 export function ImageUploader({
   images,
   onChange,
@@ -21,6 +24,59 @@ export function ImageUploader({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const uploadOne = useCallback(
+    async (file: File): Promise<string> => {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        throw new Error("Formato no permitido. Usá JPG, PNG, WebP o AVIF.");
+      }
+      if (file.size > MAX_SIZE) {
+        throw new Error("El archivo excede el límite de 5 MB.");
+      }
+
+      const sigRes = await fetch("/api/admin/upload-signature", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folder }),
+        credentials: "same-origin",
+      });
+      if (!sigRes.ok) {
+        const data = await sigRes.json().catch(() => ({}));
+        throw new Error(data.error || "No se pudo obtener la firma de upload");
+      }
+      const sig = (await sigRes.json()) as {
+        cloudName: string;
+        apiKey: string;
+        timestamp: number;
+        folder: string;
+        signature: string;
+        uploadUrl: string;
+      };
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", sig.apiKey);
+      formData.append("timestamp", String(sig.timestamp));
+      formData.append("signature", sig.signature);
+      formData.append("folder", sig.folder);
+
+      const upRes = await fetch(sig.uploadUrl, {
+        method: "POST",
+        body: formData,
+      });
+      const upData = (await upRes.json()) as {
+        public_id?: string;
+        error?: { message?: string };
+      };
+      if (!upRes.ok || !upData.public_id) {
+        throw new Error(
+          upData.error?.message || `Error al subir imagen (HTTP ${upRes.status})`
+        );
+      }
+      return upData.public_id;
+    },
+    [folder]
+  );
 
   const handleFiles = useCallback(
     async (files: FileList | null) => {
@@ -37,29 +93,18 @@ export function ImageUploader({
 
       try {
         for (const file of Array.from(files)) {
-          const formData = new FormData();
-          formData.append("file", file);
-          formData.append("folder", folder);
-
-          const res = await fetch("/api/admin/upload", {
-            method: "POST",
-            body: formData,
-            credentials: "same-origin",
-          });
-
-          const data = await res.json();
-          if (!res.ok) throw new Error(data.error || "Error al subir imagen");
-          uploaded.push(data.public_id);
+          const publicId = await uploadOne(file);
+          uploaded.push(publicId);
         }
         onChange([...images, ...uploaded]);
-      } catch (e: any) {
-        setError(e.message || "Error al subir imágenes");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Error al subir imágenes");
       } finally {
         setUploading(false);
         if (inputRef.current) inputRef.current.value = "";
       }
     },
-    [images, onChange, folder, maxFiles]
+    [images, onChange, maxFiles, uploadOne]
   );
 
   function removeImage(index: number) {
