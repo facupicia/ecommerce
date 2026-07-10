@@ -80,15 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (error) return { error: error.message };
 
-    // Crear perfil de cliente
-    if (data.user) {
-      await fetch("/api/client/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre }),
-      });
-    }
-
+    // Perfil de cliente se crea automáticamente via trigger en auth.users
     return {};
   }
 

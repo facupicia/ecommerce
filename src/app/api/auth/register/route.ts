@@ -38,16 +38,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    // Crear perfil de cliente
-    if (data.user) {
-      const { supabaseAdmin } = await import("@/lib/supabase");
-      await supabaseAdmin.from("shop_client_profiles").upsert({
-        id: data.user.id,
-        nombre: nombre || "",
-        telefono: "",
-        direccion: "",
-      });
-    }
+    // Perfil de cliente se crea automáticamente via trigger en auth.users
 
     const response = NextResponse.json({
       user: data.user

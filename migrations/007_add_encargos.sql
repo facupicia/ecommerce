@@ -106,7 +106,24 @@ create index if not exists idx_shop_encargo_payments_encargo on shop_encargo_pay
 create unique index if not exists idx_shop_encargo_payments_mp on shop_encargo_payments(mp_payment_id) where mp_payment_id is not null;
 
 -- ============================================================
--- 5. Trigger para updated_at en shop_encargos
+-- 5. Trigger para crear perfil de cliente automáticamente al registrarse
+drop function if exists public.handle_new_user() cascade;
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.shop_client_profiles (id, nombre)
+  values (new.id, coalesce(new.raw_user_meta_data->>'nombre', ''))
+  on conflict (id) do nothing;
+  return new;
+end;
+$$ language plpgsql security definer;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- 6. Trigger para updated_at en shop_encargos
 -- ============================================================
 create or replace function update_shop_encargos_updated_at()
 returns trigger as $$
