@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
 import { EncargosGrid } from "@/components/shop/EncargosGrid";
+import { Spinner } from "@/components/ui/Spinner";
 
 export const dynamic = "force-dynamic";
 
@@ -24,5 +26,15 @@ export default async function EncargosPage() {
 
   const products2: ShopProduct[] = products ?? [];
 
-  return <EncargosGrid products={products2} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
+      <EncargosGrid products={products2} />
+    </Suspense>
+  );
 }

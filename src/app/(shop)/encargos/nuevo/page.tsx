@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import useSWR from "swr";
@@ -29,6 +29,20 @@ const TALLES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
 type Step = "tipo" | "detalle" | "confirmar";
 
 export default function NuevoEncargoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
+      <NuevoEncargoContent />
+    </Suspense>
+  );
+}
+
+function NuevoEncargoContent() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
