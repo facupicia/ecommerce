@@ -248,3 +248,97 @@ export interface ShopStockMovement {
   motivo: string | null;
   created_at: string;
 }
+
+// ── Encargos ─────────────────────────────────────────────
+
+export type EncargoTipo = "catalogo" | "personalizado";
+
+export type EncargoEstado =
+  | "pendiente_presupuesto"
+  | "pendiente"
+  | "confirmado"
+  | "en_camino"
+  | "listo"
+  | "entregado"
+  | "cancelado";
+
+export interface ShopEncargo {
+  id: string;
+  user_id: string;
+  tipo: EncargoTipo;
+  estado: EncargoEstado;
+  producto_id: string | null;
+  imagen_url: string | null;
+  descripcion: string | null;
+  categoria: string;
+  talle: string;
+  cantidad: number;
+  precio_total: number;
+  sena_pagada: number;
+  monto_restante: number;
+  presupuesto_enviado: boolean;
+  presupuesto_aceptado: boolean | null;
+  presupuesto_expires_at: string | null;
+  notas_admin: string;
+  created_at: string;
+  updated_at: string;
+  // Joined
+  producto?: ShopProduct | null;
+  historial?: ShopEncargoStatusHistory[];
+  pagos?: ShopEncargoPayment[];
+  cliente?: ShopClientProfile | null;
+}
+
+export interface ShopEncargoStatusHistory {
+  id: string;
+  encargo_id: string;
+  estado_anterior: string | null;
+  estado_nuevo: string;
+  notas: string;
+  created_at: string;
+}
+
+export interface ShopEncargoPayment {
+  id: string;
+  encargo_id: string;
+  mp_payment_id: string | null;
+  mp_preference_id: string | null;
+  monto: number;
+  tipo: "sena" | "resto";
+  estado: "pendiente" | "aprobado" | "rechazado";
+  metodo_pago: string | null;
+  raw_response: Record<string, any> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ShopClientProfile {
+  id: string;
+  nombre: string;
+  telefono: string;
+  direccion: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export const ENCARGO_ESTADO_LABELS: Record<EncargoEstado, string> = {
+  pendiente_presupuesto: "Pendiente presupuesto",
+  pendiente: "Pendiente pago",
+  confirmado: "Confirmado",
+  en_camino: "En camino",
+  listo: "Listo para retiro",
+  entregado: "Entregado",
+  cancelado: "Cancelado",
+};
+
+export const ENCARGO_CATEGORIAS = [
+  "Remeras",
+  "Pantalones",
+  "Buzos",
+  "Camperas",
+  "Zapatillas",
+  "Gorras",
+  "Accesorios",
+] as const;
+
+export type EncargoCategoria = (typeof ENCARGO_CATEGORIAS)[number];

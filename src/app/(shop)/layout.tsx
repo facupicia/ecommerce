@@ -1,6 +1,7 @@
 import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
 import { ToastProvider } from "@/lib/toast";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { Header } from "@/components/shop/Header";
 import { Footer } from "@/components/shop/Footer";
 import { WhatsAppFloat } from "@/components/shop/WhatsAppFloat";
@@ -27,25 +28,27 @@ export default async function ShopLayout({
   }
 
   return (
-    <ToastProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <style dangerouslySetInnerHTML={{ __html: announcementStyles }} />
-          <div className="shop-layout flex flex-col min-h-screen bg-white">
-            <a href="#main-content" className="plug-skip-link">
-              Saltar al contenido
-            </a>
-            <AnnouncementBar />
-            <Header />
-            <main id="main-content" className="flex-1" tabIndex={-1}>
-              {children}
-            </main>
-            <Footer />
-            <WhatsAppFloat />
-            <VisitTracker />
-          </div>
-        </WishlistProvider>
-      </CartProvider>
-    </ToastProvider>
+    <AuthProvider>
+      <ToastProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <style dangerouslySetInnerHTML={{ __html: announcementStyles }} />
+            <div className="shop-layout flex flex-col min-h-screen bg-white">
+              <a href="#main-content" className="plug-skip-link">
+                Saltar al contenido
+              </a>
+              <AnnouncementBar />
+              <Header />
+              <main id="main-content" className="flex-1" tabIndex={-1}>
+                {children}
+              </main>
+              <Footer />
+              <WhatsAppFloat />
+              <VisitTracker />
+            </div>
+          </WishlistProvider>
+        </CartProvider>
+      </ToastProvider>
+    </AuthProvider>
   );
 }
