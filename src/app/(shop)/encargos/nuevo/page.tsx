@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import useSWR from "swr";
 import { fetcher, fetcherPost } from "@/lib/fetcher";
@@ -31,6 +31,7 @@ type Step = "tipo" | "detalle" | "confirmar";
 export default function NuevoEncargoPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -48,12 +49,30 @@ export default function NuevoEncargoPage() {
   const [descripcion, setDescripcion] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // Pre-select product from query param
+  useEffect(() => {
+    const pid = searchParams.get("producto");
+    if (pid && tipo === null) {
+      setTipo("catalogo");
+      setProductoId(pid);
+      setStep("detalle");
+    }
+  }, [searchParams, tipo]);
+
   // Productos del catálogo
   const { data: productsData, isLoading: loadingProducts } = useSWR<{
     products: ShopProduct[];
   }>(tipo === "catalogo" ? "/api/products?limit=100" : null, fetcher);
 
   const products = productsData?.products ?? [];
+
+  // Auto-set category when product is pre-selected and products load
+  useEffect(() => {
+    if (productoId && products.length > 0 && !categoria) {
+      const prod = products.find((p) => p.id === productoId);
+      if (prod?.categoria) setCategoria(prod.categoria);
+    }
+  }, [productoId, products, categoria]);
 
   // Filtrar productos por categoría
   const filteredProducts = categoria
