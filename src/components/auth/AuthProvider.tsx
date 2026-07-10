@@ -6,9 +6,11 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   type ReactNode,
 } from "react";
 import { createBrowserClient } from "@/lib/supabase-browser";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { User } from "@supabase/supabase-js";
 
 interface AuthCtx {
@@ -36,7 +38,11 @@ const AuthContext = createContext<AuthCtx>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createBrowserClient();
+  const supabaseRef = useRef<SupabaseClient>(null!);
+  if (!supabaseRef.current) {
+    supabaseRef.current = createBrowserClient();
+  }
+  const supabase = supabaseRef.current;
 
   const refresh = useCallback(async () => {
     const {
