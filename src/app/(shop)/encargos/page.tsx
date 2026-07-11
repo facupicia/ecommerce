@@ -11,6 +11,7 @@ export default async function EncargosPage() {
     .from("shop_products")
     .select("*")
     .eq("publicado", true)
+    .eq("es_encargo", true)
     .order("created_at", { ascending: false });
 
   if (error) {

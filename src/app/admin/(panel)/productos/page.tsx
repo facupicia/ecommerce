@@ -48,7 +48,7 @@ import { cn } from "@/lib/cn";
 
 const PAGE_SIZE = 25;
 
-type FiltroEstado = "todos" | "publicado" | "oculto" | "sin-stock";
+type FiltroEstado = "todos" | "publicado" | "oculto" | "sin-stock" | "encargos";
 
 export default function AdminProductosPage() {
   const [page, setPage] = useState(1);
@@ -91,6 +91,7 @@ export default function AdminProductosPage() {
       if (filtro === "publicado" && !p.publicado) return false;
       if (filtro === "oculto" && p.publicado) return false;
       if (filtro === "sin-stock" && (p.stock || 0) > 0) return false;
+      if (filtro === "encargos" && !p.es_encargo) return false;
       return true;
     });
   }, [products, filtro]);
@@ -260,6 +261,11 @@ export default function AdminProductosPage() {
             >
               Importar
             </Button>
+            <Link href="/admin/productos/nuevo?encargo=1">
+              <Button variant="secondary" icon={<Plus className="h-3.5 w-3.5" />}>
+                Nuevo encargo
+              </Button>
+            </Link>
             <Link href="/admin/productos/nuevo">
               <Button variant="primary" icon={<Plus className="h-3.5 w-3.5" />}>
                 Nuevo producto
@@ -287,6 +293,7 @@ export default function AdminProductosPage() {
             { value: "publicado" as const, label: "Publicados" },
             { value: "oculto" as const, label: "Ocultos" },
             { value: "sin-stock" as const, label: "Sin stock" },
+            { value: "encargos" as const, label: "Encargos" },
           ].map((opt) => (
             <button
               key={opt.value}
@@ -536,6 +543,7 @@ function ProductRow({
                 product.categoria,
                 product.marca,
                 product.indumentaria,
+                product.es_encargo && "Encargo",
                 product.cssbuy_oid && `CSSBuy`,
               ]
                 .filter(Boolean)

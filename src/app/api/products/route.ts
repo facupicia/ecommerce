@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { isAdminFromCookies, unauthorized } from "@/lib/admin-auth";
 
 const ADMIN_LIST_FIELDS = [
   "id",
@@ -11,11 +12,16 @@ const ADMIN_LIST_FIELDS = [
   "precio_original_ars",
   "stock",
   "publicado",
+  "es_encargo",
   "fotos",
   "cssbuy_oid",
   "created_at",
   "updated_at",
 ].join(",");
+
+function sanitizePostgrestOr(q: string): string {
+  return q.replace(/"/g, '\\"');
+}
 
 export async function GET(req: Request) {
   try {
@@ -24,6 +30,7 @@ export async function GET(req: Request) {
     const offset = parseInt(searchParams.get("offset") || "0", 10) || 0;
     const q = searchParams.get("q")?.trim().toLowerCase();
     const publicado = searchParams.get("publicado");
+    const encargos = searchParams.get("encargos");
     const fields = searchParams.get("fields");
 
     // Lightweight list by default for admin; full data only when explicitly requested
@@ -35,12 +42,19 @@ export async function GET(req: Request) {
       .neq("slug", "__shop_settings__")
       .order("created_at", { ascending: false });
 
+    if (encargos === "true") {
+      query = query.eq("es_encargo", true);
+    } else if (encargos === "false") {
+      query = query.eq("es_encargo", false);
+    }
+
     if (publicado === "true") query = query.eq("publicado", true);
     if (publicado === "false") query = query.eq("publicado", false);
 
     if (q) {
+      const safe = sanitizePostgrestOr(q);
       query = query.or(
-        `nombre.ilike.%${q}%,categoria.ilike.%${q}%,marca.ilike.%${q}%,indumentaria.ilike.%${q}%,cssbuy_oid.ilike.%${q}%`
+        `nombre.ilike.%${safe}%,categoria.ilike.%${safe}%,marca.ilike.%${safe}%,indumentaria.ilike.%${safe}%,cssbuy_oid.ilike.%${safe}%`
       );
     }
 
@@ -60,9 +74,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  if (!(await isAdminFromCookies())) return unauthorized();
+
   try {
     const body = await req.json();
-    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g, marca, indumentaria } = body;
+    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g, marca, indumentaria, es_encargo } = body;
 
     if (!slug || !nombre) return Response.json({ error: "slug y nombre requeridos" }, { status: 400 });
 
@@ -94,6 +110,7 @@ export async function POST(req: Request) {
       categoria: String(categoria || "").slice(0, 100),
       stock: Math.max(0, parseInt(String(stock), 10) || 0),
       publicado: Boolean(publicado),
+      es_encargo: Boolean(es_encargo),
       cssbuy_oid: cssbuy_oid ? String(cssbuy_oid).slice(0, 50) : null,
       peso_g: Math.max(0, parseInt(String(peso_g), 10) || 0),
       marca: marca ? String(marca).slice(0, 50) : null,

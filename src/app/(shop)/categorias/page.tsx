@@ -52,6 +52,7 @@ export default async function CategoriesPage({ searchParams }: CategoryProps) {
     .from("shop_products")
     .select("*")
     .eq("publicado", true)
+    .eq("es_encargo", false)
     .order("created_at", { ascending: false });
 
   if (error) {

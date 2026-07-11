@@ -76,7 +76,7 @@ function NuevoEncargoContent() {
   // Productos del catálogo
   const { data: productsData, isLoading: loadingProducts } = useSWR<{
     products: ShopProduct[];
-  }>(tipo === "catalogo" ? "/api/products?limit=100" : null, fetcher);
+  }>(tipo === "catalogo" ? "/api/products?encargos=true&publicado=true&limit=100" : null, fetcher);
 
   const products = productsData?.products ?? [];
 
