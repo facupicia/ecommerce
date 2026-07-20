@@ -7,6 +7,7 @@ import {
   Package,
   Calculator,
   ShoppingCart,
+  ShoppingBag,
   Eye,
   Settings,
   ChevronDown,
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
     ],
   },
   { href: "/admin/ordenes", label: "Órdenes", icon: ShoppingCart, section: "ventas" },
+  { href: "/admin/encargos", label: "Encargos", icon: ShoppingBag, section: "ventas" },
   { href: "/admin/visitas", label: "Visitas", icon: Eye, section: "tráfico" },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings, section: "ajustes" },
 ];
