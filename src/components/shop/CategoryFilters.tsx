@@ -1,24 +1,12 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import type { ShopProduct } from "@/lib/types";
-import { useCart } from "@/lib/cart";
-import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
-import { WishlistButton } from "@/components/shop/WishlistButton";
+import { ProductCard } from "@/components/shop/ProductCard";
 
 interface CategoryFiltersProps {
   products: ShopProduct[];
-}
-
-function formatPrice(ars: number): string {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(ars);
 }
 
 const INDUMENTARIA_LABELS: Record<string, string> = {
@@ -30,22 +18,32 @@ const INDUMENTARIA_LABELS: Record<string, string> = {
 
 export function CategoryFilters({ products }: CategoryFiltersProps) {
   const searchParams = useSearchParams();
-  const [selectedMarcas, setSelectedMarcas] = useState<Set<string>>(new Set());
-  const [selectedIndumentaria, setSelectedIndumentaria] = useState<Set<string>>(new Set());
-  const [selectedCategorias, setSelectedCategorias] = useState<Set<string>>(new Set());
+  const indParam = searchParams.get("indumentaria");
+  const marcaParam = searchParams.get("marca");
+  const catParam = searchParams.get("categoria");
+
+  // Initialize filters from URL query params
+  const [selectedMarcas, setSelectedMarcas] = useState<Set<string>>(
+    () => (marcaParam ? new Set([marcaParam]) : new Set())
+  );
+  const [selectedIndumentaria, setSelectedIndumentaria] = useState<Set<string>>(
+    () => (indParam ? new Set([indParam]) : new Set())
+  );
+  const [selectedCategorias, setSelectedCategorias] = useState<Set<string>>(
+    () => (catParam ? new Set([catParam]) : new Set())
+  );
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [sortBy, setSortBy] = useState<string>("recientes");
 
-  // Initialize filters from URL query params
-  useEffect(() => {
-    const indParam = searchParams.get("indumentaria");
-    const marcaParam = searchParams.get("marca");
-    const catParam = searchParams.get("categoria");
-
-    if (indParam) setSelectedIndumentaria(new Set([indParam]));
-    if (marcaParam) setSelectedMarcas(new Set([marcaParam]));
-    if (catParam) setSelectedCategorias(new Set([catParam]));
-  }, [searchParams]);
+  // Sincronizar filtros cuando cambian los query params (navegación entre categorías)
+  const paramsKey = `${indParam ?? ""}|${marcaParam ?? ""}|${catParam ?? ""}`;
+  const [prevParamsKey, setPrevParamsKey] = useState(paramsKey);
+  if (prevParamsKey !== paramsKey) {
+    setPrevParamsKey(paramsKey);
+    setSelectedIndumentaria(indParam ? new Set([indParam]) : new Set());
+    setSelectedMarcas(marcaParam ? new Set([marcaParam]) : new Set());
+    setSelectedCategorias(catParam ? new Set([catParam]) : new Set());
+  }
 
   // Extract unique values
   const marcas = useMemo(() => {
@@ -342,9 +340,9 @@ export function CategoryFilters({ products }: CategoryFiltersProps) {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-10 lg:gap-x-6 lg:gap-y-14">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-10 lg:gap-x-8 lg:gap-y-14">
               {filtered.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
+                <ProductCard key={product.id} product={product} index={i} priority={i < 3} />
               ))}
             </div>
           )}
@@ -449,153 +447,5 @@ function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }
         </svg>
       </button>
     </span>
-  );
-}
-
-function ProductCard({ product, index }: { product: ShopProduct; index: number }) {
-  const { addToCart } = useCart();
-  const [added, setAdded] = useState(false);
-
-  const hasDiscount =
-    product.precio_original_ars &&
-    product.precio_original_ars > product.precio_ars;
-  const discountPct = hasDiscount
-    ? Math.round(
-        ((product.precio_original_ars! - product.precio_ars) /
-          product.precio_original_ars!) *
-          100
-      )
-    : 0;
-
-  const handleQuickAdd = (e: React.MouseEvent, talle?: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart({
-      product_id: product.id,
-      nombre: product.nombre,
-      precio_ars: product.precio_ars,
-      cantidad: 1,
-      imagen: product.fotos?.[0] ?? "",
-      slug: product.slug,
-      talle,
-    });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
-
-  return (
-    <div className={`group block relative plug-fade-up plug-stagger-${Math.min(index + 1, 8)}`}>
-      {/* Image */}
-      <div className="aspect-[3/4] bg-[#f5f5f5] relative overflow-hidden mb-3 shadow-xs">
-        <Link href={`/producto/${product.slug}`} className="block w-full h-full">
-          {product.fotos && product.fotos.length > 0 ? (
-            <CloudinaryImage
-              src={product.fotos[0]}
-              alt={product.nombre}
-              fill
-              className="object-cover plug-img-hover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-[var(--plug-gray)]">
-              <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-          )}
-        </Link>
-
-        {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1 pointer-events-none z-10">
-          {hasDiscount && (
-            <span className="plug-badge plug-badge-sale shadow-sm font-semibold rounded-xs">
-              -{discountPct}%
-            </span>
-          )}
-          {product.stock === 0 && (
-            <span className="plug-badge plug-badge-oot shadow-sm font-semibold rounded-xs">
-              Agotado
-            </span>
-          )}
-        </div>
-
-        {/* Wishlist */}
-        <div className="absolute top-2 right-2 z-10">
-          <WishlistButton
-            product_id={product.id}
-            slug={product.slug}
-            nombre={product.nombre}
-            precio_ars={product.precio_ars}
-            imagen={product.fotos?.[0] ?? ""}
-            className="shadow-sm"
-          />
-        </div>
-
-        {/* Quick Add Overlay */}
-        {product.stock > 0 && (
-          <div className="plug-quick-add hidden md:flex items-center justify-center z-10">
-            {added ? (
-              <div className="flex items-center justify-center gap-1.5 text-[10px] uppercase font-bold text-emerald-400 py-1">
-                <svg className="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                ¡Agregado!
-              </div>
-            ) : product.talles && product.talles.length > 0 ? (
-              <div className="flex flex-col gap-1 w-full items-center">
-                <span className="text-[8px] uppercase tracking-wider text-white/50 mb-0.5">Talle rápido</span>
-                <div className="flex flex-wrap gap-1 justify-center w-full max-h-[44px] overflow-y-auto px-1">
-                  {product.talles.map((talle) => (
-                    <button
-                      key={talle}
-                      onClick={(e) => handleQuickAdd(e, talle)}
-                      className="px-2 py-0.5 text-[9px] font-bold bg-white text-black hover:bg-neutral-200 transition-colors uppercase border border-transparent shadow-xs cursor-pointer"
-                    >
-                      {talle}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={(e) => handleQuickAdd(e)}
-                className="w-full text-[10px] font-bold text-white bg-transparent hover:text-black hover:bg-white transition-colors py-1.5 uppercase cursor-pointer"
-              >
-                Agregar al carrito
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Product Info */}
-      <Link href={`/producto/${product.slug}`} className="space-y-1 block">
-        <div className="flex items-center gap-2">
-          {product.indumentaria && (
-            <p className="plug-tag">{product.indumentaria}</p>
-          )}
-          {product.marca && (
-            <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-[#1a1a1a]">
-              {product.marca}
-            </p>
-          )}
-        </div>
-        <h3 className="plug-font-serif text-[13px] sm:text-[14px] leading-snug text-[#1a1a1a] group-hover:text-[var(--plug-gray)] transition-colors line-clamp-2">
-          {product.nombre}
-        </h3>
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] sm:text-[13px] font-medium text-[#1a1a1a]">
-            {formatPrice(product.precio_ars)}
-          </span>
-          <span className="text-[10px] text-[var(--plug-gray)] bg-[#f5f5f5] px-1.5 py-0.5 rounded">
-            MP +6%
-          </span>
-          {hasDiscount && (
-            <span className="text-[11px] text-[#737373] line-through">
-              {formatPrice(product.precio_original_ars!)}
-            </span>
-          )}
-        </div>
-      </Link>
-    </div>
   );
 }

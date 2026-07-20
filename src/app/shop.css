@@ -368,6 +368,17 @@
   border-color: #4dc9ff;
 }
 
+/* Drawer / backdrop animations */
+@keyframes plugFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes plugSlideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
 /* Stagger animation for grids */
 @keyframes plugFadeUp {
   from {
@@ -612,6 +623,13 @@
   background-color: #111111;
   color: #ffffff;
   border-top: 1px solid #222222;
+}
+
+/* Los headings globales del shop fuerzan color oscuro; restaurar blanco acá */
+.plug-newsletter-section h1,
+.plug-newsletter-section h2,
+.plug-newsletter-section h3 {
+  color: #ffffff;
 }
 
 .plug-newsletter-input {

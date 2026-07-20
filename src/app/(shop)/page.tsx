@@ -2,9 +2,11 @@ import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
 import { getCloudinaryUrl } from "@/lib/cloudinary";
 import { HeroCarousel } from "@/components/shop/HeroCarousel";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 import { ProductCarousel } from "@/components/shop/ProductCarousel";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { CategoryCards } from "@/components/shop/CategoryCards";
+import { BenefitsBar } from "@/components/shop/BenefitsBar";
 import { getShopSettings } from "@/lib/settings";
 import Link from "next/link";
 
@@ -27,12 +29,15 @@ function FullwidthBanner({
 }: FullwidthBannerProps) {
   return (
     <section className="relative w-full overflow-hidden bg-black">
-      <img
-        src={getCloudinaryUrl(image, { width: 1920, crop: "fill" })}
-        alt={title || "Banner"}
-        className="w-full h-[50vh] min-h-[400px] object-cover opacity-80"
-        loading="lazy"
-      />
+      <div className="relative w-full h-[50vh] min-h-[400px]">
+        <CloudinaryImage
+          src={image}
+          alt={title || "Banner"}
+          fill
+          sizes="100vw"
+          className="object-cover opacity-80"
+        />
+      </div>
       <div
         className={`absolute inset-0 flex items-center ${
           align === "center" ? "justify-center text-center" : "justify-start text-left"
@@ -146,48 +151,50 @@ export default async function ShopHomePage() {
       {/* 1. Fullscreen hero carousel */}
       <HeroCarousel slides={heroSlides} />
 
-      {/* 2. Featured products carousel */}
+      {/* 2. Barra de beneficios / propuesta de valor */}
+      <BenefitsBar />
+
+      {/* 3. Featured products carousel */}
       {featured.length > 0 && (
-        <ProductCarousel title="" products={featured} />
+        <ProductCarousel
+          title="Novedades"
+          products={featured}
+          cta={{ label: "Ver todo", href: "/categorias" }}
+        />
       )}
 
-      {/* Sección de transición */}
-      <section className="py-8 lg:py-12 bg-white">
-        <div className="mx-auto max-w-[1440px] px-6 lg:px-12 text-center">
-          <p className="text-[11px] sm:text-[12px] font-bold uppercase tracking-[0.22em] text-[#86868b] mb-3">
-            Navegá por categoría
-          </p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#1d1d1f]">
-            Encontrá tu estilo
-          </h2>
-          <div className="mt-4 w-10 h-[2px] bg-[#d9d9d9] mx-auto" />
-        </div>
-      </section>
-
-      {/* 3. Category cards */}
+      {/* 4. Category cards */}
       <CategoryCards cards={categoryCards} />
 
-      {/* 4. Fullwidth editorial banner */}
+      {/* 5. Fullwidth editorial banner */}
       <FullwidthBanner
         image={shopSettings.editorialBannerImage || "ecommerce/banners/editorial-1"}
         title=""
         description=""
       />
 
-      {/* 5. Looks grid */}
+      {/* 6. Looks grid */}
       {looks.length > 0 ? (
-        <ProductGrid title="Elige tu look" products={looks} />
+        <ProductGrid
+          title="Elegí tu look"
+          products={looks}
+          cta={{ label: "Ver todo", href: "/categorias" }}
+        />
       ) : featured.length > 0 ? (
-        <ProductGrid title="Elige tu look" products={featured} />
+        <ProductGrid
+          title="Elegí tu look"
+          products={featured}
+          cta={{ label: "Ver todo", href: "/categorias" }}
+        />
       ) : null}
 
-      {/* 6. Final fullwidth banner */}
+      {/* 7. Final fullwidth banner */}
       <FullwidthBanner
         image={shopSettings.finalBannerImage || "ecommerce/banners/final-1"}
         title=""
         description="Una mirada diferente sobre el ready-to-wear, con fabricaciones únicas y un enfoque sin marcas."
-        primaryCta={{ label: "Shop now", href: "/categorias" }}
-        secondaryCta={{ label: "A closer look", href: "/categorias" }}
+        primaryCta={{ label: "Comprar ahora", href: "/categorias" }}
+        secondaryCta={{ label: "Ver catálogo", href: "/categorias" }}
         align="center"
       />
     </>

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { supabasePublic } from "@/lib/supabase";
 import type { ShopProduct } from "@/lib/types";
 import { getCloudinaryUrl } from "@/lib/cloudinary";
@@ -9,6 +10,7 @@ import { ProductImageGallery } from "@/components/shop/ProductImageGallery";
 import { ProductDetailTabs } from "@/components/shop/ProductDetailTabs";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { WishlistButton } from "@/components/shop/WishlistButton";
+import { BenefitsBar } from "@/components/shop/BenefitsBar";
 
 export const dynamic = "force-dynamic";
 
@@ -231,18 +233,18 @@ export default async function ProductDetailPage({ params }: Props) {
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-8 lg:py-12">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-[11px] uppercase tracking-[0.15em] text-[var(--plug-gray)] mb-8 lg:mb-12">
-          <a href="/" className="hover:text-[#1a1a1a] transition-colors">
+          <Link href="/" className="hover:text-[#1a1a1a] transition-colors">
             Inicio
-          </a>
+          </Link>
           <span>/</span>
           {p.categoria ? (
             <>
-              <a
+              <Link
                 href={`/categorias`}
                 className="hover:text-[#1a1a1a] transition-colors"
               >
                 {p.categoria}
-              </a>
+              </Link>
               <span>/</span>
             </>
           ) : null}
@@ -321,6 +323,11 @@ export default async function ProductDetailPage({ params }: Props) {
             {/* Interactive Purchase controls */}
             <div className="mb-8">
               <ProductPurchasePanel product={p} />
+            </div>
+
+            {/* Trust badges — estándar de tiendas competitivas */}
+            <div className="mb-10 rounded-2xl bg-[#f5f5f7] p-5 sm:p-6">
+              <BenefitsBar variant="compact" />
             </div>
 
             {/* Notes */}

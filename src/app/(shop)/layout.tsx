@@ -3,6 +3,7 @@ import { WishlistProvider } from "@/lib/wishlist";
 import { ToastProvider } from "@/lib/toast";
 import { Header } from "@/components/shop/Header";
 import { Footer } from "@/components/shop/Footer";
+import { NewsletterSection } from "@/components/shop/NewsletterSection";
 import { WhatsAppFloat } from "@/components/shop/WhatsAppFloat";
 import { VisitTracker } from "@/components/shop/VisitTracker";
 import { AnnouncementBar, announcementStyles } from "@/components/shop/AnnouncementBar";
@@ -40,6 +41,7 @@ export default async function ShopLayout({
             <main id="main-content" className="flex-1" tabIndex={-1}>
               {children}
             </main>
+            <NewsletterSection />
             <Footer />
             <WhatsAppFloat />
             <VisitTracker />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { SearchBar } from "@/components/shop/SearchBar";
 import { MiniCart } from "@/components/shop/MiniCart";
@@ -24,6 +24,26 @@ export function Header() {
   const [mobileAccordionOpen, setMobileAccordionOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const { itemCount: wishlistCount } = useWishlist();
+
+  // Bloquear el scroll del body cuando el menú mobile está abierto
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [menuOpen]);
+
+  // Cerrar el menú con Escape
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
 
   return (
     <>
@@ -167,8 +187,17 @@ export function Header() {
       {/* Mobile drawer — OUTSIDE <header> so it renders above the sticky header */}
       {menuOpen && (
         <>
-          <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" onClick={() => setMenuOpen(false)} aria-hidden="true" />
-          <div className="fixed inset-y-0 left-0 z-[70] w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col">
+          <div
+            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm animate-[plugFadeIn_0.25s_ease-out]"
+            onClick={() => setMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div
+            className="fixed inset-y-0 left-0 z-[70] w-[300px] max-w-[85vw] bg-white shadow-2xl flex flex-col animate-[plugSlideInLeft_0.3s_ease-out]"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menú de navegación"
+          >
             <div className="flex items-center justify-between h-[60px] px-5 border-b border-[#ebebeb] flex-shrink-0">
               <span className="text-[15px] font-black uppercase tracking-[0.15em] text-[#1a1a1a]">plug</span>
               <button onClick={() => setMenuOpen(false)} className="p-2 -mr-2 text-[#1a1a1a] hover:text-[var(--plug-gray)] transition-colors" aria-label="Cerrar menú">
