@@ -91,7 +91,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                 }`}
               />
               {/* Premium dark gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/20" />
+              <div className="absolute inset-0" />
 
               {/* Content */}
               <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 lg:p-20">
