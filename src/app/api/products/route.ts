@@ -12,7 +12,6 @@ const ADMIN_LIST_FIELDS = [
   "precio_original_ars",
   "stock",
   "publicado",
-  "es_encargo",
   "fotos",
   "cssbuy_oid",
   "created_at",
@@ -30,7 +29,6 @@ export async function GET(req: Request) {
     const offset = parseInt(searchParams.get("offset") || "0", 10) || 0;
     const q = searchParams.get("q")?.trim().toLowerCase();
     const publicado = searchParams.get("publicado");
-    const encargos = searchParams.get("encargos");
     const fields = searchParams.get("fields");
 
     // Lightweight list by default for admin; full data only when explicitly requested
@@ -41,12 +39,6 @@ export async function GET(req: Request) {
       .select(selectColumns, { count: limit ? "exact" : undefined })
       .neq("slug", "__shop_settings__")
       .order("created_at", { ascending: false });
-
-    if (encargos === "true") {
-      query = query.eq("es_encargo", true);
-    } else if (encargos === "false") {
-      query = query.eq("es_encargo", false);
-    }
 
     if (publicado === "true") query = query.eq("publicado", true);
     if (publicado === "false") query = query.eq("publicado", false);
@@ -78,7 +70,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g, marca, indumentaria, es_encargo } = body;
+    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g, marca, indumentaria } = body;
 
     if (!slug || !nombre) return Response.json({ error: "slug y nombre requeridos" }, { status: 400 });
 
@@ -110,7 +102,6 @@ export async function POST(req: Request) {
       categoria: String(categoria || "").slice(0, 100),
       stock: Math.max(0, parseInt(String(stock), 10) || 0),
       publicado: Boolean(publicado),
-      es_encargo: Boolean(es_encargo),
       cssbuy_oid: cssbuy_oid ? String(cssbuy_oid).slice(0, 50) : null,
       peso_g: Math.max(0, parseInt(String(peso_g), 10) || 0),
       marca: marca ? String(marca).slice(0, 50) : null,

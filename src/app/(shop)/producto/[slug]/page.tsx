@@ -26,7 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .select("*")
     .eq("slug", slug)
     .eq("publicado", true)
-    .eq("es_encargo", false)
     .single();
 
   if (!product) {
@@ -112,7 +111,6 @@ export default async function ProductDetailPage({ params }: Props) {
     .from("shop_products")
     .select("*")
     .eq("publicado", true)
-    .eq("es_encargo", false)
     .neq("id", p.id)
     .order("created_at", { ascending: false })
     .limit(12);

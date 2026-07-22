@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import {
   Save,
@@ -39,9 +39,7 @@ import { fetcher, fetcherDelete, fetcherPatch, fetcherPost } from "@/lib/fetcher
 export default function AdminProductEditPage() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const isNew = params.id === "nuevo";
-  const isEncargoMode = isNew && searchParams.get("encargo") === "1";
 
   const [product, setProduct] = useState<Partial<ShopProduct>>({
     id: uid(),
@@ -60,7 +58,6 @@ export default function AdminProductEditPage() {
     publicado: false,
     cssbuy_oid: null,
     peso_g: 0,
-    es_encargo: isEncargoMode,
   });
   const [saving, setSaving] = useState(false);
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
@@ -527,18 +524,6 @@ export default function AdminProductEditPage() {
               <Switch
                 checked={product.publicado || false}
                 onCheckedChange={(c: boolean) => updateField("publicado", c)}
-              />
-            </div>
-            <div className="flex items-center justify-between p-3 bg-[var(--color-bg-subtle)] rounded-[var(--radius)]">
-              <div>
-                <p className="text-sm font-medium text-[var(--color-fg)]">Producto de encargo</p>
-                <p className="text-xs text-[var(--color-fg-muted)]">
-                  Se muestra en el catálogo de encargos en vez del catálogo normal.
-                </p>
-              </div>
-              <Switch
-                checked={product.es_encargo || false}
-                onCheckedChange={(c: boolean) => updateField("es_encargo", c)}
               />
             </div>
           </div>

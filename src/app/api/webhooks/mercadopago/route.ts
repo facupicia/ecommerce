@@ -10,7 +10,6 @@ import {
   upsertPayment,
 } from "@/lib/order-helpers";
 import { sendOrderEmail } from "@/lib/email";
-import { sendEncargoEmail } from "@/lib/email-encargos";
 
 /**
  * Convierte la respuesta del SDK de Mercado Pago en un objeto plano
@@ -105,15 +104,6 @@ export async function POST(request: Request) {
     if (!orderId) {
       console.warn(`[MP Webhook] Payment ${paymentId} sin external_reference.`);
       return NextResponse.json({ received: true }, { status: 200 });
-    }
-
-    // Detectar si es un pago de encargo
-    const isEncargo = payment.metadata?.es_encargo === true || 
-                      payment.metadata?.es_encargo === "true" ||
-                      searchParams.get("encargo") !== null;
-
-    if (isEncargo) {
-      return await handleEncargoPayment(paymentId, payment, orderId, searchParams);
     }
 
     // Buscar la orden actual.
@@ -265,116 +255,3 @@ export async function POST(request: Request) {
   }
 }
 
-/**
- * Maneja pagos de encargos (seña y restante).
- */
-async function handleEncargoPayment(
-  paymentId: string,
-  payment: any,
-  encargoId: string,
-  searchParams: URLSearchParams
-) {
-  const tipo = payment.metadata?.tipo_pago || searchParams.get("tipo") || "sena";
-  const status = payment.status;
-
-  console.log(
-    `[MP Webhook] Encargo payment ${paymentId} status: "${status}" (Encargo: "${encargoId}", tipo: "${tipo}")`
-  );
-
-  // Buscar el encargo
-  const { data: encargo, error: encargoError } = await supabaseAdmin
-    .from("shop_encargos")
-    .select("*")
-    .eq("id", encargoId)
-    .single();
-
-  if (encargoError || !encargo) {
-    console.error(`[MP Webhook] Encargo ${encargoId} no encontrado:`, encargoError);
-    return NextResponse.json({ received: true }, { status: 200 });
-  }
-
-  // Actualizar pago en shop_encargo_payments
-  const { data: existingPayment } = await supabaseAdmin
-    .from("shop_encargo_payments")
-    .select("id")
-    .eq("mp_payment_id", String(paymentId))
-    .maybeSingle();
-
-  const paymentData = {
-    mp_payment_id: String(paymentId),
-    mp_preference_id: payment.preference_id || null,
-    estado: status === "approved" ? "aprobado" : status === "rejected" ? "rechazado" : "pendiente",
-    metodo_pago: payment.payment_method_id || null,
-    raw_response: safePaymentResponse(payment),
-  };
-
-  if (existingPayment) {
-    await supabaseAdmin
-      .from("shop_encargo_payments")
-      .update(paymentData)
-      .eq("id", existingPayment.id);
-  } else {
-    await supabaseAdmin.from("shop_encargo_payments").insert({
-      encargo_id: encargoId,
-      ...paymentData,
-      monto: Number(payment.transaction_amount) || 0,
-      tipo,
-    });
-  }
-
-  if (status === "approved") {
-    const updates: Record<string, any> = {};
-
-    if (tipo === "sena") {
-      updates.sena_pagada = Number(payment.transaction_amount);
-      updates.estado = "confirmado";
-    } else if (tipo === "resto") {
-      updates.estado = "entregado";
-    }
-
-    const { error: updateError } = await supabaseAdmin
-      .from("shop_encargos")
-      .update(updates)
-      .eq("id", encargoId);
-
-    if (updateError) {
-      console.error(`[MP Webhook] Error actualizando encargo ${encargoId}:`, updateError);
-    } else {
-      // Registrar cambio de estado
-      const nuevoEstado = updates.estado;
-      if (nuevoEstado && nuevoEstado !== encargo.estado) {
-        await supabaseAdmin.from("shop_encargo_status_history").insert({
-          encargo_id: encargoId,
-          estado_anterior: encargo.estado,
-          estado_nuevo: nuevoEstado,
-          notas: `Pago ${tipo === "sena" ? "de seña" : "restante"} aprobado (MP: ${paymentId})`,
-        });
-      }
-
-      console.log(`[MP Webhook] Encargo ${encargoId} actualizado: ${nuevoEstado || encargo.estado}`);
-
-      // Email al cliente
-      const emailType = tipo === "sena" ? "encargo_confirmado" : "encargo_entregado";
-      if (encargo.user_id) {
-        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(encargo.user_id);
-        const { data: clientProfile } = await supabaseAdmin
-          .from("shop_client_profiles")
-          .select("nombre")
-          .eq("id", encargo.user_id)
-          .single();
-
-        if (authUser?.user?.email) {
-          sendEncargoEmail({
-            encargo: { ...encargo, ...updates, cliente_nombre: clientProfile?.nombre || "" },
-            to: authUser.user.email,
-            type: emailType as any,
-          }).catch((err) =>
-            console.error(`[MP Webhook] Error enviando email ${emailType}:`, err)
-          );
-        }
-      }
-    }
-  }
-
-  return NextResponse.json({ received: true }, { status: 200 });
-}

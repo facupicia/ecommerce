@@ -40,7 +40,6 @@ export async function PATCH(req: Request) {
     if (body.stock !== undefined) update.stock = Math.max(0, parseInt(String(body.stock), 10) || 0);
     if (body.peso_g !== undefined) update.peso_g = Math.max(0, parseInt(String(body.peso_g), 10) || 0);
     if (body.publicado !== undefined) update.publicado = Boolean(body.publicado);
-    if (body.es_encargo !== undefined) update.es_encargo = Boolean(body.es_encargo);
     if (body.cssbuy_oid !== undefined) update.cssbuy_oid = body.cssbuy_oid ? String(body.cssbuy_oid).slice(0, 50) : null;
     if (Array.isArray(body.fotos)) {
       update.fotos = body.fotos.filter((u: unknown) => {
