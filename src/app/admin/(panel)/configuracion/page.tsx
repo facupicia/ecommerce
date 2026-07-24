@@ -41,6 +41,7 @@ export default function AdminSettingsPage() {
     transferenciaTitular: "",
     categoryCards: [],
     heroBannerImage: "ecommerce/banners/hero-1",
+    heroBannerImageMobile: "",
     editorialBannerImage: "ecommerce/banners/editorial-1",
     finalBannerImage: "ecommerce/banners/final-1",
   });
@@ -68,6 +69,7 @@ export default function AdminSettingsPage() {
                 transferenciaTitular: "",
                 categoryCards: [],
                 heroBannerImage: "ecommerce/banners/hero-1",
+                heroBannerImageMobile: "",
                 editorialBannerImage: "ecommerce/banners/editorial-1",
                 finalBannerImage: "ecommerce/banners/final-1",
               },
@@ -190,6 +192,38 @@ export default function AdminSettingsPage() {
               <span
                 className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-out ${
                   settings.isBlocked ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Toggle Módulo de Encargos */}
+          <div className="flex items-center justify-between pb-6 border-b border-[var(--color-border)]">
+            <div className="space-y-1">
+              <label className="text-sm font-semibold text-[var(--color-fg)]">
+                Módulo de Encargos / Importación
+              </label>
+              <p className="text-xs text-[var(--color-fg-muted)]">
+                Activa o desactiva la sección de Encargos en la tienda pública (header, footer y catálogo).
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setSettings({
+                  ...settings,
+                  encargosEnabled: !(settings.encargosEnabled !== false),
+                })
+              }
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)] focus-visible:ring-offset-2 ${
+                settings.encargosEnabled !== false
+                  ? "bg-[var(--color-accent)]"
+                  : "bg-[var(--color-bg-muted)]"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-out ${
+                  settings.encargosEnabled !== false ? "translate-x-5" : "translate-x-0"
                 }`}
               />
             </button>
@@ -374,12 +408,13 @@ export default function AdminSettingsPage() {
               Banners de la home
             </h3>
             <p className="text-xs text-[var(--color-fg-muted)]">
-              Imágenes que aparecen en la página principal.
+              Imágenes que aparecen en la página principal. El hero mobile es opcional: si está vacío, se usa el hero principal en todos los dispositivos.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 { key: "heroBannerImage", label: "Hero (principal)", placeholder: "ecommerce/banners/hero-1" },
+                { key: "heroBannerImageMobile", label: "Hero mobile (vertical)", placeholder: "ecommerce/banners/hero-mobile-1" },
                 { key: "editorialBannerImage", label: "Banner editorial", placeholder: "ecommerce/banners/editorial-1" },
                 { key: "finalBannerImage", label: "Banner final", placeholder: "ecommerce/banners/final-1" },
               ].map((banner) => (

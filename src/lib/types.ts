@@ -249,4 +249,53 @@ export interface ShopStockMovement {
   created_at: string;
 }
 
+// ── Encargos (productos del scraper + pedidos) ───────────────
 
+export interface EncargoProductVariant {
+  sku_id: string | null;
+  name: string;
+  price_cny: number | null;
+  sizes: { name: string; price: number | null }[];
+  image_url: string | null;
+}
+
+export interface EncargoProduct {
+  id: string;
+  scraper_id: number;
+  source_type: string;
+  item_id: string;
+  title: string;
+  title_cn: string | null;
+  price_cny: number | null;
+  image_urls: string[];
+  desc_images: string[];
+  product_url: string | null;
+  detail_url: string | null;
+  category: string | null;
+  variants: EncargoProductVariant[];
+  activo: boolean;
+  synced_at: string;
+  created_at: string;
+}
+
+export interface EncargoOrder {
+  id: string;
+  product_id: string;
+  product_title: string;
+  product_image: string | null;
+  variante_nombre: string | null;
+  variante_imagen: string | null;
+  talle: string | null;
+  precio_cny: number | null;
+  precio_usd: number | null;
+  cantidad: number;
+  cliente_nombre: string;
+  cliente_email: string;
+  cliente_telefono: string | null;
+  cliente_direccion: string | null;
+  cliente_notas: string | null;
+  estado: "pending" | "confirmed" | "ordered" | "received" | "delivered" | "cancelled";
+  admin_notas: string | null;
+  created_at: string;
+  updated_at: string;
+}

@@ -9,6 +9,7 @@ export interface CategoryCard {
 
 export interface ShopSettings {
   isBlocked: boolean;
+  encargosEnabled?: boolean;
   title: string;
   comingSoonMessage: string;
   openingDate?: string | null;
@@ -20,12 +21,14 @@ export interface ShopSettings {
   transferenciaTitular: string;
   categoryCards: CategoryCard[];
   heroBannerImage: string;
+  heroBannerImageMobile: string;
   editorialBannerImage: string;
   finalBannerImage: string;
 }
 
 const DEFAULT_SETTINGS: ShopSettings = {
   isBlocked: false,
+  encargosEnabled: true,
   title: "Falta poco para abrir",
   comingSoonMessage: "Estamos preparando la mejor experiencia para ti. Suscríbete para recibir novedades o vuelve pronto.",
   openingDate: null,
@@ -37,6 +40,7 @@ const DEFAULT_SETTINGS: ShopSettings = {
   transferenciaTitular: "",
   categoryCards: [],
   heroBannerImage: "ecommerce/banners/hero-1",
+  heroBannerImageMobile: "",
   editorialBannerImage: "ecommerce/banners/editorial-1",
   finalBannerImage: "ecommerce/banners/final-1",
 };

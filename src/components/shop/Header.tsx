@@ -10,6 +10,7 @@ import { useWishlist } from "@/lib/wishlist";
 const mainLinks = [
   { href: "/", label: "Inicio" },
   { href: "/categorias", label: "Catálogo" },
+  { href: "/encargos", label: "Encargos" },
 ];
 
 const indumentariaLinks = [
@@ -19,7 +20,14 @@ const indumentariaLinks = [
   { href: "/categorias?indumentaria=Pantalón", label: "Pantalones" },
 ];
 
-export function Header() {
+interface HeaderProps {
+  encargosEnabled?: boolean;
+}
+
+export function Header({ encargosEnabled = true }: HeaderProps) {
+  const linksToDisplay = mainLinks.filter(
+    (link) => link.href !== "/encargos" || encargosEnabled
+  );
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileAccordionOpen, setMobileAccordionOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -54,7 +62,7 @@ export function Header() {
             <div className="flex items-center gap-6">
               <button
                 onClick={() => setMenuOpen(true)}
-                className="p-2 -ml-2 text-[#1a1a1a] transition-colors"
+                className="p-2 -ml-2 text-[#1a1a1a] transition-colors lg:hidden"
                 aria-label="Abrir menú"
               >
                 <svg
@@ -69,7 +77,7 @@ export function Header() {
               </button>
 
               <nav className="hidden lg:flex items-center gap-6">
-                {mainLinks.map((link) => (
+                {linksToDisplay.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
@@ -207,7 +215,7 @@ export function Header() {
               </button>
             </div>
             <nav className="flex-1 overflow-y-auto p-5 space-y-1">
-              {mainLinks.map((link) => (
+              {linksToDisplay.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

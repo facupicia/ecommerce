@@ -3,14 +3,26 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
+import { getCloudinaryUrl, isCloudinarySource } from "@/lib/cloudinary";
 
 interface Slide {
   id: string;
   image: string;
+  imageMobile?: string;
   title: string;
   subtitle: string;
   cta: string;
   href: string;
+}
+
+const MOBILE_WIDTHS = [640, 768, 1024, 1280];
+const DESKTOP_WIDTHS = [1280, 1600, 1920, 2560];
+
+function buildSrcSet(src: string, widths: number[]): string {
+  if (!isCloudinarySource(src)) return src;
+  return widths
+    .map((w) => `${getCloudinaryUrl(src, { width: w })} ${w}w`)
+    .join(", ");
 }
 
 interface HeroCarouselProps {
@@ -81,15 +93,39 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
               }`}
             >
               {/* Background image with slow zoom effect */}
-              <CloudinaryImage
-                src={slide.image}
-                alt={slide.title || "Slide"}
-                fill
-                priority
-                className={`absolute inset-0 transition-transform duration-[8000ms] ease-out object-cover object-top ${
-                  isActive ? "scale-105" : "scale-100"
-                }`}
-              />
+              {slide.imageMobile ? (
+                /* Art direction: <picture> ensures only the matching
+                   image (mobile or desktop) is downloaded */
+                <picture className="absolute inset-0">
+                  <source
+                    media="(max-width: 767px)"
+                    srcSet={buildSrcSet(slide.imageMobile, MOBILE_WIDTHS)}
+                    sizes="100vw"
+                  />
+                  <img
+                    src={getCloudinaryUrl(slide.image, { width: 1920 })}
+                    srcSet={buildSrcSet(slide.image, DESKTOP_WIDTHS)}
+                    sizes="100vw"
+                    alt={slide.title || "Slide"}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="async"
+                    className={`absolute inset-0 h-full w-full object-cover object-top transition-transform duration-[8000ms] ease-out ${
+                      isActive ? "scale-105" : "scale-100"
+                    }`}
+                  />
+                </picture>
+              ) : (
+                <CloudinaryImage
+                  src={slide.image}
+                  alt={slide.title || "Slide"}
+                  fill
+                  priority
+                  className={`absolute inset-0 transition-transform duration-[8000ms] ease-out object-cover object-top ${
+                    isActive ? "scale-105" : "scale-100"
+                  }`}
+                />
+              )}
               {/* Premium dark gradient overlay */}
               <div className="absolute inset-0" />
 

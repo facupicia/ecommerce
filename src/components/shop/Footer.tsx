@@ -7,6 +7,7 @@ const footerLinks = {
   navegacion: [
     { href: "/", label: "Inicio" },
     { href: "/categorias", label: "Catálogo" },
+    { href: "/encargos", label: "Encargos" },
     { href: "/favoritos", label: "Favoritos" },
     { href: "/carrito", label: "Carrito" },
   ],
@@ -16,7 +17,14 @@ const footerLinks = {
   ],
 };
 
-export function Footer() {
+interface FooterProps {
+  encargosEnabled?: boolean;
+}
+
+export function Footer({ encargosEnabled = true }: FooterProps) {
+  const navegacionLinks = footerLinks.navegacion.filter(
+    (link) => link.href !== "/encargos" || encargosEnabled
+  );
   return (
     <footer className="plug-bg-footer border-t border-[#d9d9d9]">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-12 lg:py-16">
@@ -68,7 +76,7 @@ export function Footer() {
               Navegación
             </h3>
             <ul className="space-y-2.5">
-              {footerLinks.navegacion.map((link) => (
+              {navegacionLinks.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}

@@ -78,16 +78,19 @@ export async function POST(req: Request) {
     const safeSlug = String(slug).toLowerCase().replace(/[^a-z0-9-]/g, "-").slice(0, 100);
     if (!safeSlug) return Response.json({ error: "slug inválido" }, { status: 400 });
 
-    // Sanitizar URLs de fotos
+    // Sanitizar fotos: acepta URLs o public IDs de Cloudinary
     const safeFotos = Array.isArray(fotos)
       ? fotos.filter((u: unknown) => {
-          if (typeof u !== "string") return false;
-          try {
-            const parsed = new URL(u);
-            return parsed.protocol === "https:" || parsed.protocol === "http:";
-          } catch {
-            return false;
+          if (typeof u !== "string" || !u.trim()) return false;
+          if (u.startsWith("http")) {
+            try {
+              const parsed = new URL(u);
+              return parsed.protocol === "https:" || parsed.protocol === "http:";
+            } catch {
+              return false;
+            }
           }
+          return true;
         })
       : [];
 

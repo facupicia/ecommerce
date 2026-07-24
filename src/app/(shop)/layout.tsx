@@ -37,12 +37,12 @@ export default async function ShopLayout({
               Saltar al contenido
             </a>
             <AnnouncementBar />
-            <Header />
+            <Header encargosEnabled={settings.encargosEnabled !== false} />
             <main id="main-content" className="flex-1" tabIndex={-1}>
               {children}
             </main>
             <NewsletterSection />
-            <Footer />
+            <Footer encargosEnabled={settings.encargosEnabled !== false} />
             <WhatsAppFloat />
             <VisitTracker />
           </div>

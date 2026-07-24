@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
+  PackageCheck,
   Calculator,
   ShoppingCart,
   Eye,
@@ -36,6 +37,7 @@ const navItems: NavItem[] = [
     ],
   },
   { href: "/admin/ordenes", label: "Órdenes", icon: ShoppingCart, section: "ventas" },
+  { href: "/admin/encargos", label: "Encargos", icon: PackageCheck, section: "ventas" },
   { href: "/admin/visitas", label: "Visitas", icon: Eye, section: "tráfico" },
   { href: "/admin/configuracion", label: "Configuración", icon: Settings, section: "ajustes" },
 ];

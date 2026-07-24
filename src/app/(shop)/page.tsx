@@ -112,6 +112,7 @@ export default async function ShopHomePage() {
     {
       id: "1",
       image: shopSettings.heroBannerImage || "ecommerce/banners/hero-1",
+      imageMobile: shopSettings.heroBannerImageMobile || "ecommerce/banners/editorial-1",
       title: "",
       subtitle:
         "No solo seguimos las tendencias, las creamos. Tenemos las prendas más exclusivas del momento para quienes no se conforman con lo común.",

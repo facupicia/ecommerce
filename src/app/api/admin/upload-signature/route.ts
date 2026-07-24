@@ -19,7 +19,9 @@ export async function POST(req: NextRequest) {
 
     const { folder } = (await req.json()) as { folder?: string };
     const targetFolder =
-      folder && ALLOWED_FOLDERS.includes(folder) ? folder : "ecommerce/misc";
+      folder && ALLOWED_FOLDERS.some((prefix) => folder === prefix || folder.startsWith(prefix + "/"))
+        ? folder
+        : "ecommerce/misc";
 
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
     const apiKey = process.env.CLOUDINARY_API_KEY;

@@ -3,12 +3,11 @@ const CLOUD_NAME =
   process.env.CLOUDINARY_CLOUD_NAME;
 
 export function isCloudinarySource(src?: string): boolean {
-  if (!src) return false;
+  if (!src || !src.trim()) return false;
   if (src.startsWith("http")) {
     return src.includes("res.cloudinary.com");
   }
-  // Asumimos public_id si no es URL
-  return src.includes("/");
+  return true;
 }
 
 export interface CloudinaryUrlOptions {

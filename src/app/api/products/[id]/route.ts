@@ -43,13 +43,16 @@ export async function PATCH(req: Request) {
     if (body.cssbuy_oid !== undefined) update.cssbuy_oid = body.cssbuy_oid ? String(body.cssbuy_oid).slice(0, 50) : null;
     if (Array.isArray(body.fotos)) {
       update.fotos = body.fotos.filter((u: unknown) => {
-        if (typeof u !== "string") return false;
-        try {
-          const parsed = new URL(u);
-          return parsed.protocol === "https:" || parsed.protocol === "http:";
-        } catch {
-          return false;
+        if (typeof u !== "string" || !u.trim()) return false;
+        if (u.startsWith("http")) {
+          try {
+            const parsed = new URL(u);
+            return parsed.protocol === "https:" || parsed.protocol === "http:";
+          } catch {
+            return false;
+          }
         }
+        return true;
       });
     }
     if (Array.isArray(body.talles)) {
