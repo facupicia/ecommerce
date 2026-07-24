@@ -70,7 +70,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g, marca, indumentaria } = body;
+    const { id, slug, nombre, descripcion, precio_ars, precio_original_ars, fotos, categoria, stock, publicado, cssbuy_oid, peso_g, marca, indumentaria, tabla_talles } = body;
 
     if (!slug || !nombre) return Response.json({ error: "slug y nombre requeridos" }, { status: 400 });
 
@@ -94,6 +94,20 @@ export async function POST(req: Request) {
         })
       : [];
 
+    // Sanitizar tabla_talles: acepta URL o public ID de Cloudinary
+    let safeTabla: string | null = null;
+    if (typeof tabla_talles === "string" && tabla_talles.trim()) {
+      const t = tabla_talles.trim();
+      if (t.startsWith("http")) {
+        try {
+          const parsed = new URL(t);
+          if (parsed.protocol === "https:" || parsed.protocol === "http:") safeTabla = t;
+        } catch { /* ignore */ }
+      } else {
+        safeTabla = t; // Cloudinary public ID
+      }
+    }
+
     const { data, error } = await supabaseAdmin.from("shop_products").insert({
       id: id || undefined,
       slug: safeSlug,
@@ -109,6 +123,7 @@ export async function POST(req: Request) {
       peso_g: Math.max(0, parseInt(String(peso_g), 10) || 0),
       marca: marca ? String(marca).slice(0, 50) : null,
       indumentaria: indumentaria ? String(indumentaria).slice(0, 50) : null,
+      tabla_talles: safeTabla,
     }).select();
 
     if (error) {

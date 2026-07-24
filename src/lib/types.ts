@@ -83,6 +83,7 @@ export interface ShopProduct {
   publicado: boolean;
   cssbuy_oid: string | null;
   peso_g: number;
+  tabla_talles: string | null;
   created_at: string;
   updated_at: string;
 }

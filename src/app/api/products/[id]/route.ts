@@ -28,7 +28,19 @@ export async function PATCH(req: Request) {
     // Sanitización por campo
     if (typeof body.slug === "string") {
       const safe = body.slug.toLowerCase().replace(/[^a-z0-9-]/g, "-").slice(0, 100);
-      if (safe) update.slug = safe;
+      if (safe) {
+        // Check if another product already has this slug (exclude self)
+        const { data: existing } = await supabaseAdmin
+          .from("shop_products")
+          .select("id")
+          .eq("slug", safe)
+          .neq("id", id)
+          .maybeSingle();
+        if (existing) {
+          return Response.json({ error: "El slug ya está en uso por otro producto" }, { status: 409 });
+        }
+        update.slug = safe;
+      }
     }
     if (typeof body.nombre === "string") update.nombre = body.nombre.slice(0, 200);
     if (typeof body.descripcion === "string") update.descripcion = body.descripcion.slice(0, 5000);
@@ -57,6 +69,21 @@ export async function PATCH(req: Request) {
     }
     if (Array.isArray(body.talles)) {
       update.talles = body.talles.filter((t: unknown) => typeof t === "string").map((t: string) => t.slice(0, 20));
+    }
+    if (body.tabla_talles !== undefined) {
+      if (body.tabla_talles === null || body.tabla_talles === "") {
+        update.tabla_talles = null;
+      } else if (typeof body.tabla_talles === "string") {
+        const t = body.tabla_talles.trim();
+        if (t.startsWith("http")) {
+          try {
+            const parsed = new URL(t);
+            if (parsed.protocol === "https:" || parsed.protocol === "http:") update.tabla_talles = t;
+          } catch { /* ignore */ }
+        } else if (t) {
+          update.tabla_talles = t; // Cloudinary public ID
+        }
+      }
     }
     update.updated_at = new Date().toISOString();
 

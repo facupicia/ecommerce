@@ -166,6 +166,29 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
       ),
     },
+    ...(p.tabla_talles
+      ? [
+          {
+            id: "talles",
+            label: "Tabla de talles",
+            content: (
+              <div className="flex justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={
+                    p.tabla_talles.startsWith("http")
+                      ? p.tabla_talles
+                      : getCloudinaryUrl(p.tabla_talles, { width: 800 })
+                  }
+                  alt={`Tabla de talles - ${p.nombre}`}
+                  className="max-w-full rounded-lg"
+                  loading="lazy"
+                />
+              </div>
+            ),
+          },
+        ]
+      : []),
     {
       id: "envio",
       label: "Envío y devoluciones",

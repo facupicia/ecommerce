@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   Copy as CopyIcon,
   ExternalLink,
+  Ruler,
 } from "lucide-react";
 import Link from "next/link";
 import { ShopProduct, CssbuyOrder, Cotizacion } from "@/lib/types";
@@ -58,6 +59,7 @@ export default function AdminProductEditPage() {
     publicado: false,
     cssbuy_oid: null,
     peso_g: 0,
+    tabla_talles: null,
   });
   const [saving, setSaving] = useState(false);
   const [newPhotoUrl, setNewPhotoUrl] = useState("");
@@ -152,12 +154,14 @@ export default function AdminProductEditPage() {
   }
 
   function generateSlug() {
+    const rand = Math.random().toString(36).slice(2, 6);
     const slug =
       (product.nombre || "producto")
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-|-$/g, "") +
       "-" +
+      rand +
       Date.now().toString(36);
     updateField("slug", slug);
   }
@@ -174,12 +178,14 @@ export default function AdminProductEditPage() {
 
     let slug = product.slug?.trim();
     if (!slug) {
+      const rand = Math.random().toString(36).slice(2, 6);
       slug =
         (product.nombre || "producto")
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, "-")
           .replace(/^-|-$/g, "") +
         "-" +
+        rand +
         Date.now().toString(36);
     }
 
@@ -566,6 +572,55 @@ export default function AdminProductEditPage() {
                 >
                   Agregar
                 </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        {/* Tabla de talles */}
+        <Card padding="lg">
+          <CardHeader>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Ruler className="h-4 w-4" />
+                Tabla de talles
+              </CardTitle>
+              <CardDescription>Subí una imagen o pegá una URL con la guía de talles.</CardDescription>
+            </div>
+          </CardHeader>
+          <div className="space-y-4">
+            <ImageUploader
+              images={product.tabla_talles ? [product.tabla_talles] : []}
+              onChange={(imgs) => updateField("tabla_talles", imgs[0] || null)}
+              folder={`ecommerce/productos/${product.id}/talles`}
+              maxFiles={1}
+            />
+            <div className="pt-3 border-t border-[var(--color-border)]">
+              <p className="text-xs text-[var(--color-fg-muted)] mb-2">O pegá una URL externa</p>
+              <div className="flex gap-2">
+                <Input
+                  type="url"
+                  value={product.tabla_talles?.startsWith("http") ? product.tabla_talles : ""}
+                  onChange={(e) => {
+                    const url = e.target.value.trim();
+                    if (!url) {
+                      updateField("tabla_talles", null);
+                    } else {
+                      updateField("tabla_talles", url);
+                    }
+                  }}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                {product.tabla_talles && (
+                  <Button
+                    variant="danger"
+                    onClick={() => updateField("tabla_talles", null)}
+                    icon={<Trash2 className="h-3.5 w-3.5" />}
+                  >
+                    Quitar
+                  </Button>
+                )}
               </div>
             </div>
           </div>
